@@ -23,10 +23,13 @@ const SK=[
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S={hero:'S',voice:true,bricks:[],skills:{},log:[]};
 SK.forEach(k=>{if(!S.skills[k.id])S.skills[k.id]={lvl:1,streak:0,miss:0,q:0,first:0,missions:0,last:0}});
+SK.forEach(k=>{const s=S.skills[k.id];s.best=Math.max(s.best||1,s.lvl)});if(S.cap===undefined)S.cap=3;S.brave=S.brave||0;
+let sess={n:0,t0:Date.now()};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 // ---------- speech & sound ----------
-function spoken(t){return t.replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>a+' '+({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b))+(a=='1'?'':'s'))}
-function say(t,force){if(!(S.voice||force)||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(t));u.rate=.92;u.pitch=1.05;speechSynthesis.speak(u)}catch(e){}}
+function spoken(t){t=String(t);const W={'>':'greater than','<':'less than','=':'equals'};if(W[t.trim()])return W[t.trim()];return t.replace(/&nbsp;/g,' ').replace(/ ___ /g,' blank ').replace(/ &gt; | > /g,' greater than ').replace(/ &lt; | < /g,' less than ').replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>a+' '+({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b))+(a=='1'?'':'s'))}
+function say(t,force,onend){if(!(S.voice||force)||!window.speechSynthesis){onend&&onend();return}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(t));u.rate=.92;u.pitch=1.05;if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u)}catch(e){onend&&onend()}}
+const sents=t=>String(t).match(/[^.!?]+[.!?]*(\s|$)/g).map(s=>s.trim()).filter(Boolean);
 let AC;function chime(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;[523,659,784,1047].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.08);g.gain.linearRampToValueAtTime(.12,t+i*.08+.02);g.gain.exponentialRampToValueAtTime(.001,t+i*.08+.5);o.connect(g).connect(AC.destination);o.start(t+i*.08);o.stop(t+i*.08+.55)})}catch(e){}}
 // ---------- sky ----------
 function sky(){const c=$('sky'),w=innerWidth,h=innerHeight,d=Math.min(2,devicePixelRatio||1);c.width=w*d;c.height=h*d;c.style.width=w+'px';c.style.height=h+'px';const x=c.getContext('2d');x.scale(d,d);
@@ -108,7 +111,7 @@ const G={
    const to=l==1?10:l==2?pick([10,100]):pick([100,1000]);const n=l==1?R(11,99):l==2?R(101,999):R(1001,9999);const lo=Math.floor(n/to)*to,hi=lo+to,ans=n-lo>=to/2?hi:lo;
    return{text:`Round ${fmt(n)} to the nearest ${fmt(to)}.`,choices:opts(fmt(ans),[fmt(ans===lo?hi:lo),fmt(lo-to),fmt(hi+to)]),ans:fmt(ans),
     pic:null,help:numLine(lo,hi,to/10,[{v:n,t:fmt(n)}]),hint:`${fmt(n)} sits between ${fmt(lo)} and ${fmt(hi)}. Which one is it closer to? (Halfway, ${fmt(lo+to/2)}, rounds up.)`,how:`Find the two ${fmt(to)}s around the number, ${fmt(lo)} and ${fmt(hi)}. Put the number on the line and see which end is closer. If it is exactly in the middle, we round up.`}}
-  const n=l==1?R(102,999):l==2?R(1002,9999):R(10002,l>2&&Math.random()<.5?999999:99999);const s=String(n);let i=R(0,s.length-1);while(s[i]==='0')i=R(0,s.length-1);const p=s.length-1-i,d=+s[i],val=d*10**p;
+  const n=l==1?R(102,999):l==2?R(1002,9999):R(10002,Math.random()<.25?999999:99999);const s=String(n);let i=R(0,s.length-1);while(s[i]==='0')i=R(0,s.length-1);const p=s.length-1-i,d=+s[i],val=d*10**p;
   const names=['ones','tens','hundreds','thousands','ten thousands','hundred thousands'];
   return{text:`What is the value of the <u>${d}</u> in ${fmt(n)}?`,choices:opts(fmt(val),[fmt(d),fmt(d*10**(p+1)),fmt(p>0?d*10**(p-1):d*100)]),ans:fmt(val),
    pic:n<1000?blocks(n):null,help:pvChart(n,p),hint:`The ${d} is in the ${names[p]} place. ${d} ${names[p]} is worth ${fmt(val)}.`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
@@ -131,14 +134,14 @@ const G={
    pic:null,help:a&&b?array(a,b):svg(400,80,T(200,50,a===0?`0 rows of ${b} = nothing at all!`:`${a} rows of 0 = nothing at all!`,22)),hint:a&&b?`${a} rows with ${b} in each row. Count by ${b}s: ${[...Array(Math.min(a,10))].map((_,i)=>(i+1)*b).join(', ')}.`:'Anything times 0 is 0!',
    how:`Multiplying means equal groups. ${a} × ${b} means ${a} groups of ${b}. Make ${a} rows of ${b} studs and skip-count by ${b}.`}},
  div(l){const pool=l==1?[1,2,5,10]:l==2?[2,3,4,5]:[3,4,6,7,8,9];const d=pick(pool),q=R(1,10),n=d*q;const story=Math.random()<.35;
-  return{text:story?`Sadie shares ${n} LEGO bricks equally with ${d} friends' bins. How many in each bin?`:`${n} ÷ ${d} = ?`,choices:opts(q,[q+1,q-1,d,q+2]),ans:String(q),
+  return{text:story?`Sadie puts ${n} LEGO bricks into ${d} bins equally. How many bricks go in each bin?`:`${n} ÷ ${d} = ?`,choices:opts(q,[q+1,q-1,d,q+2]),ans:String(q),
    pic:null,help:groups(d,q,n),hint:`Share ${n} bricks into ${d} equal groups. Or think: ${d} × what = ${n}?`,how:`Division is fair sharing. Put one brick in each of the ${d} groups again and again until all ${n} are used. Count one group. You can also use a times fact: ${d} × ${q} = ${n}.`}},
  frac(l){if(l<3){const d=l==1?pick([2,3,4]):pick([2,3,4,5,6,8]),n=R(1,d-1+(l==2?1:0));const circle=Math.random()<.5;
    const f=n+'/'+d;return{text:circle?`What fraction of the pizza is cheese (yellow)?`:`What fraction of the bar is shaded red?`,choices:opts(f,[(d-n||1)+'/'+d,d+'/'+n,n+'/'+(d+1),(n+1)+'/'+d].filter(x=>!x.startsWith('0'))),ans:f,
     pic:circle?fracCircle(n,d):fracModel(n,d),help:circle?fracCircle(n,d):fracModel(n,d),hint:`Count ALL the equal parts: ${d}. That's the bottom number. Count the colored parts: ${n}. That's the top number.`,how:`The bottom number (denominator) is how many equal parts in all. The top number (numerator) is how many parts we're talking about. Here: ${n} out of ${d}.`}}
   const same=Math.random()<.5;let a,b,c,d;if(same){d=c=pick([3,4,6,8]);a=R(1,d);b=R(1,d)}else{a=b=R(1,3);c=pick([2,3,4,6,8]);d=pick([2,3,4,6,8]);if(a>=c)c=a+1;if(b>=d)d=b+2}
   const ans=a/c>b/d?'>':a/c<b/d?'<':'=';
-  return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${a}/${c} ___ ${b}/${d}</span>`,choices:['>','<','='],ans,pic:null,help:svg(620,150,fracBar(a,c,10,a+'/'+c)+fracBar(b,d,84,b+'/'+d,'#2f6fdf')),
+  return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${a}/${c} ___ ${b}/${d}</span>`,speakText:`Which sign makes this true? ${a}/${c}, blank, ${b}/${d}. Greater than, less than, or equal?`,choices:['>','<','='],ans,pic:null,help:svg(620,150,fracBar(a,c,10,a+'/'+c)+fracBar(b,d,84,b+'/'+d,'#2f6fdf')),
    hint:same?`Same-size pieces! The one with more pieces is bigger.`:`Same number of pieces, but bigger pieces when the bottom number is smaller. Look at the bars!`,how:`Draw both fractions as bars the same length. The bar with more color is the bigger fraction.`}},
  money(l){if(l<3){const set=l==1?[1,5,10,25]:[1,5,10,25,100];const list=[];const n=l==1?R(2,5):R(3,6);for(let i=0;i<n;i++)list.push(pick(set));list.sort((a,b)=>b-a);const tot=list.reduce((a,b)=>a+b,0);
    const show=v=>tot<100&&l==1?v+'¢':money(v);
@@ -180,48 +183,53 @@ const BRICK=['#e63946','#2f6fdf','#ffb703','#2fbf71','#ff5fa2','#9b5de5','#f4f4f
 const SUITS=[['Classic Suit','#c1121f','#1d3f8f'],['Ghost-Spider Suit','#f4f4f8','#ff5fa2'],['Stealth Suit','#222','#3a3'],['Iron Spider Suit','#b3121b','#d4a017'],['Upgraded Suit','#e63946','#111'],['Homemade Suit','#c33','#3456a8'],['Winter Suit','#e9f2ff','#3b6fd8'],['Golden Hero Suit','#d4a017','#7a5200'],['Night Patrol Suit','#14213d','#00e5ff'],['LEGO Master Suit','#ffb703','#e63946']];
 function suitSvg(s,sz){return `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}"><defs><radialGradient id="s${s[0].length}${s[1].slice(1)}" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".3" stop-color="${s[1]}"/><stop offset="1" stop-color="${s[2]}"/></radialGradient></defs><ellipse cx="50" cy="52" rx="38" ry="45" fill="url(#s${s[0].length}${s[1].slice(1)})"/><use href="#web"/><path d="M22 44Q30 30 46 46Q40 62 24 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/><path d="M78 44Q70 30 54 46Q60 62 76 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/></svg>`}
 const PRAISE=['Amazing work, hero!','You got it!','Web-tastic!','Super smart!','Way to go!','You\'re a math hero!','Nailed it!','Awesome thinking!'];
-const AGAIN=['Good try! Let\'s look together.','Almost! Here\'s a clue.','That\'s okay, heroes practice! Look at this.','Nice effort! Let\'s use the picture.'];
+const AGAIN=['Good try! Let\'s look at the picture.','That\'s okay, heroes practice!','Nice effort! Let\'s look together.','Brave try! The picture can help.'];
 const STORY=['Help save the city!','A crane is stuck downtown!','The subway lights went out!','Bricks fell off the bridge!','The museum needs a hero!','A cat is stuck on a roof!'];
 // ---------- screens ----------
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
 const heroName=()=>S.hero==='G'?'Ghost-Spider':'Spidey';
 function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇'}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
- SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.lvl)}${'☆'.repeat(3-st.lvl)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
+ SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
-function start(id){M={id,i:0,q:null,tries:0,firsts:0};show('play');const k=SK.find(s=>s.id===id);say(`${pick(STORY)} ${k.name}. ${heroName()}, let's go!`);setTimeout(next,0)}
-function next(){const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
+function start(id){if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0};show('play');const k=SK.find(s=>s.id===id);next(`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `)}
+function readQ(pre){const b=$('say');b.classList.add('pulse');say((pre||'')+(M.q.speakText||M.q.text),false,()=>b.classList.remove('pulse'));if(!S.voice)b.classList.remove('pulse')}
+let hintT=0;function next(pre){clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
  if(M.q.choices.indexOf(M.q.ans)<0){M.q.choices[0]=M.q.ans;M.q.choices=shuf(M.q.choices)}
- $('qtext').innerHTML=M.q.text;$('hint').className='';$('hint').textContent='';
+ $('qtext').innerHTML=M.q.text;$('hint').className='';$('hintTxt').textContent='';$('nextStep').style.display='none';
  $('model').innerHTML=M.q.pic||`<div style="color:#14213d;font-size:22px;padding:20px;text-align:center">Need help? Tap <b>💡 Show me how</b></div>`;
  const A=$('answers');A.innerHTML='';A.style.gridTemplateColumns=M.q.choices.length===3?'1fr 1fr 1fr':'1fr 1fr';
  M.q.choices.forEach(c=>{const b=document.createElement('button');b.className='ans';b.textContent=c;b.onclick=()=>answer(b,c);A.appendChild(b)});
- $('prog').innerHTML=[...Array(QN)].map((_,i)=>`<i class="${i<M.i?'d':''}"></i>`).join('');
- if(M.i>0||1)setTimeout(()=>say(M.q.speakText||M.q.text),M.i?50:2600)}
+ $('prog').innerHTML=[...Array(QN)].map((_,i)=>`<i class="${i<M.i?'d':''}" style="${i<M.i?'background:'+BRICK[i%BRICK.length]:''}"></i>`).join('');
+ readQ(pre)}
 function cheer(t){const c=$('cheer');c.textContent=t;c.classList.add('on');setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false;
 function answer(b,c){if(busy||b.classList.contains('tried'))return;const st=S.skills[M.id];
- if(c===M.q.ans){busy=true;b.classList.add('good');chime();const p=pick(PRAISE);cheer(p);say(p);
-  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;setTimeout(()=>cheer('LEVEL UP! ⭐'),900)}}
+ clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');chime();const p=pick(PRAISE);cheer(p);say(spoken(c)+'! '+p);
+  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>cheer('LEVEL UP! ⭐'),900)}}}
   st.q++;st.last=Date.now();save();M.i++;setTimeout(()=>{busy=false;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
-  helpOn(pick(AGAIN)+' '+M.q.hint);
+  const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;say(spoken(c)+'? '+f);M.brave=1;
+  hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);say(M.q.hint)},3000);
   if(M.tries>=2){[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}})}}}
-function helpOn(t){$('hint').textContent=t;$('hint').className='on';if(M.q.help)$('model').innerHTML=M.q.help;say(t)}
-function finish(){const st=S.skills[M.id];st.missions++;const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN});if(S.log.length>200)S.log.shift();save();
+function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$('nextStep').style.display=steps?'inline-block':'none'}
+let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI],true);howI++}
+function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');say(`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
+let restUnlock=false;
+function finish(){const st=S.skills[M.id];st.missions++;sess.n++;if(M.brave)S.brave++;st.best=Math.max(st.best||1,st.lvl);const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN});if(S.log.length>200)S.log.shift();save();
  const unlocked=S.bricks.length%3===0?SUITS[(S.bricks.length/3-1)%SUITS.length]:null;
  $('rwText').textContent=`You helped the city, ${heroName()}! You earned a new LEGO brick.`;
- $('rwItem').innerHTML=`<span class="brick" style="background:${col};transform:scale(1.6)"></span>`+(unlocked?`<div style="font-size:24px;margin-top:14px">NEW SUIT UNLOCKED!</div>${suitSvg(unlocked,140)}<div style="font-size:22px">${unlocked[0]}</div>`:`<div style="font-size:20px;margin-top:10px">${3-S.bricks.length%3} more brick${3-S.bricks.length%3>1?'s':''} until a new suit!</div>`);
+ $('rwItem').innerHTML=`<span class="brick" style="background:${col};transform:scale(1.6)"></span>`+(M.brave?`<div style="font-size:22px;margin:6px">🏅 Brave Try sticker! You used a clue like a real hero. (${S.brave} so far)</div>`:'')+(unlocked?`<div style="font-size:24px;margin-top:14px">NEW SUIT UNLOCKED!</div>${suitSvg(unlocked,140)}<div style="font-size:22px">${unlocked[0]}</div>`:`<div style="font-size:20px;margin-top:10px">${3-S.bricks.length%3} more brick${3-S.bricks.length%3>1?'s':''} until a new suit!</div>`);
  show('reward');chime();say(`Mission complete! You helped the city! ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`,false)}
 function buildColl(){$('bricks').innerHTML=S.bricks.length?S.bricks.map(c=>`<span class="brick" style="background:${c}"></span>`).join(''):'<div style="font-size:20px">No bricks yet. Finish a mission to earn one!</div>';
  const n=Math.floor(S.bricks.length/3);$('suits').innerHTML=SUITS.map((s,i)=>`<div class="suit ${i<n?'':'lock'}">${suitSvg(s,110)}<div>${i<n?s[0]:'🔒 '+(i+1)*3+' bricks'}</div></div>`).join('')}
 // gate
 let gateA=0;function gate(){const a=R(12,19),b=R(3,9);gateA=a*b;$('gateQ').textContent=`To continue, type the answer: ${a} × ${b}`;$('gateIn').value='';$('gateMsg').textContent='';show('gate')}
-function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Math.round(s.first/s.q*100):null;return`<tr><td>${k.ic} ${k.name}<br><small style="opacity:.7">VA SOL ${k.sol}</small></td><td>Level ${s.lvl}/3</td><td>${s.q} questions<br>${s.missions} missions</td><td>${pct===null?'not yet':pct+'% first try'}<div class="bar"><i style="width:${pct||0}%"></i></div></td><td>${s.last?new Date(s.last).toLocaleDateString():'—'}</td></tr>`}).join('');
+function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Math.round(s.first/s.q*100):null;return`<tr><td>${k.ic} ${k.name}<br><small style="opacity:.7">VA SOL ${k.sol}</small></td><td>Now ${s.lvl}/3<br><small style="opacity:.7">best ${s.best||1}</small></td><td>${s.q} questions<br>${s.missions} missions</td><td>${pct===null?'not yet':pct+'% first try'}<div class="bar"><i style="width:${pct||0}%"></i></div></td><td>${s.last?new Date(s.last).toLocaleDateString():'—'}</td></tr>`}).join('');
  $('parTab').innerHTML='<tr><th>Skill</th><th>Level</th><th>Practice</th><th>Accuracy</th><th>Last</th></tr>'+rows;
  const tq=SK.reduce((a,k)=>a+S.skills[k.id].q,0),tf=SK.reduce((a,k)=>a+S.skills[k.id].first,0);const ms=S.log.length;
  const weak=SK.filter(k=>S.skills[k.id].q>=4&&S.skills[k.id].first/S.skills[k.id].q<.6).map(k=>k.name);
- $('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
+ $('cap').value=String(S.cap);$('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}. Brave Try stickers (used a clue): ${S.brave}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
 on('pickS',()=>{S.hero='S';save();buildMap();show('map');say("Hi Samuel! Pick a mission.")});
@@ -229,9 +237,11 @@ on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a m
 const tv=()=>{S.voice=!S.voice;save();voiceBtns();if(S.voice)say('Okay! I will read to you.',true);else speechSynthesis&&speechSynthesis.cancel()};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
-on('again',()=>{buildMap();show('map')});on('quit',()=>{buildMap();show('map')});
-on('say',()=>say(M.q.speakText||M.q.text,true));on('how',()=>{$('hint').textContent='💡 '+M.q.how;$('hint').className='on';if(M.q.help)$('model').innerHTML=M.q.help;say(M.q.how,true)});
-on('grownT',gate);on('gateBack',()=>show('title'));on('gateGo',()=>{if(+$('gateIn').value===gateA)parent();else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
+on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>$('ov').classList.add('on'));on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');clearTimeout(hintT);buildMap();show('map')});
+on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
+on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
+on('say',()=>say(M.q.speakText||M.q.text,true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
+on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();
 window.__g={S,G,start,answer,finish,show,parent,gate,buildColl,next,get M(){return M}};
