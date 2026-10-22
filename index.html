@@ -19,7 +19,7 @@ h2{font-size:clamp(24px,3.4vw,34px);margin:6px 0}
 .btn.small{font-size:20px;padding:12px 18px;min-height:88px;min-width:88px}
 .pulse{animation:pl 1.2s ease-in-out infinite}@keyframes pl{50%{box-shadow:0 0 0 8px #ffd23f99,0 6px 0 #0e2350}}
 #ov{position:fixed;inset:0;background:#000b;z-index:20;display:none;align-items:center;justify-content:center}#ov.on{display:flex}
-.top .row{gap:14px}#toTitle{margin-left:30px}
+.top{flex-wrap:wrap;row-gap:8px}.top .row{gap:14px}#toTitle{margin-left:30px}
 .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .panel{background:linear-gradient(#16223dee,#0d1529ee);border:2px solid #ffffff22;border-radius:24px;padding:18px;box-shadow:0 10px 30px #0008}
@@ -58,6 +58,13 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
 .portrait-hero{width:120px;height:120px;display:block;margin:0 auto 8px}
 #gate input{font-size:34px;width:160px;padding:10px;border-radius:14px;border:0;text-align:center}
 .scroll{overflow-y:auto;flex:1}
+#calm{position:fixed;inset:0;background:#06102aee;z-index:30;display:none;align-items:center;justify-content:center}#calm.on{display:flex}
+#breathBall{width:260px;height:260px;margin:10px auto;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 40% 35%,#7fd3ff,#2f6fdf 60%,#14213d);box-shadow:0 0 60px #7fd3ff88;animation:breath 8s ease-in-out infinite}
+@keyframes breath{0%,100%{transform:scale(.55)}50%{transform:scale(1)}}
+#bossBar{display:none;align-items:center;gap:14px;background:#000a;border-radius:18px;padding:6px 14px}#bossBar.on{display:flex}
+#bossFig{transition:transform .35s}#bossFig.hit{animation:knock .6s}@keyframes knock{30%{transform:translateX(40px) rotate(12deg) scale(.9)}60%{transform:translateX(-6px)}}
+.hp{flex:1;height:22px;border-radius:11px;background:#ffffff22;overflow:hidden}.hp i{display:block;height:100%;background:linear-gradient(90deg,#9b5de5,#e63946);transition:width .5s}
+#miniHero svg{display:block}
 </style></head><body>
 <canvas id="sky"></canvas>
 <div id="app">
@@ -75,15 +82,15 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
  </section>
  <!-- MAP -->
  <section class="screen" id="map">
-  <div class="top"><h2 id="hello">Pick a mission, hero!</h2><div class="row"><button class="btn small pink" id="toColl">🧱 My Gear</button><button class="btn small blue" id="voiceM">🔊</button><button class="btn small ghost" id="toTitle">🏠</button></div></div>
+  <div class="top"><h2 id="hello">Pick a mission, hero!</h2><div class="row"><span id="miniHero"></span><button class="btn small ghost" id="calmM" aria-label="Breathe">🫧</button><button class="btn small pink" id="toColl">🧱 My Gear</button><button class="btn small blue" id="voiceM">🔊</button><button class="btn small ghost" id="toTitle">🏠</button></div></div>
   <div style="font-size:19px;opacity:.9;margin:2px 0 8px">Each mission is about 5 minutes. Take your time, no clock here!</div>
   <div class="grid" id="grid"></div>
  </section>
  <!-- PLAY -->
  <section class="screen" id="play">
-  <div class="top" style="margin-bottom:8px"><button class="btn small ghost" id="quit">⬅ Map</button><div class="prog" id="prog"></div><div class="row"><button class="btn small blue" id="say">🔊 Read it</button><button class="btn small pink" id="how">💡 Show me how</button></div></div>
+  <div class="top" style="margin-bottom:8px"><button class="btn small ghost" id="quit">⬅ Map</button><div class="prog" id="prog"></div><div class="row"><button class="btn small blue" id="say">🔊 Read it</button><button class="btn small pink" id="how">💡 Show me how</button><button class="btn small ghost" id="calmP" aria-label="Breathe">🫧</button></div></div>
   <div class="main">
-   <div class="left"><div class="q" id="qtext"></div><div class="model" id="model"></div><div id="hint"><span id="hintTxt"></span><br><button class="btn small blue" id="nextStep">▶ Next step</button></div></div>
+   <div class="left"><div id="bossBar"></div><div class="q" id="qtext"></div><div class="model" id="model"></div><div id="hint"><span id="hintTxt"></span><br><button class="btn small blue" id="nextStep">▶ Next step</button></div></div>
    <div class="right" id="answers"></div>
   </div>
  </section>
@@ -102,7 +109,7 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
  <section class="screen" id="coll">
   <div class="top"><h2>My Hero Gear</h2><button class="btn small ghost" id="collBack">⬅ Map</button></div>
   <div style="font-size:19px;margin:6px 0">Every mission earns a brick. Every 3 bricks unlocks a new suit!</div>
-  <div class="panel" style="margin-bottom:12px"><div id="bricks"></div></div>
+  <div class="panel row" style="margin-bottom:12px;align-items:flex-start"><div style="text-align:center"><div style="font-size:20px;font-weight:700">My LEGO Hero</div><div id="bigHero"></div><div id="heroTxt" style="font-size:17px"></div></div><div style="flex:1"><div id="bricks"></div></div></div>
   <div class="coll" id="suits"></div>
  </section>
  <!-- GATE -->
@@ -116,7 +123,7 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
  <!-- PARENT -->
  <section class="screen" id="parent">
   <div class="top"><h2>Progress for grown-ups</h2><button class="btn small ghost" id="parBack">Done</button></div>
-  <div class="panel scroll" style="margin-top:10px"><div id="parSum" style="font-size:19px;margin-bottom:10px"></div><table id="parTab"></table>
+  <div class="panel scroll" style="margin-top:10px"><div id="week"></div><div id="parSum" style="font-size:19px;margin-bottom:10px"></div><table id="parTab"></table>
   <div style="margin-top:16px;font-size:16px;opacity:.85">"First try" is the share of questions answered right on the first tap. Saved only on this iPad (localStorage). Levels go up after 3 first-try answers in a row and quietly ease down after 2 misses (stars on the map never go down). Skills follow Virginia's 2023 Grade 3 Mathematics SOL.</div>
   <div class="row" style="margin-top:14px;font-size:19px">Missions before a Hero Rest: <select id="cap" style="font-size:22px;padding:10px;border-radius:12px"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="0">No limit</option></select></div>
   <div class="row" style="margin-top:14px"><button class="btn small ghost" id="reset">Reset progress</button></div></div>
@@ -132,6 +139,7 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
  <g id="maskRed"><ellipse cx="50" cy="52" rx="38" ry="45" fill="url(#gR)"/><use href="#web"/><path d="M22 44Q30 30 46 46Q40 62 24 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/><path d="M78 44Q70 30 54 46Q60 62 76 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/></g>
  <g id="maskWhite"><path d="M12 40Q10 6 50 6Q90 6 88 40L90 70Q70 98 50 97Q30 98 10 70Z" fill="#ff5fa2" opacity=".9"/><ellipse cx="50" cy="54" rx="34" ry="41" fill="url(#gW)"/><use href="#web" style="stroke:#c2185b"/><path d="M24 46Q32 32 46 48Q40 62 26 58Z" fill="#9fe6ff" stroke="#111" stroke-width="3"/><path d="M76 46Q68 32 54 48Q60 62 74 58Z" fill="#9fe6ff" stroke="#111" stroke-width="3"/></g>
 </defs></svg>
+<div id="calm"><div class="panel" style="text-align:center;width:min(640px,92vw)"><h2>Hero breath</h2><div id="breathBall"><svg viewBox="0 0 100 100" width="120" height="120"><use href="#maskRed"/></svg></div><div id="breathTxt" style="font-size:32px;font-weight:800;margin:10px 0">Breathe in…</div><div id="breathLeft" style="font-size:18px;opacity:.8"></div><button class="btn blue" id="calmDone" style="margin-top:14px">I feel ready ✔</button></div></div>
 <script src="audio.js"></script>
-<script src="game.js"></script>
+<script src="game.js"></script><script src="extras.js"></script>
 </body></html>

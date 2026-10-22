@@ -192,35 +192,36 @@ function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
  SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
-function start(id){if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0};show('play');const k=SK.find(s=>s.id===id);next(`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `)}
+function start(id){if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
 function readQ(pre){const b=$('say');b.classList.add('pulse');say((pre||'')+(M.q.speakText||M.q.text),false,()=>b.classList.remove('pulse'));if(!S.voice)b.classList.remove('pulse')}
-let hintT=0;function next(pre){clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
+let hintT=0;function next(pre,noRead){clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
  if(M.q.choices.indexOf(M.q.ans)<0){M.q.choices[0]=M.q.ans;M.q.choices=shuf(M.q.choices)}
  $('qtext').innerHTML=M.q.text;$('hint').className='';$('hintTxt').textContent='';$('nextStep').style.display='none';
  $('model').innerHTML=M.q.pic||`<div style="color:#14213d;font-size:22px;padding:20px;text-align:center">Need help? Tap <b>💡 Show me how</b></div>`;
  const A=$('answers');A.innerHTML='';A.style.gridTemplateColumns=M.q.choices.length===3?'1fr 1fr 1fr':'1fr 1fr';
  M.q.choices.forEach(c=>{const b=document.createElement('button');b.className='ans';b.textContent=c;b.onclick=()=>answer(b,c);A.appendChild(b)});
  $('prog').innerHTML=[...Array(QN)].map((_,i)=>`<i class="${i<M.i?'d':''}" style="${i<M.i?'background:'+BRICK[i%BRICK.length]:''}"></i>`).join('');
- readQ(pre)}
+ if(!noRead)readQ(pre)}
 function cheer(t){const c=$('cheer');c.textContent=t;c.classList.add('on');setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false;
 function answer(b,c){if(busy||b.classList.contains('tried'))return;const st=S.skills[M.id];
- clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?HMA.fx('correct'):chime();const p=pick(PRAISE);cheer(p);say(spoken(c)+'! '+p);
+ clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?HMA.fx('correct'):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
   if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>cheer('LEVEL UP! ⭐'),900)}}}
   st.q++;st.last=Date.now();save();M.i++;setTimeout(()=>{busy=false;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
-  const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;say(spoken(c)+'? '+f);M.brave=1;
+  const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();
   hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);say(M.q.hint)},3000);
   if(M.tries>=2){[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}})}}}
 function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$('nextStep').style.display=steps?'inline-block':'none'}
 let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI],true);howI++}
-function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');say(`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
+function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');dad('rest',`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
 let restUnlock=false;
-function finish(){const st=S.skills[M.id];st.missions++;sess.n++;if(M.brave)S.brave++;st.best=Math.max(st.best||1,st.lvl);const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN});if(S.log.length>200)S.log.shift();save();
+function finish(){const st=S.skills[M.id];st.missions++;sess.n++;if(M.brave)S.brave++;st.best=Math.max(st.best||1,st.lvl);const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN,l:st.best,b:M.brave?1:0});if(S.log.length>200)S.log.shift();save();
  const unlocked=S.bricks.length%3===0?SUITS[(S.bricks.length/3-1)%SUITS.length]:null;
  $('rwText').textContent=`You helped the city, ${heroName()}! You earned a new LEGO brick.`;
  $('rwItem').innerHTML=`<span class="brick" style="background:${col};transform:scale(1.6)"></span>`+(M.brave?`<div style="font-size:22px;margin:6px">🏅 Brave Try sticker! You used a clue like a real hero. (${S.brave} so far)</div>`:'')+(unlocked?`<div style="font-size:24px;margin-top:14px">NEW SUIT UNLOCKED!</div>${suitSvg(unlocked,140)}<div style="font-size:22px">${unlocked[0]}</div>`:`<div style="font-size:20px;margin-top:10px">${3-S.bricks.length%3} more brick${3-S.bricks.length%3>1?'s':''} until a new suit!</div>`);
- show('reward');if(window.HMA){HMA.fx('fanfare');setTimeout(()=>HMA.fx(unlocked?'suit':'brick'),1300);setTimeout(()=>HMA.music('map'),3200)}else chime();say(`Mission complete! You helped the city! ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`,false)}
+if(M.boss){$('rwTitle').textContent=`${M.boss.name.toUpperCase()} DEFEATED!`;$('rwText').textContent=`You knocked ${M.boss.name} out of the city, ${heroName()}! Boss bonus brick earned.`}else $('rwTitle').textContent='MISSION COMPLETE!';
+ show('reward');if(window.HMA){HMA.fx('fanfare');setTimeout(()=>HMA.fx(unlocked?'suit':'brick'),1300);setTimeout(()=>HMA.music('map'),3200)}else chime();dad(M.boss?'bosswin':'complete',`${M.boss?'You beat '+M.boss.name+'!':'Mission complete! You helped the city!'} ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`)}
 function buildColl(){$('bricks').innerHTML=S.bricks.length?S.bricks.map(c=>`<span class="brick" style="background:${c}"></span>`).join(''):'<div style="font-size:20px">No bricks yet. Finish a mission to earn one!</div>';
  const n=Math.floor(S.bricks.length/3);$('suits').innerHTML=SUITS.map((s,i)=>`<div class="suit ${i<n?'':'lock'}">${suitSvg(s,110)}<div>${i<n?s[0]:'🔒 '+(i+1)*3+' bricks'}</div></div>`).join('')}
 // gate
@@ -244,4 +245,4 @@ on('say',()=>say(M.q.speakText||M.q.text,true));on('how',()=>{clearTimeout(hintT
 on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();
-window.__g={S,G,start,answer,finish,show,parent,gate,buildColl,next,get M(){return M}};
+window.__g={get sess(){return sess},S,G,start,answer,finish,show,parent,gate,buildColl,next,get M(){return M}};
