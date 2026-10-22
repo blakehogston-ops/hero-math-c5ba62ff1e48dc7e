@@ -92,3 +92,10 @@ renderHero();
 Object.assign(window.__g,{calm,weekly,bossFor,DAD,heroSvg,SLOTS,dad});
 // keep Audio Director's music/SFX toggles out of the play area: dock them in the map's top bar
 (function dockAudio(){const a=$('hmaAudio');if(!a){setTimeout(dockAudio,300);return}a.style.cssText='position:static;display:flex;gap:14px';a.querySelectorAll('button').forEach(b=>{b.style.minWidth='88px';b.style.minHeight='88px'});$('toColl').parentNode.prepend(a)})();
+// hero swing animation on each correct answer
+(function(){const st=document.createElement('style');st.textContent=`#swing{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8;overflow:hidden}#swing .h{position:absolute;top:22%;left:-140px;width:110px;height:110px;animation:swingX 1.3s cubic-bezier(.3,.1,.3,1) forwards}#swing .h svg{width:100%;height:100%;filter:drop-shadow(0 8px 10px #0008)}#swing .w{position:absolute;top:-10px;width:3px;background:linear-gradient(#fff0,#fff);transform-origin:top}
+@keyframes swingX{0%{left:-140px;top:10%;transform:rotate(-30deg)}50%{top:34%;transform:rotate(0)}100%{left:calc(100% + 140px);top:6%;transform:rotate(30deg)}}
+@media (prefers-reduced-motion:reduce){#swing .h{animation:fadeH 1s forwards;left:45%}@keyframes fadeH{0%,100%{opacity:0}50%{opacity:1}}}`;document.head.appendChild(st);
+ const d=document.createElement('div');d.id='swing';document.body.appendChild(d)})();
+function heroSwing(){const d=$('swing');d.innerHTML=`<div class="h"><svg viewBox="0 0 100 100"><use href="#${S.hero==='G'?'maskWhite':'maskRed'}"/></svg></div>`;clearTimeout(heroSwing.t);heroSwing.t=setTimeout(()=>d.innerHTML='',1400)}
+const _oc=onCorrect;onCorrect=function(){_oc();heroSwing()};
