@@ -210,7 +210,7 @@ function setVoice(on){S.voice=!!on;save();if(!S.voice){stopVoice();armed=null}vo
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
  SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
-function start(id){stopAll();if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
+function start(id){stopAll();M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
 function choiceList(){const c=M.q.choices.map(spoken);return ' The choices are: '+c.slice(0,-1).join(', ')+', or '+c[c.length-1]+'.'}
 function readQ(pre){const b=$('say');b.classList.add('pulse');say((pre||'')+(M.q.speakText||M.q.text)+choiceList(),false,()=>b.classList.remove('pulse'));if(!S.voice)b.classList.remove('pulse')}
 let hintT=0;function next(pre,noRead){armed=null;clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
@@ -259,7 +259,7 @@ on('pickG',()=>{if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G'
 const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
-on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
+on('again',()=>{buildMap();show('map');heroBreak()});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
 on('say',()=>{if(M&&M.q){stopVoice();say((M.q.speakText||M.q.text)+choiceList(),true)}});on('sayT',()=>{setVoice(!S.voice);if(S.voice&&M&&M.q)say((M.q.speakText||M.q.text)+choiceList())});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
@@ -267,3 +267,10 @@ on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();
 window.__g={get sess(){return sess},S,G,start,answer,finish,show,parent,gate,buildColl,next,get M(){return M}};
+
+/* No daily mission limit. Every 3 missions: a gentle, non-blocking break offer. */
+function heroBreak(){const n=sess.n;if(!n||n%3||window.__hbShown===n)return;window.__hbShown=n;let o=$('heroBreak');if(!o){o=document.createElement('div');o.id='heroBreak';o.setAttribute('role','dialog');o.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;background:#1d2340;color:#fff;border:3px solid #ffd23f;border-radius:22px;padding:18px 22px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:92vw;font-size:22px;box-shadow:0 8px 30px #0008';
+o.innerHTML='<span>Great work! Keep going or take a hero break?</span><button class="btn blue" id="hbGo" style="min-height:88px;min-width:200px;font-size:26px">Keep going! 🕷️</button><button class="btn small ghost" id="hbRest" style="min-height:64px">Hero break</button>';document.body.appendChild(o);
+$('hbGo').onclick=()=>o.remove();$('hbRest').onclick=()=>{o.remove();restScreen()}}say('Great work! Keep going, or take a hero break?',false)}
+{const _bm=buildMap;buildMap=function(){const r=_bm.apply(this,arguments);if(window.__hbReady)setTimeout(heroBreak,400);return r};window.__hbReady=0;const _f=finish;finish=function(){window.__hbReady=1;return _f.apply(this,arguments)}}
+{const s=document.createElement('style');s.textContent='#restMore{display:none!important}';document.head.appendChild(s)}
