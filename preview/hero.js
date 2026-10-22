@@ -58,4 +58,4 @@ function compact(){const row=document.querySelector('#map .top .row'),g=document
  if(tb.parentNode!==g||g.firstChild!==tb)g.insertBefore(tb,g.firstChild);
  [...row.children].forEach(c=>{if(!KEEP.includes(c.id)&&c.id!=='miniHero')tb.appendChild(c)});const mh=document.getElementById('miniHero');if(mh)mh.style.display='none'}
 const st=document.createElement('style');st.textContent='#mapMenuP{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px}#mapMenuP>*{flex:none}';document.head.appendChild(st);
-const _b=buildMap;buildMap=function(){const r=_b.apply(this,arguments);compact();setTimeout(compact,0);return r};window.buildMap=buildMap;addEventListener('resize',()=>setTimeout(compact,0))})();
+const _b=buildMap;buildMap=function(){const tb0=document.getElementById('mapMenuP'),row0=document.querySelector('#map .top .row');if(tb0&&row0){[...tb0.children].forEach(c=>row0.appendChild(c));tb0.remove()}const r=_b.apply(this,arguments);compact();setTimeout(compact,0);return r};window.buildMap=buildMap;addEventListener('resize',()=>setTimeout(compact,0))})();
