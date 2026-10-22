@@ -46,3 +46,10 @@ b.onclick=async()=>{if(b.disabled)return;b.disabled=true;const toOff=on;await pl
 ['pickS','pickG'].forEach(id=>{const e=document.getElementById(id);e&&e.addEventListener('click',()=>setTimeout(sprite,0))});
 window.HMA_MASK={play,get on(){return on},sprite};
 })();
+/* Builder: dock the mask button into the current screen's top bar (never over answers); hidden during the Venom fight on phones */
+(function(){const b=document.getElementById('maskBtn');if(!b)return;const st=document.createElement('style');
+st.textContent='#maskBtn.docked{position:static;min-width:88px;min-height:88px;font-size:18px;padding:8px 12px;border-width:3px;border-radius:22px;box-shadow:0 4px 10px #0006}@media (max-width:600px),(max-height:500px){#maskBtn.docked{font-size:16px}body.vfight #maskBtn{display:none}}';document.head.appendChild(st);
+function dock(){const fight=document.getElementById('fight');const inFight=fight&&fight.classList.contains('on');document.body.classList.toggle('vfight',!!inFight);
+ const host=document.querySelector('.screen.on .top');
+ if(host&&!inFight){if(b.parentNode!==host||b.previousElementSibling!==host.firstElementChild)host.insertBefore(b,host.firstElementChild?host.firstElementChild.nextSibling:null);if(!b.classList.contains('docked'))b.classList.add('docked')}else{if(b.parentNode!==document.body)document.body.appendChild(b);if(b.classList.contains('docked'))b.classList.remove('docked')}}
+let qd=0;const sched=()=>{if(qd)return;qd=1;requestAnimationFrame(()=>{qd=0;dock()})};const mo=new MutationObserver(sched);const watch=()=>document.querySelectorAll('.screen,#fight').forEach(el=>mo.observe(el,{attributes:true,attributeFilter:['class']}));watch();setInterval(()=>{watch();sched()},1500);dock()})();
