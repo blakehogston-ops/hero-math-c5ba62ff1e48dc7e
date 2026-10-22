@@ -65,7 +65,7 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
 #bossFig{transition:transform .35s}#bossFig.hit{animation:knock .6s}@keyframes knock{30%{transform:translateX(40px) rotate(12deg) scale(.9)}60%{transform:translateX(-6px)}}
 .hp{flex:1;height:22px;border-radius:11px;background:#ffffff22;overflow:hidden}.hp i{display:block;height:100%;background:linear-gradient(90deg,#9b5de5,#e63946);transition:width .5s}
 #miniHero svg{display:block}
-</style><link rel="stylesheet" href="art.css"><link rel="stylesheet" href="venom.css"></head><body>
+</style><link rel="stylesheet" href="art.css"><link rel="stylesheet" href="venom.css"><link rel="stylesheet" href="assets/palette_bedtime.css"><link rel="stylesheet" href="hero.css"></head><body>
 <canvas id="sky"></canvas>
 <div id="app">
  <!-- TITLE -->
@@ -82,13 +82,13 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
  </section>
  <!-- MAP -->
  <section class="screen" id="map">
-  <div class="top"><h2 id="hello">Pick a mission, hero!</h2><div class="row"><span id="miniHero"></span><button class="btn small ghost" id="calmM" aria-label="Breathe">🫧</button><button class="btn small pink" id="toColl">🧱 My Gear</button><button class="btn small blue" id="voiceM">🔊</button><button class="btn small ghost" id="toTitle">🏠</button></div></div>
+  <div class="top"><h2 id="hello">Pick a mission, hero!</h2><div class="row"><span id="miniHero"></span><button class="btn small ghost" id="calmM" aria-label="Breathe">🫧</button><button class="btn small pink" id="toColl">🧱 My Gear</button><button class="btn small blue" id="voiceM" aria-label="Read aloud on or off">🔊</button><button class="btn small ghost" id="toTitle" aria-label="Home">🏠</button></div></div>
   <div style="font-size:19px;opacity:.9;margin:2px 0 8px">Each mission is about 5 minutes. Take your time, no clock here!</div>
   <div class="grid" id="grid"></div>
  </section>
  <!-- PLAY -->
  <section class="screen" id="play">
-  <div class="top" style="margin-bottom:8px"><button class="btn small ghost" id="quit">⬅ Map</button><div class="prog" id="prog"></div><div class="row"><button class="btn small blue" id="say">🔊 Read it</button><button class="btn small pink" id="how">💡 Show me how</button><button class="btn small ghost" id="calmP" aria-label="Breathe">🫧</button></div></div>
+  <div class="top" style="margin-bottom:8px"><button class="btn small ghost" id="quit">⬅ Map</button><div class="prog" id="prog"></div><div class="row"><button class="btn small blue" id="say" aria-label="Read the question">🔊 Read it</button><button class="btn small pink" id="how">💡 Show me how</button><button class="btn small ghost" id="calmP" aria-label="Breathe">🫧</button></div></div>
   <div class="main">
    <div class="left"><div id="bossBar"></div><div class="q" id="qtext"></div><div class="model" id="model"></div><div id="hint"><span id="hintTxt"></span><br><button class="btn small blue" id="nextStep">▶ Next step</button></div></div>
    <div class="right" id="answers"></div>
@@ -141,5 +141,5 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
 </defs></svg>
 <div id="calm"><div class="panel" style="text-align:center;width:min(640px,92vw)"><h2>Hero breath</h2><div id="breathBall"><svg viewBox="0 0 100 100" width="120" height="120"><use href="#maskRed"/></svg></div><div id="breathTxt" style="font-size:32px;font-weight:800;margin:10px 0">Breathe in…</div><div id="breathLeft" style="font-size:18px;opacity:.8"></div><button class="btn blue" id="calmDone" style="margin-top:14px">I feel ready ✔</button></div></div>
 <script src="audio.js"></script>
-<script src="game.js"></script><script src="extras.js"></script><script src="art.js"></script><script src="venom.js"></script>
+<script src="game.js"></script><script src="extras.js"></script><script src="art.js"></script><script src="venom.js"></script><script src="hero.js"></script>
 </body></html>

@@ -41,8 +41,8 @@
 .ans.tried{opacity:.6!important;text-decoration:line-through;text-decoration-thickness:3px}
 body .btn.pink{background:linear-gradient(#b8336a,#7d1440)!important}
 .prog i{border-color:#ffffffa0!important}
-.tog{display:flex;align-items:center;gap:10px;font-size:18px;min-height:64px;padding:6px 12px;border-radius:14px;background:#ffffff12}.tog input{width:34px;height:34px}
-#hmaAudio{padding-left:env(safe-area-inset-left)}#hmaAudio button{min-width:88px!important;min-height:88px!important}
+.tog{display:flex;align-items:center;gap:10px;font-size:18px;min-height:88px;padding:6px 12px;border-radius:14px;background:#ffffff12}.tog input{width:34px;height:34px}
+#hmaAudio{padding-left:env(safe-area-inset-left);padding-bottom:env(safe-area-inset-bottom)}#hmaAudio button{min-width:88px!important;min-height:88px!important}
 body.calm *,body.calm *:before,body.calm *:after{animation:none!important;transition:none!important}
 body.calm #breathBall{animation:breathCalm 8s ease-in-out infinite!important;transform:scale(.85)}@keyframes breathCalm{0%,100%{opacity:.45}50%{opacity:1}}
 body.calm #fHand.on{opacity:1}
@@ -50,14 +50,14 @@ body.calm #fHand.on{opacity:1}
 /* phones */
 html,body{overscroll-behavior:none}
 @media (max-width:560px),(max-height:500px){
- .btn.small{min-height:64px!important;min-width:64px!important;font-size:17px!important;padding:8px 12px!important}
+ .btn.small{min-height:88px!important;min-width:88px!important;font-size:15px!important;padding:4px 8px!important}
  .top .row{gap:10px!important}.prog i{width:20px!important;height:18px!important}
  #play .q{font-size:22px!important}.model{min-height:110px!important}
- .ans{min-height:72px!important;font-size:28px!important}
+ .ans{min-height:88px!important;font-size:26px!important}
  #play .right{grid-template-columns:1fr 1fr!important;gap:12px!important}
  #venomHead{padding:8px 10px;gap:10px}#venomHead .vh-face svg{width:56px;height:67px}.vh-s{font-size:15px}.vh-hoods span{width:20px;height:20px;font-size:11px}
  .vtitle{font-size:15px}.vface svg{width:44px;height:53px}
- #fight .fbtn{min-width:72px;min-height:72px;font-size:24px}
+ #fight .fbtn{min-width:88px;min-height:88px;font-size:22px}
  .fbar .lbl{font-size:13px}#fPrompt{font-size:15px}
  #fDone{min-width:150px}
 }
@@ -71,7 +71,7 @@ html,body{overscroll-behavior:none}
 @media (min-width:561px) and (max-aspect-ratio:4/5){#fZone{left:40%;width:58%;top:24%;height:58%}}
 @media (max-height:500px){ /* landscape phone */
  #play .main{flex-direction:row!important}#play .left{flex:1.2}.model{min-height:80px!important}
- .ans{min-height:64px!important;font-size:24px!important}
+ .ans{min-height:88px!important;font-size:22px!important}
  #venomHead .vh-s:first-of-type{display:none}
  #fJump{bottom:calc(16% + env(safe-area-inset-bottom))}#fDone{bottom:calc(16% + env(safe-area-inset-bottom))}
 }

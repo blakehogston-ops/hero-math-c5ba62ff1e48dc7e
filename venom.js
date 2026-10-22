@@ -53,9 +53,9 @@ const _next=next;next=function(pre,noRead){if(M&&M.i>0&&M.i%3===0&&!pre){const t
 // ---------- finish -> fight -> reward ----------
 const _finish=finish;
 finish=function(){const pw=Math.min(8,M.power||0),re=isRematch(),hd=M.hood||hood(),mm=M;$('ov').classList.remove('on');
- fight(pw,re,(res)=>{M=mm;window.__afterFight=1;_finish();window.__afterFight=0;S.venomWins++;if(res.tier===3)S.stickers++;save();
+ const go=()=>fight(pw,re,(res)=>{M=mm;window.__afterFight=1;_finish();window.__afterFight=0;S.venomWins++;if(res.tier===3)S.stickers++;save();
   $('rwTitle').textContent=`${hd.toUpperCase()} CLEARED!`;
-  $('rwText').textContent=`You webbed up Venom${re?' in the big rematch':''} and cleared the goo from ${hd}, ${heroName()}!`+(res.tier===3?' SUPER MOVE bonus sticker! ⭐':'');})};
+  $('rwText').textContent=`You webbed up Venom${re?' in the big rematch':''} and cleared the goo from ${hd}, ${heroName()}!`+(res.tier===3?' SUPER MOVE bonus sticker! ⭐':'');if(!res.left&&VZ.afterWin)VZ.afterWin(res,hd)});VZ.preFight?VZ.preFight(re,go):go()};
 // ---------- the fight ----------
 let cv,ctx,W=0,Hh=0,raf=0,F=null;
 function ensureDom(){if($('fight'))return;const s=document.createElement('section');s.className='screen';s.id='fight';
@@ -70,7 +70,7 @@ function ensureDom(){if($('fight'))return;const s=document.createElement('sectio
  <button id="fJump" class="fbtn" aria-label="Jump">⬆<br><small>JUMP</small></button>
  <div id="fBars"><i></i><i></i></div>
  <div id="fSuper"></div>
- <div id="fMenu"><div class="panel" style="text-align:center"><h2>Paused</h2><div class="row" style="justify-content:center;gap:24px"><button class="btn blue" id="fResume">▶ Keep fighting</button><button class="btn ghost" id="fFinish">⭐ Finish the fight</button></div></div></div>
+ <div id="fMenu"><div class="panel" style="text-align:center"><h2>Paused</h2><div class="row" style="justify-content:center;gap:24px"><button class="btn blue" id="fResume">▶ Keep fighting</button><button class="btn ghost" id="fFinish">⭐ Finish the fight</button><button class="btn ghost" id="fHome">🏠 Map</button></div></div></div>
  <button id="fDone" class="btn">Continue ▶</button>`;
  $('app').appendChild(s);cv=$('fc');ctx=cv.getContext('2d');
  // input
@@ -86,6 +86,7 @@ function ensureDom(){if($('fight'))return;const s=document.createElement('sectio
  $('fPause').addEventListener('pointerdown',pd);$('fPause').addEventListener('pointerup',pu);$('fPause').addEventListener('pointerleave',pu);
  $('fResume').addEventListener('click',()=>{F.paused=false;F.last=performance.now();$('fMenu').classList.remove('on')});
  $('fFinish').addEventListener('click',()=>{F.paused=false;$('fMenu').classList.remove('on');F.blobs.fill(0);F.blobHits=0;startFinisher(true)});
+ $('fHome').addEventListener('click',()=>{if(!F)return;const cb=F.cb,res={tier:F.tier,power:F.power,time:F.t,left:1};stopFight();stopVoice();cb(res);buildMap();show('map');stopVoice()});
  $('fDone').addEventListener('click',()=>{if(!F||!F.done)return;const cb=F.cb,res={tier:F.tier,power:F.power,time:F.t};stopFight();cb(res)});
  addEventListener('resize',()=>{if(F)size()})}
 function size(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;Hh=innerHeight;cv.width=W*d;cv.height=Hh*d;cv.style.width=W+'px';cv.style.height=Hh+'px';ctx.setTransform(d,0,0,d,0,0);F&&(F.bgc=null)}
@@ -95,7 +96,7 @@ function fight(power,rematch,cb){ensureDom();stopVoice();clearTimeout(hintT);
  F={power,rematch,cb,tier:tierOf(power),t:0,last:performance.now(),blobs:[1,1,1],blobHits:0,hits:0,webs:[],parts:[],wind:0,nextWind:4.5,strike:0,hero:{jump:0,knock:0},vhit:0,shrink:0,finT:-1,done:false,lastTap:0,look:rematch?lookFor():'',shake:0,stun:0,cheered:false,dodges:0,bumps:0};
  F.tapsPer=TIERS[F.tier].taps;show('fight');size();hm('fightStart');hm('setFight',true);
  $('fDone').classList.remove('on');$('fMenu').classList.remove('on');$('fSuper').className='';$('fBars').className='';
- renderHud();
+ renderHud();VZ.onFightStart&&VZ.onFightStart(F);
  const first=!S.venomSeen;S.venomSeen=1;save();
  const intro=first?LINES.intro:(rematch?`Venom is back${F.look?' '+LOOKNAME[F.look]:''}! It's a REMATCH!`:'Venom is here! Web him up!');
  bubble('fBubble',first?LINES.intro:(rematch?'REMATCH! WE have a new look!':pick(LINES.taunts)),5000);
@@ -104,7 +105,7 @@ function fight(power,rematch,cb){ensureDom();stopVoice();clearTimeout(hintT);
  if(!dad('venom',intro+' Tap Venom to web him!'))0;
  cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
 VZ.fight=fight;
-function stopFight(){cancelAnimationFrame(raf);hm('setFight',false);F=null}
+function stopFight(){cancelAnimationFrame(raf);if(F&&!F.done)hm('fightEnd',false);hm('setFight',false);F=null;const m=$('fMenu');m&&m.classList.remove('on')}
 VZ.stop=stopFight;
 function prompt(t){const p=$('fPrompt');p.textContent=t;p.classList.add('on')}
 function renderHud(){if(!F)return;$('fPower').innerHTML=`<span class="lbl">⚡</span>${[...Array(8)].map((_,i)=>`<i class="${i<F.power?'on':''}"></i>`).join('')}<span class="lbl">${F.power}/8</span>`;$('fPower').setAttribute('aria-label',`Power ${F.power} of 8`);
@@ -116,8 +117,8 @@ function heroHand(){const b=heroBox();return{x:b.x+b.w*.8,y:b.y+b.h*.35-F.hero.j
 function venCenter(){const b=venBox();return{x:b.x+b.w/2,y:b.y+b.h*.45}}
 function shoot(){if(!F||F.finT>=0||F.paused)return;F.lastTap=F.t;$('fHand').classList.remove('on');const a=heroHand(),b=venCenter();F.webs.push({x0:a.x,y0:a.y,x1:b.x,y1:b.y,t:0});hm('thwip')}
 function dodge(how){if(!F||F.finT>=0||F.paused)return;F.lastTap=F.t;if(F.hero.jump<=0){F.hero.jumpT=0.75;F.dodgeOK=F.wind>0}}
-function landHit(){F.hits++;F.vhit=.3;F.stun=.6;hm('hit',F.tier>=2);burst(venCenter(),F.tier);if(!reduce())F.shake=Math.max(F.shake,.18);
- const i=F.blobs.findIndex(Boolean);if(i<0)return;F.blobHits++;if(F.blobHits>=F.tapsPer){F.blobs[i]=0;F.blobHits=0;gooSplat(venCenter());renderHud();
+function landHit(){F.hits++;VZ.onHit&&VZ.onHit(F);F.vhit=.3;F.stun=.6;hm('hit',F.tier>=2);burst(venCenter(),F.tier);if(!reduce())F.shake=Math.max(F.shake,.18);
+ const i=F.blobs.findIndex(Boolean);if(i<0)return;F.blobHits++;if(F.blobHits>=F.tapsPer){F.blobs[i]=0;F.blobHits=0;gooSplat(venCenter());renderHud();VZ.onBlob&&VZ.onBlob(F);
   if(F.blobs.filter(Boolean).length===1&&!F.cheered){F.cheered=true;dad('fightcheer','Go Samuel! Web him up!')}
   if(!F.blobs.some(Boolean))startFinisher(false)}}
 function sprite(n,p,sz,life){F.spr=F.spr||[];F.spr.push({n,x:p.x,y:p.y,sz,life,t:0})}
@@ -131,7 +132,7 @@ function loop(now){if(!F)return;let dt=Math.min(.05,(now-F.last)/1000)*(VZ.speed
  const h=F.hero;if(h.jumpT>0){h.jumpT-=dt;h.jump=Math.sin(Math.max(0,h.jumpT)/.75*Math.PI)*Hh*.16}else h.jump=0;h.knock=Math.max(0,h.knock-dt*2.5);
  if(F.finT<0){
   // mercy after ~45s
-  if(F.t>=45)startFinisher(true);
+  if(F.t>=(S.mercy||30))startFinisher(true);
   // idle ghost hand
   if(F.t-F.lastTap>5&&F.wind<=0)$('fHand').classList.add('on');
   // Venom windup -> tendril
@@ -140,7 +141,7 @@ function loop(now){if(!F)return;let dt=Math.min(.05,(now-F.last)/1000)*(VZ.speed
   if(F.strike>0){F.strike-=dt;if(!F.struck&&F.strike<.25){F.struck=true;if(h.jump>Hh*.04||F.dodgeOK){F.dodges++;prompt('Nice dodge! 🕷️ Now web him!');}else{F.bumps++;h.knock=1;prompt('Whoa! Bounce back… you’re okay! Web him!');hm('hit',false)}}if(F.strike<=0){F.nextWind=F.t+4+Math.random()*2.5}}
  }else{F.finT+=dt;const dur=F.tier===3?3.4:2.2;
   if(F.tier>=2&&Math.random()<dt*10){const a=heroHand(),b=venCenter();F.webs.push({x0:a.x,y0:a.y,x1:b.x+(Math.random()-.5)*80,y1:b.y+(Math.random()-.5)*80,t:0,fin:1})}
-  if(F.finT>dur&&F.shrink===0){F.shrink=.001;$('fSuper').className='';$('fBars').className='';hm('venomRoar');bubble('fBubble',LINES.win,5200);say(LINES.win,false,()=>{say(LINES.spidey)})}
+  if(F.finT>dur&&F.shrink===0){F.shrink=.001;$('fSuper').className='';$('fBars').className='';hm('venomRoar');bubble('fBubble',LINES.win,5200);const fid=F;say(LINES.win,false,()=>{if(F===fid&&$('fight').classList.contains('on'))say(LINES.spidey)})}
   if(F.shrink>0){F.shrink+=dt;if(F.shrink>2.6&&!F.done){F.done=true;hm('fightEnd',true);hm('victory');dad('venomwin',LINES.spidey);prompt(`Venom ran away! ${F.dodges?F.dodges+' great dodges! ':''}You saved ${hood()}!`);$('fDone').classList.add('on');if(F.tier===3)bubble('fBubble','⭐ Bonus sticker! SUPER MOVE!',5000)}}}
  // webs
  F.webs.forEach(w=>{w.t+=dt/.25;if(w.t>=1&&!w.hit){w.hit=1;if(!w.fin)landHit();else burst({x:w.x1,y:w.y1},F.tier)}});F.webs=F.webs.filter(w=>w.t<1.4);
@@ -166,7 +167,7 @@ function bgCache(){const c=document.createElement('canvas');c.width=W;c.height=H
  else{x.strokeStyle='#1a0d1c';x.lineWidth=5;x.beginPath();x.moveTo(W*.04,ry-10);x.lineTo(W*.04,Hh*.12);x.stroke();x.fillStyle='#ffd23f';x.beginPath();x.arc(W*.04,Hh*.12,5,0,6.3);x.fill()}
  return c}
 function drawBillboard(){if(!F.rematch||ok('bg_rooftops_dusk.svg'))return;const t=F.t,stun=F.stun>0;const cols=['#ff3fa4','#3fd0ff','#ffd23f','#7cff6b'];const cw=W*.53/6,ch=Hh*.5/3;
- for(let i=0;i<6;i++)for(let j=0;j<3;j++){const k=(i+j+Math.floor(t*(stun?2.5:.8)))%4;ctx.globalAlpha=stun?.55:.25;ctx.fillStyle=cols[k];ctx.fillRect(W*.45+i*cw+3,Hh*.18+j*ch+3,cw-6,ch-6)}ctx.globalAlpha=1}
+ for(let i=0;i<6;i++)for(let j=0;j<3;j++){const k=reduce()?(i+j)%4:(i+j+Math.floor(t*(stun?2.5:.8)))%4;ctx.globalAlpha=reduce()?.3:stun?.55:.25;ctx.fillStyle=cols[k];ctx.fillRect(W*.45+i*cw+3,Hh*.18+j*ch+3,cw-6,ch-6)}ctx.globalAlpha=1}
 function drawHero(){const b=heroBox(),h=F.hero,glow=F.power/8;const x=b.x-h.knock*W*.06,y=b.y-h.jump;
  const img=h.jump>0&&ok('hero_swing.svg')?AS['hero_swing.svg']:ok('hero.svg')?AS['hero.svg']:null;
  if(glow>0){ctx.save();ctx.globalAlpha=.25+glow*.35;const gg=ctx.createRadialGradient(x+b.w/2,y+b.h/2,10,x+b.w/2,y+b.h/2,b.h*.6);gg.addColorStop(0,F.tier===3?'#ffd23f':'#7fe3ff');gg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gg;ctx.fillRect(x-b.w,y-b.h*.2,b.w*3,b.h*1.4);ctx.restore()}
@@ -249,5 +250,6 @@ const _par=parent;parent=function(){_par();const w=$('week');if(!w||$('vset'))re
  d.innerHTML=`<label class="tog"><input type="checkbox" id="setCalm" ${S.calm?'checked':''}> Calm motion (no shake, zoom or pulse)</label><label class="tog"><input type="checkbox" id="setAuto" ${S.autoDodge?'checked':''}> Auto-dodge in Venom fights</label><label class="tog"><input type="checkbox" id="setHear" ${S.hear!==false?'checked':''}> Hear an answer before picking (tap twice)</label>`;
  w.parentNode.insertBefore(d,w);$('setCalm').onchange=e=>{S.calm=e.target.checked;save();applyCalm()};$('setAuto').onchange=e=>{S.autoDodge=e.target.checked;save()};$('setHear').onchange=e=>{S.hear=e.target.checked;save()}};
 const _show=show;show=function(id){if(id!=='fight'&&F){stopFight()}_show(id)};
+Object.assign(VZ,{F:()=>F,renderHud,sprite:(n,p,sz,l)=>F&&sprite(n,p,sz,l),venCenter,prompt,startFinisher:m=>F&&startFinisher(m)});
 Object.assign(window.__g,{fight,venom:VZ});
 })();
