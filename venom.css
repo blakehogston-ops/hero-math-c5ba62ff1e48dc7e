@@ -80,3 +80,7 @@ html,body{overscroll-behavior:none}
 .mm{position:relative;width:96px;height:108px;flex:none;border-radius:12px;overflow:hidden;border:2px solid #b9a0e0}.mm svg{position:absolute;inset:0;width:100%;height:100%}
 @media (max-width:560px),(max-height:500px){.mm{width:64px;height:72px}}
 .vh-hoods small{font-size:14px;margin-left:6px;align-self:center}
+.pbar i.half,#fPower i.half{background:linear-gradient(90deg,#2fb4ff 50%,#ffffff10 50%);border-color:#fff}
+.ans.armed::after{content:" Tap again ✔";display:block;font-size:.5em;color:#0b5a8a}
+@media (max-height:500px){#venomHead{padding:4px 10px;margin:2px 0 6px}#venomHead .mm,#venomHead .vh-s,#venomHead .vh-hoods{display:none}#venomHead .vh-face svg{width:34px;height:40px}.vh-t{font-size:18px}.vh-t:after{content:" Win missions, then web Venom!";font-size:14px;font-weight:600;letter-spacing:0}}
+@media (max-width:560px){#fPrompt{font-size:18px!important}#fight .vbubble,#fBubble{font-size:18px!important}.vbar .vbubble{font-size:17px}}

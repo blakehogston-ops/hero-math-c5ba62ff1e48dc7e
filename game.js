@@ -155,7 +155,7 @@ const G={
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${a}/${c} ___ ${b}/${d}</span>`,speakText:`Which sign makes this true? ${a}/${c}, blank, ${b}/${d}. Greater than, less than, or equal?`,choices:['>','<','='],ans,pic:null,help:svg(620,150,fracBar(a,c,10,a+'/'+c)+fracBar(b,d,84,b+'/'+d,'#2f6fdf')),
    hint:same?`Same-size pieces! The one with more pieces is bigger.`:`Same number of pieces, but bigger pieces when the bottom number is smaller. Look at the bars!`,how:`Draw both fractions as bars the same length. The bar with more color is the bigger fraction.`}},
  money(l){if(l<3){const set=l==1?[1,5,10,25]:[1,5,10,25,100];const list=[];const n=l==1?R(2,5):R(3,6);for(let i=0;i<n;i++)list.push(pick(set));list.sort((a,b)=>b-a);const tot=list.reduce((a,b)=>a+b,0);
-   const show=v=>tot<95&&l==1?v+'¢':money(v);
+   const cents=l==1&&tot+10<100;const show=v=>cents?v+'¢':money(v);
    return{text:`How much money is this?`,choices:opts(show(tot),[show(tot+5),show(Math.max(1,tot-5)),show(tot+10),show(tot+1)]),ans:show(tot),pic:coinsSvg(list,false,l<3),help:coinsSvg(list,true,true),
     hint:`Start with the biggest one and count on: ${(()=>{let s=0;return list.map(v=>(s+=v,s<100?s+'¢':money(s))).join(', ')})()}.`,how:`Quarter = 25¢, dime = 10¢, nickel = 5¢, penny = 1¢, a dollar bill = 100¢. Line them up from biggest to smallest and count on.`}}
   const cost=R(105,495),ch=500-cost;return{text:`A LEGO minifigure costs ${money(cost)}. You pay with a $5 bill. How much change do you get?`,choices:opts(money(ch),[money(ch+10),money(ch-10>0?ch-10:ch+25),money(ch+100)]),ans:money(ch),
