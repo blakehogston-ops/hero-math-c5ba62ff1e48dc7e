@@ -6,7 +6,7 @@ const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math
 const fmt=n=>n.toLocaleString('en-US');
 const money=c=>'$'+(c/100).toFixed(2);
 // ---------- save ----------
-const KEY='heroMath.v1';
+const KEY=window.GS_MODE?'heroMath.sadie.v1':'heroMath.v1';
 const SK=[
  {id:'place',ic:'🏙️',name:'Place Value Patrol',sub:'Digits & rounding',sol:'3.NS.1, 3.CE.1b'},
  {id:'compare',ic:'⚖️',name:'Bigger or Smaller?',sub:'Compare numbers',sol:'3.NS.2'},
@@ -20,6 +20,7 @@ const SK=[
  {id:'data',ic:'📊',name:'Data Detective',sub:'Bar graphs',sol:'3.PS.1'},
  {id:'pattern',ic:'🔁',name:'Pattern Power',sub:'What comes next?',sol:'3.PFA.1'},
 ];
+if(window.GS_MODE&&window.GS){SK.length=0;SK.push(...GS.SK)}
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S={hero:'S',voice:true,bricks:[],skills:{},log:[]};
 SK.forEach(k=>{if(!S.skills[k.id])S.skills[k.id]={lvl:1,streak:0,miss:0,q:0,first:0,missions:0,last:0}});
@@ -36,7 +37,7 @@ document.addEventListener('pointerdown',primeSpeech,{capture:true,once:true});
 function stopVoice(){clearTimeout(sayT);clearTimeout(sayW);try{if(typeof dadAudio!=='undefined'&&dadAudio)dadAudio.pause()}catch(e){}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
 function say(t,force,onend){stopVoice();if(!(S.voice||force)||!window.speechSynthesis){onend&&onend();return}
  const wasBusy=speechSynthesis.speaking||speechSynthesis.pending;
- const go=()=>{try{const u=new SpeechSynthesisUtterance(spoken(t));u.lang='en-US';if(enVoice)u.voice=enVoice;u.rate=.92;u.pitch=1.05;let st=false;u.onstart=()=>{st=true};if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u);
+ const go=()=>{try{const u=new SpeechSynthesisUtterance(spoken(t));u.lang='en-US';if(enVoice)u.voice=enVoice;u.rate=window.GS_MODE?.85:.92;u.pitch=1.05;let st=false;u.onstart=()=>{st=true};if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u);
   sayW=setTimeout(()=>{if(!st&&!speechSynthesis.speaking){const b=$('say');b&&b.classList.add('pulse')}},1000)}catch(e){onend&&onend()}};
  if(wasBusy)sayT=setTimeout(go,60);else go()}
 const sents=t=>String(t).match(/[^.!?]+[.!?]*(\s|$)/g).map(s=>s.trim()).filter(Boolean);
@@ -120,16 +121,16 @@ const G={
   if(Math.random()<.4){ // rounding
    const to=l==1?10:l==2?pick([10,100]):pick([100,1000]);const n=l==1?R(11,99):l==2?R(101,999):R(1001,9999);const lo=Math.floor(n/to)*to,hi=lo+to,ans=n-lo>=to/2?hi:lo;
    return{text:`Round ${fmt(n)} to the nearest ${fmt(to)}.`,choices:opts(fmt(ans),[fmt(ans===lo?hi:lo),fmt(lo-to),fmt(hi+to)]),ans:fmt(ans),
-    pic:null,help:numLine(lo,hi,to/10,[{v:n,t:fmt(n)}]),hint:`${fmt(n)} sits between ${fmt(lo)} and ${fmt(hi)}. Which one is it closer to? (Halfway, ${fmt(lo+to/2)}, rounds up.)`,how:`Find the two ${fmt(to)}s around the number, ${fmt(lo)} and ${fmt(hi)}. Put the number on the line and see which end is closer. If it is exactly in the middle, we round up.`}}
+    pic:null,help:numLine(lo,hi,to/10,[{v:n,t:fmt(n)}]),work:`${fmt(n)} sits between ${fmt(lo)} and ${fmt(hi)}. Which one is it closer to? (Halfway, ${fmt(lo+to/2)}, rounds up.)`,hint:`Find the two ${fmt(to)}s that ${fmt(n)} sits between. Is it closer to the lower one or the higher one? Halfway rounds up.`,how:`Find the two ${fmt(to)}s around the number, ${fmt(lo)} and ${fmt(hi)}. Put the number on the line and see which end is closer. If it is exactly in the middle, we round up.`}}
   const n=l==1?R(102,999):l==2?R(1002,9999):R(10002,Math.random()<.25?999999:99999);const s=String(n);const cand=[...s].map((c,k)=>k).filter(k=>s[k]!=='0'&&s.split(s[k]).length===2);if(!cand.length)return G.place(l);let i=pick(cand);const p=s.length-1-i,d=+s[i],val=d*10**p;
   const names=['ones','tens','hundreds','thousands','ten thousands','hundred thousands'];
   const fs=fmt(n);let di=-1,cnt=0;for(let k=0;k<fs.length;k++){if(/\d/.test(fs[k])){if(cnt===i){di=k;break}cnt++}}const shown=fs.slice(0,di)+`<span style="color:#ffd23f;text-decoration:underline;text-underline-offset:6px">${fs[di]}</span>`+fs.slice(di+1);
   return{text:`What is the value of the ${d} in <span style="font-size:1.25em">${shown}</span>?`,speakText:`What is the value of the ${d} in ${fmt(n)}? Look for the yellow ${d}.`,choices:opts(fmt(val),[fmt(d),fmt(d*10**(p+1)),fmt(p>0?d*10**(p-1):d*100)]),ans:fmt(val),
-   pic:n<1000?blocks(n):null,help:pvChart(n,p),hint:`The ${d} is in the ${names[p]} place. ${d} ${names[p]} is worth ${fmt(val)}.`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
+   pic:n<1000?blocks(n):null,help:pvChart(n,p),work:`The ${d} is in the ${names[p]} place. ${d} ${names[p]} is worth ${fmt(val)}.`,hint:`Which place is the ${d} in? What is each of those worth?`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
  compare(l){const mx=l==1?999:l==2?9999:9999;let a=R(l==1?100:1000,mx),b=Math.random()<.15?a:(l==3?a+pick([-1,1])*pick([1,10,100,90,9]):R(l==1?100:1000,mx));if(b<0)b=a+10;
   const ans=a>b?'>':a<b?'<':'=';let k=0;const sa=String(a),sb=String(b);while(k<sa.length&&sa[k]===sb[k])k++;
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${fmt(a)} ___ ${fmt(b)}</span>`,speakText:`Which sign makes this true? ${fmt(a)}, blank, ${fmt(b)}. Greater than, less than, or equal?`,choices:['>','<','='],ans,
-   pic:null,help:pvChart(a,sa.length===sb.length&&k<sa.length?sa.length-1-k:undefined)+pvChart(b,sa.length===sb.length&&k<sa.length?sa.length-1-k:undefined),hint:ans==='='?'Every digit matches. They are equal!':`Start at the biggest place. The first place where the digits are different decides it. The open side of the sign eats the bigger number!`,how:`Line the numbers up in a place value chart. Compare from the left. The first digit that's different tells which number is bigger. The alligator mouth > or < opens toward the bigger number.`}},
+   pic:null,help:pvChart(a,sa.length===sb.length&&k<sa.length?sa.length-1-k:undefined)+pvChart(b,sa.length===sb.length&&k<sa.length?sa.length-1-k:undefined),work:ans==='='?'Every digit matches. They are equal!':`Start at the biggest place. The first place where the digits are different decides it. The open side of the sign eats the bigger number!`,hint:ans==='='?'Check each place, starting with the biggest. Are any digits different?':`Start at the biggest place. The first place where the digits are different decides it. The open side of the sign eats the bigger number!`,how:`Line the numbers up in a place value chart. Compare from the left. The first digit that's different tells which number is bigger. The alligator mouth > or < opens toward the bigger number.`}},
  addsub(l){const add=Math.random()<.55;let a,b;
   if(l==1){a=R(11,88);b=add?R(1,9-a%10)+10*R(0,8-Math.floor(a/10)):R(1,a%10||1);if(!add&&b>a)b=a%10}
   else if(l==2){a=R(25,299);b=R(13,99);if(!add&&b>a)[a,b]=[b,a]}
@@ -142,28 +143,28 @@ const G={
  mult(l){const pool=l==1?[0,1,2,5,10]:l==2?[2,3,4,5,10]:[3,4,6,7,8,9];let a=pick(pool),b=R(l==1?1:2,10);if(Math.random()<.5)[a,b]=[b,a];const ans=a*b;
   const story=Math.random()<.35&&a>0&&b>0;
   return{text:story?`Spidey builds ${a} LEGO wall${a>1?'s':''}. Each wall has ${b} brick${b>1?'s':''}. How many bricks?`:`${a} × ${b} = ?`,choices:opts(ans,[a*(b+1),a*(b-1),(a+1)*b,a+b]),ans:String(ans),
-   pic:null,help:a&&b?array(a,b):svg(400,80,T(200,50,a===0?`0 rows of ${b} = nothing at all!`:`${a} row${a==1?'':'s'} of 0 = nothing at all!`,22)),hint:a&&b?`${a} row${a==1?'':'s'} with ${b} in each row. Count by ${b}s: ${[...Array(Math.min(a,10))].map((_,i)=>(i+1)*b).join(', ')}.`:'Anything times 0 is 0!',
+   pic:null,help:a&&b?array(a,b):svg(400,80,T(200,50,a===0?`0 rows of ${b} = nothing at all!`:`${a} row${a==1?'':'s'} of 0 = nothing at all!`,22)),work:a&&b?`${a} row${a==1?'':'s'} with ${b} in each row. Count by ${b}s: ${[...Array(Math.min(a,10))].map((_,i)=>(i+1)*b).join(', ')}.`:'Anything times 0 is 0!',hint:a&&b?`Look at the picture: ${a} row${a==1?'':'s'}, with ${b} in each row. Try skip counting by ${b}s, one row at a time.`:'Think: how many are in rows that have nothing in them?',
    how:`Multiplying means equal groups. ${a} × ${b} means ${a} group${a==1?'':'s'} of ${b}. Make ${a} row${a==1?'':'s'} of ${b} stud${b==1?'':'s'} and skip-count by ${b}.`}},
  div(l){const pool=l==1?[1,2,5,10]:l==2?[2,3,4,5]:[3,4,6,7,8,9];const d=pick(pool),q=R(1,10),n=d*q;const story=Math.random()<.35;
   return{text:story&&d>1?`Sadie puts ${n} LEGO bricks into ${d} bins equally. How many bricks go in each bin?`:`${n} ÷ ${d} = ?`,choices:opts(q,[q+1,q-1,d,q+2]),ans:String(q),
    pic:null,help:groups(d,q,n),hint:`Share ${n} brick${n==1?"":"s"} into ${d} equal group${d==1?"":"s"}. Or think: ${d} × what = ${n}?`,how:`Division is fair sharing. Put one brick in each of the ${d} group${d==1?'':'s'} again and again until all ${n} are used. Count one group. You can also use a times fact: ${d} × ${q} = ${n}.`}},
  frac(l){if(l<3){const d=l==1?pick([2,3,4]):pick([2,3,4,5,6,8]),n=R(1,d-1+(l==2?1:0));const circle=Math.random()<.5;
    const f=n+'/'+d;return{text:circle?`What fraction of the pizza is cheese (yellow)?`:`What fraction of the bar is shaded red?`,choices:opts(f,[(d-n||1)+'/'+d,d+'/'+n,n+'/'+(d+1),(n+1)+'/'+d].filter(x=>!x.startsWith('0'))),ans:f,
-    pic:circle?fracCircle(n,d):fracModel(n,d),help:circle?fracCircle(n,d):fracModel(n,d),hint:`Count ALL the equal parts: ${d}. That's the bottom number. Count the colored parts: ${n}. That's the top number.`,how:`The bottom number (denominator) is how many equal parts in all. The top number (numerator) is how many parts we're talking about. Here: ${n} out of ${d}.`}}
+    pic:circle?fracCircle(n,d):fracModel(n,d),help:circle?fracCircle(n,d):fracModel(n,d),work:`Count ALL the equal parts: ${d}. That's the bottom number. Count the colored parts: ${n}. That's the top number.`,hint:`Count ALL the equal parts. That goes on the bottom. Then count the colored parts. That goes on top.`,how:`The bottom number (denominator) is how many equal parts in all. The top number (numerator) is how many parts we're talking about. Here: ${n} out of ${d}.`}}
   const same=Math.random()<.5;let a,b,c,d;if(same){d=c=pick([3,4,6,8]);a=R(1,d);b=R(1,d)}else{a=b=R(1,3);c=pick([2,3,4,6,8]);d=pick([2,3,4,6,8]);if(a>=c)c=a+1;if(b>=d)d=b+2}
   const ans=a/c>b/d?'>':a/c<b/d?'<':'=';
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${a}/${c} ___ ${b}/${d}</span>`,speakText:`Which sign makes this true? ${a}/${c}, blank, ${b}/${d}. Greater than, less than, or equal?`,choices:['>','<','='],ans,pic:null,help:svg(620,150,fracBar(a,c,10,a+'/'+c)+fracBar(b,d,84,b+'/'+d,'#2f6fdf')),
    hint:same?`Same-size pieces! The one with more pieces is bigger.`:`Same number of pieces, but bigger pieces when the bottom number is smaller. Look at the bars!`,how:`Draw both fractions as bars the same length. The bar with more color is the bigger fraction.`}},
  money(l){if(l<3){const set=l==1?[1,5,10,25]:[1,5,10,25,100];const list=[];const n=l==1?R(2,5):R(3,6);for(let i=0;i<n;i++)list.push(pick(set));list.sort((a,b)=>b-a);const tot=list.reduce((a,b)=>a+b,0);
-   const show=v=>tot<95&&l==1?v+'¢':money(v);
+   const cents=l==1&&tot+10<100;const show=v=>cents?v+'¢':money(v);
    return{text:`How much money is this?`,choices:opts(show(tot),[show(tot+5),show(Math.max(1,tot-5)),show(tot+10),show(tot+1)]),ans:show(tot),pic:coinsSvg(list,false,l<3),help:coinsSvg(list,true,true),
-    hint:`Start with the biggest one and count on: ${(()=>{let s=0;return list.map(v=>(s+=v,s<100?s+'¢':money(s))).join(', ')})()}.`,how:`Quarter = 25¢, dime = 10¢, nickel = 5¢, penny = 1¢, a dollar bill = 100¢. Line them up from biggest to smallest and count on.`}}
+    work:`Start with the biggest one and count on: ${(()=>{let s=0;return list.map(v=>(s+=v,s<100?s+'¢':money(s))).join(', ')})()}.`,hint:`Start with the biggest coin. Say its value, then count on for each coin after it.`,how:`Quarter = 25¢, dime = 10¢, nickel = 5¢, penny = 1¢, a dollar bill = 100¢. Line them up from biggest to smallest and count on.`}}
   const cost=R(105,495),ch=500-cost;return{text:`A LEGO minifigure costs ${money(cost)}. You pay with a $5 bill. How much change do you get?`,choices:opts(money(ch),[money(ch+10),money(ch-10>0?ch-10:ch+25),money(ch+100)]),ans:money(ch),
    pic:coinsSvg([500]),help:numLine(Math.floor(cost/100)*100,500,50,[{v:cost,t:money(cost)},{v:500,c:'#2fbf71',t:'$5.00'}],[[cost,500,'count up']]),hint:`Count up from ${money(cost)} to $5.00. Go to the next dollar first, then add the dollars.`,how:`Change means: how much more to get from the price up to what you paid. Count up from ${money(cost)} to ${money(Math.ceil(cost/100)*100)}, then on to $5.00.`}},
  time(l){const two=n=>String(n).padStart(2,'0');
   if(l<3){const h=R(1,12),m=l==1?R(0,11)*5:R(0,59);const f=(H,M)=>`${H}:${two(M)}`;
    return{text:`What time does the clock show?`,choices:opts(f(h,m),[f(h%12+1,m),f(h,(m+5)%60),f(h,(m+30)%60),f(m/5||12,h*5%60)]),ans:f(h,m),pic:clock(h,m),help:clockHelp(h,m),
-    hint:(m>=40?`The short hand is almost at ${h%12+1}, but it hasn't got there yet, so it's still ${h} o'clock time.`:`The short hand is the hour: it's at (or just past) ${h}.`)+` The long red hand is the minutes: count by 5s around the edge.`,how:`First look at the short hand: that is the hour. Then the long red hand: count by fives from the 12. 1 is 5, 2 is 10, 3 is 15...${l==2?' then count on by ones for the little marks.':''}`}}
+    work:(m>=40?`The short hand is almost at ${h%12+1}, but it hasn't got there yet, so it's still ${h} o'clock time.`:`The short hand is the hour: it's at (or just past) ${h}.`)+` The long red hand is the minutes: count by 5s around the edge.`,hint:`Look at the short hand first: which number has it passed? Then count by 5s with the long red hand.`,how:`First look at the short hand: that is the hour. Then the long red hand: count by fives from the 12. 1 is 5, 2 is 10, 3 is 15...${l==2?' then count on by ones for the little marks.':''}`}}
   const h=R(1,8),m=pick([0,30]),dh=R(1,4),dm=pick([0,30]);let eh=h+dh,em=m+dm;if(em>=60){em-=60;eh++}const f=(H,M)=>`${(H-1)%12+1}:${two(M)}`;
   const ev=pick(['Hero training','A LEGO build','Soccer practice','The movie']);
   return{text:`${ev} starts at ${f(h,m)}. It lasts ${dh} hour${dh>1?'s':''}${dm?' and 30 minutes':''}. What time does it end?`,choices:opts(f(eh,em),[f(eh+1,em),f(eh,(em+30)%60),f(eh-1,em)]),ans:f(eh,em),pic:clock(h,m),
@@ -171,10 +172,10 @@ const G={
    hint:`Start at ${f(h,m)}. Jump ${dh} hour${dh>1?'s':''} forward${dm?', then 30 more minutes':''}.`,how:`Elapsed time: start at the beginning time and jump forward on a timeline. Jump whole hours first, then the extra minutes.`}},
  geo(l){if(l==1){const n=pick([3,4,5,6,8]);const nm={3:'triangle',4:'quadrilateral',5:'pentagon',6:'hexagon',8:'octagon'};
    return{text:`What is the name of this shape?`,choices:shuf(shuf(['triangle','quadrilateral','pentagon','hexagon','octagon'].filter(x=>x!==nm[n])).slice(0,3).concat(nm[n])),ans:nm[n],pic:polySvg(n),help:polySvg(n,1),
-    hint:`Count the sides: it has ${n}. Tri = 3, quad = 4, penta = 5, hexa = 6, octo = 8 (like an octopus!).`,how:`Count the straight sides. The number of sides gives the shape its name. 3 triangle, 4 quadrilateral, 5 pentagon, 6 hexagon, 8 octagon.`}}
+    work:`Count the sides: it has ${n}. Tri = 3, quad = 4, penta = 5, hexa = 6, octo = 8 (like an octopus!).`,hint:`Touch each straight side and count them. The number of sides tells you the shape's name.`,how:`Count the straight sides. The number of sides gives the shape its name. 3 triangle, 4 quadrilateral, 5 pentagon, 6 hexagon, 8 octagon.`}}
   const w=R(2,l==2?5:8),h=R(2,l==2?4:6);
   if(l==2||Math.random()<.4)return{text:`Each square is 1 square unit. What is the area of the rectangle?`,choices:opts(w*h,[w*h+w,w+h,2*(w+h),w*h-1]),ans:String(w*h),pic:gridRect(w,h),help:gridRect(w,h,1),
-   hint:`Count the squares, or: ${h} row${h==1?'':'s'} of ${w} = ${h} × ${w}.`,how:`Area is how many squares cover the shape. Count them, or multiply rows × squares in each row.`};
+   work:`Count the squares, or: ${h} row${h==1?'':'s'} of ${w} = ${h} × ${w}.`,hint:`Count the squares, or count the rows and how many squares are in each row.`,how:`Area is how many squares cover the shape. Count them, or multiply rows × squares in each row.`};
   return{text:`A LEGO base is ${w} units long and ${h} units wide. What is its perimeter?`,choices:opts(2*(w+h),[w*h,w+h,2*(w+h)+2]),ans:String(2*(w+h)),pic:gridRect(w,h,0,1),help:gridRect(w,h,0,1),
    hint:`Perimeter is the walk all the way around: ${w} + ${h} + ${w} + ${h}.`,how:`Perimeter is the distance around the outside. Add up all four sides: ${w} + ${h} + ${w} + ${h} = ${2*(w+h)}.`}},
  data(l){const names=shuf(['Spidey','Ghost-Spider','Iron Man','Miles','Hulk']).slice(0,4),cols=['#e63946','#ff5fa2','#ffb703','#2f6fdf'];const data=names.map((n,i)=>[n,R(1,l==1?6:9),cols[i]]);
@@ -193,14 +194,18 @@ const G={
 const BRICK=['#e63946','#2f6fdf','#ffb703','#2fbf71','#ff5fa2','#9b5de5','#f4f4f8','#1d1d1d'];
 const SUITS=[['Classic Suit','#c1121f','#1d3f8f'],['Ghost-Spider Suit','#f4f4f8','#ff5fa2'],['Stealth Suit','#222','#3a3'],['Iron Spider Suit','#b3121b','#d4a017'],['Upgraded Suit','#e63946','#111'],['Homemade Suit','#c33','#3456a8'],['Winter Suit','#e9f2ff','#3b6fd8'],['Golden Hero Suit','#d4a017','#7a5200'],['Night Patrol Suit','#14213d','#00e5ff'],['LEGO Master Suit','#ffb703','#e63946']];
 function suitSvg(s,sz){return `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}"><defs><radialGradient id="s${s[0].length}${s[1].slice(1)}" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".3" stop-color="${s[1]}"/><stop offset="1" stop-color="${s[2]}"/></radialGradient></defs><ellipse cx="50" cy="52" rx="38" ry="45" fill="url(#s${s[0].length}${s[1].slice(1)})"/><use href="#web"/><path d="M22 44Q30 30 46 46Q40 62 24 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/><path d="M78 44Q70 30 54 46Q60 62 76 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/></svg>`}
-const PRAISE=['Amazing work, hero!','You got it!','Web-tastic!','Super smart!','Way to go!','You\'re a math hero!','Nailed it!','Awesome thinking!'];
+if(window.GS_MODE&&window.GS){Object.keys(G).forEach(k=>delete G[k]);Object.assign(G,GS.G)}
+const PRAISE=['Amazing work, hero!','You got it!','Web-tastic!','You kept trying!','Way to go!','You\'re a math hero!','Nailed it!','Awesome thinking!'];
 const AGAIN=['Good try! Let\'s look at the picture.','That\'s okay, heroes practice!','Nice effort! Let\'s look together.','Brave try! The picture can help.'];
 const STORY=['Help save the city!','A crane is stuck downtown!','The subway lights went out!','Bricks fell off the bridge!','The museum needs a hero!','A cat is stuck on a roof!'];
 // ---------- screens ----------
 let tapLock=0;['pointerdown','touchstart','click','touchend','pointerup'].forEach(ev=>document.addEventListener(ev,e=>{if(Date.now()<tapLock){e.stopPropagation();if(e.cancelable&&ev!=='touchstart'&&ev!=='pointerdown')e.preventDefault()}},true));
 function show(id){tapLock=Date.now()+400;window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
 const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
-function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇'}
+function voiceBtns(){$('voiceT').textContent=(S.voice?'🔊':'🔇')+' Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇';$('voiceM').setAttribute('aria-label','Read aloud '+(S.voice?'on':'off'));$('voiceM').setAttribute('aria-pressed',S.voice);
+ const b=$('say');if(b){b.innerHTML=S.voice?'🔊 Read: ON':'🔇 Read: OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
+ const c=document.getElementById('setVoice');if(c)c.checked=!!S.voice;document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'))}
+function setVoice(on){S.voice=!!on;save();if(!S.voice){stopVoice();armed=null}voiceBtns()}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
  SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
@@ -226,9 +231,9 @@ let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))retur
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();
   hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);say(M.q.hint)},3000);
-  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt='The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);say(gt)},1200)}}}
+  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt=(M.q.work?M.q.work+' ':'')+'The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);say(gt)},1200)}}}
 function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$('nextStep').style.display=steps?'inline-block':'none'}
-let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI],true);howI++}
+let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI]);howI++}
 function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');dad('rest',`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
 let restUnlock=false;
 function finish(){$('ov').classList.remove('on');const st=S.skills[M.id];st.missions++;sess.n++;if(M.brave)S.brave++;st.best=Math.max(st.best||1,st.lvl);const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN,l:st.best,b:M.brave?1:0});if(S.log.length>200)S.log.shift();save();
@@ -248,15 +253,15 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
  $('cap').value=String(S.cap);$('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}. Brave Try stickers (used a clue): ${S.brave}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
-on('pickS',()=>{S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
-on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
-const tv=()=>{S.voice=!S.voice;save();voiceBtns();if(S.voice)say('Okay! I will read to you.',true);else speechSynthesis&&speechSynthesis.cancel()};
+on('pickS',()=>{if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
+on('pickG',()=>{if(!window.GS_MODE){return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
+const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
 on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
-on('say',()=>say((M.q.speakText||M.q.text)+choiceList(),true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
+on('say',()=>{if(S.voice){setVoice(false)}else{setVoice(true);if(M&&M.q)say((M.q.speakText||M.q.text)+choiceList(),true)}});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
 on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();
