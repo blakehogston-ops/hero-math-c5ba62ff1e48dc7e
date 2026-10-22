@@ -7,7 +7,8 @@ let dadHave=new Set();
 try{fetch('audio/dad/manifest.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(a=>{dadHave=new Set((a||[]).map(Number))}).catch(()=>{})}catch(e){}
 let dadAudio=null;
 function dad(cat,fallback,afterAudio,before,isIntro){
- const lines=DAD.filter(d=>d[1]===cat&&dadHave.has(d[0]));
+ if(window.GS_MODE&&fallback)fallback=String(fallback).replace(/Samuel/g,'Sadie').replace(/\bbuddy\b/g,'sweetie');
+ const lines=DAD.filter(d=>d[1]===cat&&dadHave.has(d[0])&&!(window.GS_MODE&&/Samuel|buddy/.test(d[2])));
  if(!S.voice||!lines.length){if(before)before();else say(fallback);return false}
  const d=pick(lines);if(isIntro)next('',true);
  try{stopVoice();dadAudio=new Audio(dadFile(d[0]));dadAudio.onended=()=>afterAudio&&afterAudio();
@@ -48,7 +49,7 @@ function calm(){clearTimeout(hintT);calmT.forEach(clearTimeout);calmT=[];$('calm
 function calmDone(){calmT.forEach(clearTimeout);$('calm').classList.remove('on');say("Feeling better? Let's keep going whenever you're ready.")}
 $('calmP').addEventListener('click',calm);$('calmM').addEventListener('click',calm);$('calmDone').addEventListener('click',calmDone);
 // ===== 4) Real-life word problems =====
-const _add=G.addsub,_time=G.time,_mult=G.mult;
+if(!window.GS_MODE){const _add=G.addsub,_time=G.time,_mult=G.mult;
 G.addsub=l=>{if(l===1||Math.random()<.6)return _add(l);
  if(l===3){const toys=shuf([['Spider-Man',R(23,32)*10+R(0,9)],['Iron Man',R(25,34)*10],['Iron Spider',R(26,33)*10+5],['Miles Morales',R(22,30)*10+9]]);
   if(Math.random()<.5){const[a,b]=[toys[0],toys[1]];const ans=a[1]+b[1];if(ans<=1000)return{text:`A Hot Toys ${a[0]} figure costs $${a[1]}. A Hot Toys ${b[0]} costs $${b[1]}. How much for both?`,choices:opts('$'+ans,['$'+(ans+10),'$'+(ans-10),'$'+(ans+100)]),ans:'$'+ans,pic:null,help:blocks(a[1],'$'+a[1])+blocks(b[1],'+ $'+b[1]),hint:`Add the hundreds, then the tens, then the ones.`,how:`Line up the prices by place. Add ones, then tens, then hundreds. Trade 10 ones for a ten if you need to.`}}
@@ -62,6 +63,7 @@ G.time=l=>{if(l===1||Math.random()<.65)return _time(l);
  const may=R(20,30),d=31-may+19;return{text:`Today is May ${may}. Samuel's birthday is June 19. May has 31 days. How many days until his birthday?`,choices:opts(d,[d+1,d-1,19+may-31>0?19:d+2]),ans:String(d),pic:null,help:numLine(0,d,d>20?5:1,[{v:31-may,t:'May 31'},{v:d,c:'#2fbf71',t:'June 19'}],[[0,31-may,'+'+(31-may)],[31-may,d,'+19']]),work:`From May ${may} to May 31 is ${31-may} days. Then 19 more days in June.`,hint:`Count the days left in May first (May has 31 days). Then add the June days.`,how:`Break it into two jumps: to the end of May (${31-may} days), then 19 days in June. Add them: ${31-may} + 19.`}};
 G.mult=l=>{if(Math.random()<.8)return _mult(l);const a=l===1?pick([2,5,10]):R(3,9),b=R(2,l===1?5:9),ans=a*b;
  return{text:`Each LEGO minifigure pack has ${b} figure${b==1?'':'s'}. Samuel gets ${a} pack${a==1?'':'s'}. How many minifigures is that?`,choices:opts(ans,[a*(b+1),a*(b-1),a+b]),ans:String(ans),pic:null,help:array(a,b),hint:`${a} pack${a==1?'':'s'} of ${b}. Count by ${b}s.`,how:`${a} equal groups of ${b}: ${a} × ${b}. Skip-count by ${b}.`}};
+}
 // ===== 6) Weekly note for the parent =====
 function weekly(){const now=Date.now(),D=864e5,wk=S.log.filter(e=>e.t>now-7*D),prev=S.log.filter(e=>e.t<=now-7*D&&e.t>now-14*D);
  const pct=(arr,k)=>{const a=arr.filter(e=>e.s===k);const n=a.reduce((s,e)=>s+e.n,0);return n?Math.round(a.reduce((s,e)=>s+e.f,0)/n*100):null};

@@ -6,7 +6,7 @@ const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math
 const fmt=n=>n.toLocaleString('en-US');
 const money=c=>'$'+(c/100).toFixed(2);
 // ---------- save ----------
-const KEY='heroMath.v1';
+const KEY=window.GS_MODE?'heroMath.sadie.v1':'heroMath.v1';
 const SK=[
  {id:'place',ic:'🏙️',name:'Place Value Patrol',sub:'Digits & rounding',sol:'3.NS.1, 3.CE.1b'},
  {id:'compare',ic:'⚖️',name:'Bigger or Smaller?',sub:'Compare numbers',sol:'3.NS.2'},
@@ -20,6 +20,7 @@ const SK=[
  {id:'data',ic:'📊',name:'Data Detective',sub:'Bar graphs',sol:'3.PS.1'},
  {id:'pattern',ic:'🔁',name:'Pattern Power',sub:'What comes next?',sol:'3.PFA.1'},
 ];
+if(window.GS_MODE&&window.GS){SK.length=0;SK.push(...GS.SK)}
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S={hero:'S',voice:true,bricks:[],skills:{},log:[]};
 SK.forEach(k=>{if(!S.skills[k.id])S.skills[k.id]={lvl:1,streak:0,miss:0,q:0,first:0,missions:0,last:0}});
@@ -36,7 +37,7 @@ document.addEventListener('pointerdown',primeSpeech,{capture:true,once:true});
 function stopVoice(){clearTimeout(sayT);clearTimeout(sayW);try{if(typeof dadAudio!=='undefined'&&dadAudio)dadAudio.pause()}catch(e){}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
 function say(t,force,onend){stopVoice();if(!(S.voice||force)||!window.speechSynthesis){onend&&onend();return}
  const wasBusy=speechSynthesis.speaking||speechSynthesis.pending;
- const go=()=>{try{const u=new SpeechSynthesisUtterance(spoken(t));u.lang='en-US';if(enVoice)u.voice=enVoice;u.rate=.92;u.pitch=1.05;let st=false;u.onstart=()=>{st=true};if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u);
+ const go=()=>{try{const u=new SpeechSynthesisUtterance(spoken(t));u.lang='en-US';if(enVoice)u.voice=enVoice;u.rate=window.GS_MODE?.85:.92;u.pitch=1.05;let st=false;u.onstart=()=>{st=true};if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u);
   sayW=setTimeout(()=>{if(!st&&!speechSynthesis.speaking){const b=$('say');b&&b.classList.add('pulse')}},1000)}catch(e){onend&&onend()}};
  if(wasBusy)sayT=setTimeout(go,60);else go()}
 const sents=t=>String(t).match(/[^.!?]+[.!?]*(\s|$)/g).map(s=>s.trim()).filter(Boolean);
@@ -193,6 +194,7 @@ const G={
 const BRICK=['#e63946','#2f6fdf','#ffb703','#2fbf71','#ff5fa2','#9b5de5','#f4f4f8','#1d1d1d'];
 const SUITS=[['Classic Suit','#c1121f','#1d3f8f'],['Ghost-Spider Suit','#f4f4f8','#ff5fa2'],['Stealth Suit','#222','#3a3'],['Iron Spider Suit','#b3121b','#d4a017'],['Upgraded Suit','#e63946','#111'],['Homemade Suit','#c33','#3456a8'],['Winter Suit','#e9f2ff','#3b6fd8'],['Golden Hero Suit','#d4a017','#7a5200'],['Night Patrol Suit','#14213d','#00e5ff'],['LEGO Master Suit','#ffb703','#e63946']];
 function suitSvg(s,sz){return `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}"><defs><radialGradient id="s${s[0].length}${s[1].slice(1)}" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".3" stop-color="${s[1]}"/><stop offset="1" stop-color="${s[2]}"/></radialGradient></defs><ellipse cx="50" cy="52" rx="38" ry="45" fill="url(#s${s[0].length}${s[1].slice(1)})"/><use href="#web"/><path d="M22 44Q30 30 46 46Q40 62 24 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/><path d="M78 44Q70 30 54 46Q60 62 76 56Z" fill="url(#eye)" stroke="#111" stroke-width="3"/></svg>`}
+if(window.GS_MODE&&window.GS){Object.keys(G).forEach(k=>delete G[k]);Object.assign(G,GS.G)}
 const PRAISE=['Amazing work, hero!','You got it!','Web-tastic!','You kept trying!','Way to go!','You\'re a math hero!','Nailed it!','Awesome thinking!'];
 const AGAIN=['Good try! Let\'s look at the picture.','That\'s okay, heroes practice!','Nice effort! Let\'s look together.','Brave try! The picture can help.'];
 const STORY=['Help save the city!','A crane is stuck downtown!','The subway lights went out!','Bricks fell off the bridge!','The museum needs a hero!','A cat is stuck on a roof!'];
@@ -251,8 +253,8 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
  $('cap').value=String(S.cap);$('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}. Brave Try stickers (used a clue): ${S.brave}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
-on('pickS',()=>{S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
-on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
+on('pickS',()=>{if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
+on('pickG',()=>{if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
 const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
