@@ -90,3 +90,5 @@ const _buildMap=buildMap;buildMap=function(){_buildMap();renderHero()};
 const _buildColl=buildColl;buildColl=function(){_buildColl();renderHero()};
 renderHero();
 Object.assign(window.__g,{calm,weekly,bossFor,DAD,heroSvg,SLOTS,dad});
+// keep Audio Director's music/SFX toggles out of the play area: dock them in the map's top bar
+(function dockAudio(){const a=$('hmaAudio');if(!a){setTimeout(dockAudio,300);return}a.style.cssText='position:static;display:flex;gap:14px';a.querySelectorAll('button').forEach(b=>{b.style.minWidth='88px';b.style.minHeight='88px'});$('toColl').parentNode.prepend(a)})();
