@@ -29,7 +29,7 @@ const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy
  _ans(b,c);if(!M)return;if(M.tries===before&&!right)return; // only armed (hear-then-pick)
  lastT=Date.now();
  if(right){if(M.tries===0&&dt>=6000&&(M.rushed>0||Math.random()<.34))setTimeout(()=>cheer('You took your time, that\'s real hero focus!'),700);
-  if(before>=2){M.yourTurn=1;M.i=Math.max(0,M.i-1)} // fresh similar question, mission length unchanged
+  if(before>=2&&!M.inTurn){M.yourTurn=1;M.i=Math.max(0,M.i-1)} // fresh similar question, mission length unchanged
   M.fastRun=0;return}
  // wrong
  paused=true;$('answers').classList.add('fpause');setTimeout(()=>{paused=false;lastT=Date.now();$("answers")&&$("answers").classList.remove("fpause")},PAUSE);
