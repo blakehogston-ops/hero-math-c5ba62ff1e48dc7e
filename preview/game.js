@@ -25,7 +25,7 @@ let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S={hero:'S',voice:true,bricks:[],skills:{},log:[]};
 SK.forEach(k=>{if(!S.skills[k.id])S.skills[k.id]={lvl:1,streak:0,miss:0,q:0,first:0,missions:0,last:0}});
 SK.forEach(k=>{const s=S.skills[k.id];s.best=Math.max(s.best||1,s.lvl)});if(S.cap===undefined)S.cap=3;S.brave=S.brave||0;
-let sess={n:0,t0:Date.now()};
+let sess={get n(){return S.sessDay===new Date().toDateString()?(S.sessN||0):0},set n(v){S.sessDay=new Date().toDateString();S.sessN=v;save()},t0:Date.now()};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 // ---------- speech & sound ----------
 function spoken(t){t=String(t);const W={'>':'greater than','<':'less than','=':'equals'};if(W[t.trim()])return W[t.trim()];return t.replace(/&nbsp;/g,' ').replace(/ ___ /g,' blank ').replace(/ &gt; | > /g,' greater than ').replace(/ &lt; | < /g,' less than ').replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>a+' '+({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b))+(a=='1'?'':'s'))}
@@ -126,7 +126,7 @@ const G={
   const names=['ones','tens','hundreds','thousands','ten thousands','hundred thousands'];
   const fs=fmt(n);let di=-1,cnt=0;for(let k=0;k<fs.length;k++){if(/\d/.test(fs[k])){if(cnt===i){di=k;break}cnt++}}const shown=fs.slice(0,di)+`<span style="color:#ffd23f;text-decoration:underline;text-underline-offset:6px">${fs[di]}</span>`+fs.slice(di+1);
   return{text:`What is the value of the ${d} in <span style="font-size:1.25em">${shown}</span>?`,speakText:`What is the value of the ${d} in ${fmt(n)}? Look for the yellow ${d}.`,choices:opts(fmt(val),[fmt(d),fmt(d*10**(p+1)),fmt(p>0?d*10**(p-1):d*100)]),ans:fmt(val),
-   pic:n<1000?blocks(n):null,help:pvChart(n,p),work:`The ${d} is in the ${names[p]} place. ${d} ${names[p]} is worth ${fmt(val)}.`,hint:`Which place is the ${d} in? What is each of those worth?`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
+   pic:n<1000?blocks(n):null,help:pvChart(n,p),work:`The ${d} is in the ${names[p]} place. ${d} ${d==1?names[p].replace(/s$/,''):names[p]} is worth ${fmt(val)}.`,hint:`Which place is the ${d} in? What is each of those worth?`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
  compare(l){const mx=l==1?999:l==2?9999:9999;let a=R(l==1?100:1000,mx),b=Math.random()<.15?a:(l==3?a+pick([-1,1])*pick([1,10,100,90,9]):R(l==1?100:1000,mx));if(b<0)b=a+10;
   const ans=a>b?'>':a<b?'<':'=';let k=0;const sa=String(a),sb=String(b);while(k<sa.length&&sa[k]===sb[k])k++;
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${fmt(a)} ___ ${fmt(b)}</span>`,speakText:`Which sign makes this true? ${fmt(a)}, blank, ${fmt(b)}. Greater than, less than, or equal?`,choices:['>','<','='],ans,
