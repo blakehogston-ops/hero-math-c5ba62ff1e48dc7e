@@ -9,7 +9,7 @@ if(S.calm===undefined)S.calm=!!(window.matchMedia&&matchMedia('(prefers-reduced-
 if(S.autoDodge===undefined)S.autoDodge=false;if(S.hear===undefined)S.hear=true;S.stickers=S.stickers||0;S.venomWins=S.venomWins||0;
 function applyCalm(){document.body.classList.toggle('calm',!!S.calm)}applyCalm();
 // ---------- story ----------
-const HOODS=['Midtown','Queens','Times Square','Brooklyn','Harlem','Chinatown','Central Park','SoHo','the Bronx','Coney Island','Chelsea','Staten Island'];
+const HOODS=['Midtown','Harlem','Chelsea','the Lower East Side','Brooklyn','Queens'];const HOOD_IDS=['n-midtown','n-harlem','n-chelsea','n-lowereast','n-brooklyn','n-queens'];
 const hood=()=>HOODS[S.log.length%HOODS.length];
 const isRematch=()=>S.log.length%3===2;
 STORY.splice(0,STORY.length,"Venom's goo is spreading over the city!","Oh no, symbiote goo everywhere!","Venom is making a gooey mess!");
@@ -20,9 +20,12 @@ VZ.LINES=LINES;
 const LOOKS=['','partyhat','shades','bowtie','chef'];const LOOKNAME={'':'',partyhat:'in a party hat',shades:'in cool sunglasses',bowtie:'in a fancy bow tie',chef:'in a chef hat'};
 const lookFor=()=>LOOKS[Math.floor(S.log.length/3)%LOOKS.length];
 // ---------- assets (Art Director) with fallbacks ----------
-const AS={};['venom.svg','venom_hit.svg','venom_defeat.svg','hero.svg','hero_swing.svg','bg_rooftops_night.svg','bg_rooftops_dusk.svg','bg_goo_city.svg','fx_web_shot.svg','fx_web_net.svg','fx_impact.svg','fx_goo_splat.svg','fx_goo_drip.svg'].forEach(n=>{const i=new Image();i.onerror=()=>{i.bad=1};i.src='assets/'+n;AS[n]=i});
-const ok=n=>AS[n]&&AS[n].complete&&AS[n].naturalWidth>0&&!AS[n].bad;VZ.assetOk=ok;
-function drawImgBox(img,x,y,w,h){const r=Math.min(w/img.naturalWidth,h/img.naturalHeight),iw=img.naturalWidth*r,ih=img.naturalHeight*r;ctx.drawImage(img,x+(w-iw)/2,y+h-ih,iw,ih)}
+const AS={};['venom.svg','venom_hit.svg','venom_defeat.svg','hero.svg','hero_swing.svg','bg_rooftops_night.svg','bg_rooftops_dusk.svg','bg_goo_city.svg','fx_web_shot.svg','fx_web_net.svg','fx_impact.svg','fx_goo_splat.svg','fx_goo_drip.svg','fx_web_bomb.svg','fx_iron_legs.svg','fx_swing_kick.svg'].forEach(n=>{const i=new Image();i.onerror=()=>{i.bad=1};i.src='assets/'+n;AS[n]=i});
+const ok=n=>AS[n]&&AS[n].complete&&!AS[n].bad&&(AS[n].naturalWidth>0||DIM[n]);VZ.assetOk=ok;
+const DIM={'venom.svg':[400,500],'venom_hit.svg':[400,500],'venom_defeat.svg':[400,500],'hero.svg':[400,500],'hero_swing.svg':[400,500],'bg_rooftops_night.svg':[1600,900],'bg_rooftops_dusk.svg':[1600,900],'bg_goo_city.svg':[1600,900],'fx_web_shot.svg':[400,100],'fx_web_net.svg':[400,400],'fx_impact.svg':[400,400],'fx_goo_splat.svg':[400,400],'fx_web_bomb.svg':[400,400],'fx_iron_legs.svg':[500,400],'fx_swing_kick.svg':[500,300]};
+const dimOf=img=>{const n=img.src.split('/').pop();return DIM[n]||[img.naturalWidth||100,img.naturalHeight||100]};
+function drawImgBox(img,x,y,w,h){const[nw,nh]=dimOf(img);const r=Math.min(w/nw,h/nh),iw=nw*r,ih=nh*r;ctx.drawImage(img,x+(w-iw)/2,y+h-ih,iw,ih)}
+function drawCentered(n,cx,cy,sz,a){if(!ok(n))return false;const[nw,nh]=DIM[n];const r=sz/Math.max(nw,nh);ctx.save();ctx.globalAlpha=a==null?1:a;ctx.drawImage(AS[n],cx-nw*r/2,cy-nh*r/2,nw*r,nh*r);ctx.restore();return true}
 // ---------- venom face svg for DOM ----------
 function venomFace(sz,look){look=look||'';const hat=look==='partyhat'?'<path d="M38 14L50-14L62 14Z" fill="#ff5fa2" stroke="#fff" stroke-width="2"/><circle cx="50" cy="-14" r="5" fill="#ffd23f"/>':look==='chef'?'<path d="M28 16Q24-6 40 0Q50-14 60 0Q76-6 72 16Z" fill="#fff" stroke="#ccc"/>':'';
  const sh=look==='shades'?'<rect x="16" y="34" width="30" height="14" rx="5" fill="#111" stroke="#4ff" stroke-width="2"/><rect x="54" y="34" width="30" height="14" rx="5" fill="#111" stroke="#4ff" stroke-width="2"/><path d="M46 40h8" stroke="#4ff" stroke-width="3"/>':'<path d="M16 38Q30 20 46 42Q34 54 20 52Z M84 38Q70 20 54 42Q66 54 80 52Z" fill="#fff"/><circle cx="34" cy="44" r="3" fill="#222"/><circle cx="66" cy="44" r="3" fill="#222"/>';
@@ -117,8 +120,9 @@ function landHit(){F.hits++;F.vhit=.3;F.stun=.6;hm('hit',F.tier>=2);burst(venCen
  const i=F.blobs.findIndex(Boolean);if(i<0)return;F.blobHits++;if(F.blobHits>=F.tapsPer){F.blobs[i]=0;F.blobHits=0;gooSplat(venCenter());renderHud();
   if(F.blobs.filter(Boolean).length===1&&!F.cheered){F.cheered=true;dad('fightcheer','Go Samuel! Web him up!')}
   if(!F.blobs.some(Boolean))startFinisher(false)}}
-function burst(p,tier){const n=reduce()?6:14+tier*6;const col=['#fff','#cfe8ff','#7fe3ff','#ffd23f'][tier];for(let i=0;i<n;i++){const a=Math.random()*6.28,s=80+Math.random()*220;F.parts.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5+Math.random()*.3,c:col,r:2+Math.random()*3})}}
-function gooSplat(p){for(let i=0;i<(reduce()?6:18);i++){const a=Math.random()*6.28,s=60+Math.random()*160;F.parts.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,life:.8,c:'#1b1030',r:6+Math.random()*8,g:1})}}
+function sprite(n,p,sz,life){F.spr=F.spr||[];F.spr.push({n,x:p.x,y:p.y,sz,life,t:0})}
+function burst(p,tier){sprite('fx_impact.svg',p,Math.min(W,Hh)*(.22+tier*.04),.35);const n=reduce()?6:14+tier*6;const col=['#fff','#cfe8ff','#7fe3ff','#ffd23f'][tier];for(let i=0;i<n;i++){const a=Math.random()*6.28,s=80+Math.random()*220;F.parts.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5+Math.random()*.3,c:col,r:2+Math.random()*3})}}
+function gooSplat(p){sprite('fx_goo_splat.svg',p,Math.min(W,Hh)*.35,.6);for(let i=0;i<(reduce()?6:18);i++){const a=Math.random()*6.28,s=60+Math.random()*160;F.parts.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,life:.8,c:'#1b1030',r:6+Math.random()*8,g:1})}}
 function startFinisher(mercy){if(F.finT>=0)return;F.finT=0;F.wind=0;F.strike=0;F.mercy=mercy;$('fHand').classList.remove('on');F.blobs.fill(0);renderHud();
  const fin=TIERS[F.tier].fin;prompt(mercy?'Hero power! '+fin:fin);hm('finisher');
  if(F.tier===3){$('fSuper').className='on';$('fBars').className='on';$('fSuper').textContent='SUPER WEB STORM!'}
@@ -140,12 +144,12 @@ function loop(now){if(!F)return;let dt=Math.min(.05,(now-F.last)/1000)*(VZ.speed
   if(F.shrink>0){F.shrink+=dt;if(F.shrink>2.6&&!F.done){F.done=true;hm('fightEnd',true);hm('victory');dad('venomwin',LINES.spidey);prompt(`Venom ran away! ${F.dodges?F.dodges+' great dodges! ':''}You saved ${hood()}!`);$('fDone').classList.add('on');if(F.tier===3)bubble('fBubble','⭐ Bonus sticker! SUPER MOVE!',5000)}}}
  // webs
  F.webs.forEach(w=>{w.t+=dt/.25;if(w.t>=1&&!w.hit){w.hit=1;if(!w.fin)landHit();else burst({x:w.x1,y:w.y1},F.tier)}});F.webs=F.webs.filter(w=>w.t<1.4);
- F.parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g?500:200)*dt;p.life-=dt});F.parts=F.parts.filter(p=>p.life>0);
+ (F.spr||[]).forEach(o=>o.t+=dt);F.spr=(F.spr||[]).filter(o=>o.t<o.life);F.parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g?500:200)*dt;p.life-=dt});F.parts=F.parts.filter(p=>p.life>0);
  F.vhit=Math.max(0,F.vhit-dt);F.stun=Math.max(0,F.stun-dt);F.shake=Math.max(0,F.shake-dt);
  draw();raf=requestAnimationFrame(loop)}
 // ---------- drawing ----------
 function bgCache(){const c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d');const dusk=F.rematch;const bgn=dusk?'bg_rooftops_dusk.svg':'bg_rooftops_night.svg';
- if(ok(bgn)){const i=AS[bgn],r=Math.max(W/i.naturalWidth,Hh/i.naturalHeight);x.drawImage(i,(W-i.naturalWidth*r)/2,(Hh-i.naturalHeight*r)/2,i.naturalWidth*r,i.naturalHeight*r);return c}
+ if(ok(bgn)){const i=AS[bgn],r=Math.max(W/1600,Hh/900);x.drawImage(i,(W-1600*r)/2,Hh*.82-820*r,1600*r,900*r);if(Hh*.82+80*r<Hh){x.fillStyle='#0b0d14';x.fillRect(0,Hh*.82+80*r,W,Hh)}return c}
  const g=x.createLinearGradient(0,0,0,Hh*.82);if(dusk){g.addColorStop(0,'#3a1450');g.addColorStop(.5,'#c2185b');g.addColorStop(1,'#ff9a3c')}else{g.addColorStop(0,'#070b1f');g.addColorStop(.6,'#1d1f4a');g.addColorStop(1,'#3b2a62')}x.fillStyle=g;x.fillRect(0,0,W,Hh);
  const vb=venBox();if(!dusk){const mg=x.createRadialGradient(vb.x+vb.w*.6,vb.y+vb.h*.25,10,vb.x+vb.w*.6,vb.y+vb.h*.25,Math.min(W,Hh)*.28);mg.addColorStop(0,'#fffbe8');mg.addColorStop(.45,'#e8e2c8');mg.addColorStop(.5,'rgba(232,226,200,.25)');mg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=mg;x.fillRect(0,0,W,Hh)}
  let s=11;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
@@ -182,7 +186,7 @@ function drawVenom(){const b=venBox();let sc=1,dx=0,dy=0;const t=F.t;
  const wob=reduce()?0:Math.sin(t*3)*.03;const lean=F.wind>0?-.12:0;
  const img=F.shrink>0&&ok('venom_defeat.svg')?AS['venom_defeat.svg']:F.vhit>0&&ok('venom_hit.svg')?AS['venom_hit.svg']:ok('venom.svg')?AS['venom.svg']:null;
  ctx.save();const cx=b.x+b.w/2+dx,base=b.y+b.h;ctx.translate(cx,base);ctx.rotate(lean);ctx.scale(sc*(1+wob)*(F.vhit>0?1.06:1),sc*(1-wob)*(F.vhit>0?.92:1));
- if(img){ctx.translate(-b.w/2,-b.h);drawImgBox(img,0,0,b.w,b.h);ctx.restore();venomExtras(b,cx,base,sc);return}
+ if(img){ctx.translate(-b.w/2,-b.h);drawImgBox(img,0,0,b.w,b.h);if(F.look&&F.shrink<=0){const r=Math.min(b.w/400,b.h/500),k=r*500/300;ctx.translate(b.w/2,b.h);ctx.scale(k,k);lookProps(F.look)}if(F.vhit>0){ctx.globalAlpha=.18;ctx.fillStyle='#fff';ctx.fillRect(0,0,b.w,b.h);ctx.globalAlpha=1}ctx.restore();venomExtras(b,cx,base,sc);return}
  const s=Math.min(b.w/220,b.h/300);ctx.scale(s,s);
  // body
  const bg=ctx.createRadialGradient(-30,-200,10,0,-140,190);bg.addColorStop(0,'#59607f');bg.addColorStop(.35,'#1a1c2b');bg.addColorStop(1,'#020205');ctx.fillStyle=bg;
@@ -196,13 +200,14 @@ function drawVenom(){const b=venBox();let sc=1,dx=0,dy=0;const t=F.t;
  // grin + tongue
  ctx.fillStyle='#f6f6f6';ctx.beginPath();ctx.moveTo(-46,-196);ctx.quadraticCurveTo(0,-160,46,-196);ctx.quadraticCurveTo(0,-178,-46,-196);ctx.fill();
  ctx.fillStyle='#ff6fa0';ctx.beginPath();ctx.moveTo(-6,-186);ctx.quadraticCurveTo(-14+Math.sin(t*4)*10,-140,6+Math.sin(t*4)*14,-120);ctx.quadraticCurveTo(18,-140,8,-186);ctx.fill();
- // look props
- const L=F.look;if(L==='partyhat'){ctx.fillStyle='#ff5fa2';ctx.beginPath();ctx.moveTo(-30,-282);ctx.lineTo(0,-360);ctx.lineTo(30,-282);ctx.fill();ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.arc(0,-362,9,0,6.3);ctx.fill()}
+ lookProps(F.look);
+ if(F.vhit>0){ctx.globalAlpha=.25;ctx.fillStyle='#fff';ctx.fillRect(-120,-300,240,300);ctx.globalAlpha=1}
+ ctx.restore();venomExtras(b,cx,base,sc)}
+function lookProps(L){ctx.save();ctx.translate(0,290-290);if(L==='partyhat'){ctx.fillStyle='#ff5fa2';ctx.beginPath();ctx.moveTo(-30,-282);ctx.lineTo(0,-360);ctx.lineTo(30,-282);ctx.fill();ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.arc(0,-362,9,0,6.3);ctx.fill()}
  if(L==='shades'){ctx.fillStyle='#111';ctx.strokeStyle='#4ff';ctx.lineWidth=4;ctx.fillRect(-66,-252,56,28);ctx.strokeRect(-66,-252,56,28);ctx.fillRect(10,-252,56,28);ctx.strokeRect(10,-252,56,28)}
  if(L==='bowtie'){ctx.fillStyle='#e63946';ctx.beginPath();ctx.moveTo(-34,-150);ctx.lineTo(0,-138);ctx.lineTo(34,-150);ctx.lineTo(34,-122);ctx.lineTo(0,-134);ctx.lineTo(-34,-122);ctx.fill()}
  if(L==='chef'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-24,-300,22,0,6.3);ctx.arc(0,-314,26,0,6.3);ctx.arc(24,-300,22,0,6.3);ctx.fill();ctx.fillRect(-36,-296,72,20)}
- if(F.vhit>0){ctx.globalAlpha=.25;ctx.fillStyle='#fff';ctx.fillRect(-120,-300,240,300);ctx.globalAlpha=1}
- ctx.restore();venomExtras(b,cx,base,sc)}
+ ctx.restore()}
 function venomExtras(b,cx,base,sc){ // windup "!" and tendril strike
  if(F.wind>0&&F.finT<0){const y=b.y-10;ctx.fillStyle='#ffd23f';ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.font=`900 ${Math.max(40,b.h*.16)}px system-ui`;ctx.textAlign='center';ctx.strokeText('!',cx,y+20);ctx.fillText('!',cx,y+20);
   const hb=heroBox();ctx.fillStyle='#ffe066';ctx.font=`800 ${Math.max(18,hb.h*.07)}px system-ui`;ctx.fillText('〰 spider-sense 〰',hb.x+hb.w/2,hb.y-6-F.hero.jump)}
@@ -210,24 +215,32 @@ function venomExtras(b,cx,base,sc){ // windup "!" and tendril strike
   ctx.strokeStyle='#0b0b12';ctx.lineWidth=Math.max(10,b.w*.07);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(vx,vy);ctx.quadraticCurveTo((vx+ex)/2,vy-b.h*.35,ex,ey);ctx.stroke();ctx.strokeStyle='#59607f';ctx.lineWidth=3;ctx.stroke()}}
 function drawWebs(){const col=['#ffffff','#e8f4ff','#9ff0ff','#ffd23f'][F.tier],lw=[3,6,7,8][F.tier];F.webs.forEach(w=>{const p=Math.min(1,w.t);const ex=w.x0+(w.x1-w.x0)*p,ey=w.y0+(w.y1-w.y0)*p;
   ctx.save();if(F.tier>=2){ctx.shadowColor=col;ctx.shadowBlur=14}ctx.strokeStyle=col;ctx.globalAlpha=w.t>1?Math.max(0,1.4-w.t)/.4:1;ctx.lineWidth=lw;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(w.x0,w.y0);ctx.lineTo(ex,ey);ctx.stroke();
-  if(ok('fx_web_shot.svg')&&p<1){ctx.drawImage(AS['fx_web_shot.svg'],ex-20,ey-20,40,40)}else{ctx.fillStyle=col;ctx.beginPath();ctx.arc(ex,ey,lw*1.4,0,6.3);ctx.fill()}
+  if(ok('fx_web_shot.svg')&&p<1){const ang=Math.atan2(w.y1-w.y0,w.x1-w.x0),L=Math.min(W,Hh)*.16;ctx.translate(ex,ey);ctx.rotate(ang);ctx.drawImage(AS['fx_web_shot.svg'],-L,-L/8,L,L/4)}else{ctx.fillStyle=col;ctx.beginPath();ctx.arc(ex,ey,lw*1.4,0,6.3);ctx.fill()}
   if(F.tier>=1&&p<1&&Math.random()<.5)F.parts.push({x:ex,y:ey,vx:(Math.random()-.5)*60,vy:(Math.random()-.5)*60,life:.3,c:'#fff',r:2});ctx.restore()})}
 function drawFinisher(){if(F.finT<0)return;const b=venBox(),c=venCenter();const p=Math.min(1,F.finT/1.6);ctx.save();ctx.strokeStyle=F.tier===3?'#ffd23f':'#fff';ctx.lineWidth=3;ctx.globalAlpha=.9;
  const rings=F.tier===0?5:9;for(let i=0;i<rings*p;i++){const a=(F.tier>=1?F.finT*2:0)+i*.7;ctx.beginPath();ctx.ellipse(c.x,c.y,b.w*.42,b.h*.12+i*4,a,0,6.3);ctx.stroke()}
- if(ok('fx_web_net.svg')&&p>.5){ctx.globalAlpha=p;drawImgBox(AS['fx_web_net.svg'],b.x,b.y,b.w,b.h)}
+ if(p>.5)drawCentered('fx_web_net.svg',c.x,c.y,Math.max(b.w,b.h)*.9,p);
+ if(F.tier===1&&F.finT<1.2)drawCentered('fx_web_bomb.svg',c.x,c.y,Math.max(b.w,b.h)*(.4+F.finT*.5),1-F.finT/1.2);
+ if(F.tier===2){const hb=heroBox();drawCentered('fx_swing_kick.svg',(hb.x+c.x)/2,c.y,Math.abs(c.x-hb.x)*1.1,Math.min(1,F.finT*2)*(F.finT<1.6?1:0))}
+ if(F.tier===3){const hb=heroBox();drawCentered('fx_iron_legs.svg',hb.x+hb.w/2,hb.y+hb.h*.25,hb.w*1.6,Math.min(1,F.finT*1.5))}
  if(F.tier===3&&!reduce()){ctx.globalAlpha=.25;ctx.fillStyle='#ffd23f';for(let i=0;i<12;i++){const a=i/12*6.28+F.finT;ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.arc(c.x,c.y,Math.max(W,Hh),a,a+.12);ctx.fill()}}
  ctx.restore()}
 function draw(){if(!F||!ctx)return;if(!F.bgc)F.bgc=bgCache();ctx.save();if(F.shake>0&&!reduce()){const m=4;ctx.translate((Math.random()-.5)*m,(Math.random()-.5)*m)}
  ctx.drawImage(F.bgc,0,0,W,Hh);drawBillboard();
  if(!F.rematch&&!reduce()){ctx.strokeStyle='rgba(180,200,255,.18)';ctx.lineWidth=1;for(let i=0;i<40;i++){const x=(i*97+F.t*60)%W,y=(i*53+F.t*500)%(Hh*.8);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3,y+12);ctx.stroke()}}
  drawVenom();drawHero();drawWebs();drawFinisher();
+ (F.spr||[]).forEach(o=>{const k=o.t/o.life;drawCentered(o.n,o.x,o.y,o.sz*(.7+.5*k),1-k)});
  F.parts.forEach(p=>{ctx.globalAlpha=Math.min(1,p.life*2);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.3);ctx.fill()});ctx.globalAlpha=1;
  ctx.restore()}
 // ---------- map headline ----------
+let MAPSVG='',GOOSVG='';try{fetch('assets/map_nyc.svg').then(r=>r.ok?r.text():'').then(t=>{MAPSVG=t;if($('map').classList.contains('on'))buildMap()}).catch(()=>{});fetch('assets/map_goo_overlay.svg').then(r=>r.ok?r.text():'').then(t=>{GOOSVG=t;if($('map').classList.contains('on'))buildMap()}).catch(()=>{})}catch(e){}
+function miniMap(cleared){if(!MAPSVG)return '';const n=cleared%6||(cleared&&cleared%6===0?0:0);const done=HOOD_IDS.slice(0,cleared%6);
+ const goo=GOOSVG.replace(/<svg/,'<svg class="mm-goo"').replace(/id="(n-[a-z]+)"/g,(m,id)=>done.includes(id)?`id="g-${id}" style="display:none"`:`id="g-${id}"`);
+ return `<div class="mm">${MAPSVG.replace(/<svg/,'<svg class="mm-base"')}${goo}</div>`}
 const _bm=window.buildMap;window.buildMap=function(){_bm();const g=$('grid');if(!g)return;let hd=$('venomHead');if(hd)hd.remove();hd=document.createElement('div');hd.id='venomHead';
- const cleared=S.venomWins||0,toRe=3-(S.log.length%3);
- hd.innerHTML=`<div class="vh-face">${venomFace(86,lookFor())}</div><div class="vh-txt"><div class="vh-t">⚠ VENOM ALERT!</div><div class="vh-s">Venom's goo is spreading over the city. Every mission powers up your web-shooters, then you fight Venom!</div>
- <div class="vh-hoods" aria-label="${Math.min(cleared,12)} of 12 neighborhoods cleared">${HOODS.map((n,i)=>`<span class="${i<cleared%13?'ok':''}" title="${n}">${i<cleared?'✔':'●'}</span>`).join('')}</div>
+ const cleared=S.venomWins||0,inWave=cleared%6,toRe=3-(S.log.length%3);
+ hd.innerHTML=`<div class="vh-face">${venomFace(86,lookFor())}</div>${miniMap(cleared)}<div class="vh-txt"><div class="vh-t">⚠ VENOM ALERT!</div><div class="vh-s">Venom's goo is spreading over the city. Every mission powers up your web-shooters, then you fight Venom!</div>
+ <div class="vh-hoods" aria-label="${inWave} of 6 neighborhoods cleared">${HOODS.map((n,i)=>`<span class="${i<inWave?'ok':''}" title="${n}">${i<inWave?'✔':'●'}</span>`).join('')} <small>${inWave}/6 neighborhoods clean</small></div>
  <div class="vh-s"><b>${cleared}</b> Venom fights won · ${toRe===3?'<b>REMATCH next fight!</b>':`Big REMATCH in ${toRe} mission${toRe>1?'s':''}`}</div></div>`;
  g.parentNode.insertBefore(hd,g)};
 window.buildMap=window.buildMap;buildMap=window.buildMap;
