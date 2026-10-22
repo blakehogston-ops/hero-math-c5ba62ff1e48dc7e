@@ -68,12 +68,12 @@ function numLine(a,b0,step,marks,lab){const W=640,pad=40,n=(b0-a)/step;let b=`<l
 function array(r,c,col){const s=Math.min(46,Math.floor(380/Math.max(r,c,1)));let b='';const W=c*s+20,H=r*s+50;
  b+=`<rect x="6" y="6" width="${c*s+8}" height="${r*s+8}" rx="8" fill="${col||'#e63946'}" stroke="#0004" stroke-width="2"/>`;
  for(let i=0;i<r;i++)for(let j=0;j<c;j++)b+=stud(10+j*s+s/2,10+i*s+s/2,s*.36,col||'#e63946');
- b+=T(W/2,H-8,`${r} rows of ${c} studs`,18);return svg(Math.max(W,200),H,b)}
+ b+=T(W/2,H-8,`${r} row${r==1?'':'s'} of ${c} stud${c==1?'':'s'}`,18);return svg(Math.max(W,200),H,b)}
 function groups(g,each,total){ // division: g groups
  const cols=Math.min(g,5),gw=120,gh=110;let b='';const rows=Math.ceil(g/cols);const colors=['#e63946','#2f6fdf','#ffb703','#2fbf71','#9b5de5'];
  for(let k=0;k<g;k++){const gx=(k%cols)*gw+8,gy=Math.floor(k/cols)*gh+8;b+=`<rect x="${gx}" y="${gy}" width="${gw-12}" height="${gh-14}" rx="16" fill="#eef3fb" stroke="#14213d33" stroke-width="2"/>`;
   for(let i=0;i<each;i++){const bx=gx+10+(i%4)*24,by=gy+12+Math.floor(i/4)*26;b+=`<rect x="${bx}" y="${by}" width="20" height="16" rx="3" fill="${colors[k%5]}"/><rect x="${bx+3}" y="${by-5}" width="6" height="5" fill="${colors[k%5]}"/><rect x="${bx+11}" y="${by-5}" width="6" height="5" fill="${colors[k%5]}"/>`}}
- const W=cols*gw+10,H=rows*gh+36;b+=T(W/2,H-8,`${total} bricks shared into ${g} groups = ${each} in each`,17);return svg(W,H,b)}
+ const W=cols*gw+10,H=rows*gh+36;b+=T(W/2,H-8,`${total} bricks shared into ${g} group${g==1?'':'s'} = ${each} in each`,17);return svg(W,H,b)}
 function fracBar(n,d,y0,lab,col){let b='';const W=520,w=W/d;for(let i=0;i<d;i++)b+=`<rect x="${10+i*w}" y="${y0}" width="${w}" height="56" fill="${i<n?(col||'#e63946'):'#fff'}" stroke="#14213d" stroke-width="3"/>`;
  if(lab)b+=T(W+40,y0+38,lab,26);return b}
 function fracModel(n,d){return svg(600,80,fracBar(n,d,10,''))}
@@ -88,7 +88,7 @@ function clock(h,m){let b=`<circle cx="120" cy="120" r="112" fill="#2b2d42"/><ci
  const ma=m/60*2*Math.PI,ha=((h%12)+m/60)/12*2*Math.PI;
  b+=`<line x1="120" y1="120" x2="${120+50*Math.sin(ha)}" y2="${120-50*Math.cos(ha)}" stroke="#2b2d42" stroke-width="9" stroke-linecap="round"/><line x1="120" y1="120" x2="${120+86*Math.sin(ma)}" y2="${120-86*Math.cos(ma)}" stroke="#e63946" stroke-width="5" stroke-linecap="round"/><circle cx="120" cy="120" r="8" fill="#e63946"/>`;
  return svg(240,240,b)}
-function clockHelp(h,m){let b='';for(let i=0;i<12;i++){const a=i/12*2*Math.PI;b+=T(145+136*Math.sin(a),151-136*Math.cos(a),i*5,17,'#2f6fdf')}return svg(290,290,`<g transform="translate(25,25)">${clock(h,m).replace(/<\/?svg[^>]*>/g,'')}${b}</g>`)}
+function clockHelp(h,m){let b='';for(let i=0;i<12;i++){const a=i/12*2*Math.PI;b+=T(120+138*Math.sin(a),126-138*Math.cos(a),i*5,17,'#2f6fdf')}return svg(320,322,`<g transform="translate(40,40)">${clock(h,m).replace(/<\/?svg[^>]*>/g,'')}${b}</g>`)}
 function polySvg(n,lab){const cx=130,cy=120,r=95;const p=[...Array(n)].map((_,i)=>{const a=i/n*2*Math.PI-Math.PI/2+(n==4?Math.PI/4:0);return[cx+r*Math.cos(a),cy+r*Math.sin(a)]});
  let b=`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="#2f6fdf" fill-opacity=".85" stroke="#0e2350" stroke-width="5" stroke-linejoin="round"/>`;
  if(lab)p.forEach((q,i)=>{const q2=p[(i+1)%n];b+=`<circle cx="${(q[0]+q2[0])/2}" cy="${(q[1]+q2[1])/2}" r="15" fill="#ffd23f" stroke="#7a5200" stroke-width="2"/>`+T((q[0]+q2[0])/2,(q[1]+q2[1])/2+7,i+1,18)});return svg(260,240,b)}
@@ -111,9 +111,10 @@ const G={
    const to=l==1?10:l==2?pick([10,100]):pick([100,1000]);const n=l==1?R(11,99):l==2?R(101,999):R(1001,9999);const lo=Math.floor(n/to)*to,hi=lo+to,ans=n-lo>=to/2?hi:lo;
    return{text:`Round ${fmt(n)} to the nearest ${fmt(to)}.`,choices:opts(fmt(ans),[fmt(ans===lo?hi:lo),fmt(lo-to),fmt(hi+to)]),ans:fmt(ans),
     pic:null,help:numLine(lo,hi,to/10,[{v:n,t:fmt(n)}]),hint:`${fmt(n)} sits between ${fmt(lo)} and ${fmt(hi)}. Which one is it closer to? (Halfway, ${fmt(lo+to/2)}, rounds up.)`,how:`Find the two ${fmt(to)}s around the number, ${fmt(lo)} and ${fmt(hi)}. Put the number on the line and see which end is closer. If it is exactly in the middle, we round up.`}}
-  const n=l==1?R(102,999):l==2?R(1002,9999):R(10002,Math.random()<.25?999999:99999);const s=String(n);let i=R(0,s.length-1);while(s[i]==='0')i=R(0,s.length-1);const p=s.length-1-i,d=+s[i],val=d*10**p;
+  const n=l==1?R(102,999):l==2?R(1002,9999):R(10002,Math.random()<.25?999999:99999);const s=String(n);const cand=[...s].map((c,k)=>k).filter(k=>s[k]!=='0'&&s.split(s[k]).length===2);if(!cand.length)return G.place(l);let i=pick(cand);const p=s.length-1-i,d=+s[i],val=d*10**p;
   const names=['ones','tens','hundreds','thousands','ten thousands','hundred thousands'];
-  return{text:`What is the value of the <u>${d}</u> in ${fmt(n)}?`,choices:opts(fmt(val),[fmt(d),fmt(d*10**(p+1)),fmt(p>0?d*10**(p-1):d*100)]),ans:fmt(val),
+  const fs=fmt(n);let di=-1,cnt=0;for(let k=0;k<fs.length;k++){if(/\d/.test(fs[k])){if(cnt===i){di=k;break}cnt++}}const shown=fs.slice(0,di)+`<span style="color:#ffd23f;text-decoration:underline;text-underline-offset:6px">${fs[di]}</span>`+fs.slice(di+1);
+  return{text:`What is the value of the ${d} in <span style="font-size:1.25em">${shown}</span>?`,speakText:`What is the value of the ${d} in ${fmt(n)}? Look for the yellow ${d}.`,choices:opts(fmt(val),[fmt(d),fmt(d*10**(p+1)),fmt(p>0?d*10**(p-1):d*100)]),ans:fmt(val),
    pic:n<1000?blocks(n):null,help:pvChart(n,p),hint:`The ${d} is in the ${names[p]} place. ${d} ${names[p]} is worth ${fmt(val)}.`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
  compare(l){const mx=l==1?999:l==2?9999:9999;let a=R(l==1?100:1000,mx),b=Math.random()<.15?a:(l==3?a+pick([-1,1])*pick([1,10,100,90,9]):R(l==1?100:1000,mx));if(b<0)b=a+10;
   const ans=a>b?'>':a<b?'<':'=';let k=0;const sa=String(a),sb=String(b);while(k<sa.length&&sa[k]===sb[k])k++;
@@ -130,12 +131,12 @@ const G={
    how:add?`Stack the numbers by place: ones under ones, tens under tens. Add ones: ${a%10} + ${b%10} = ${a%10+b%10}. ${a%10+b%10>9?'That is 10 or more, so trade 10 ones for one ten.':''} Then add the tens and hundreds.`:`Break ${fmt(b)} into hundreds, tens and ones. Jump back from ${fmt(a)} one part at a time on the number line.`}},
  mult(l){const pool=l==1?[0,1,2,5,10]:l==2?[2,3,4,5,10]:[3,4,6,7,8,9];let a=pick(pool),b=R(l==1?1:2,10);if(Math.random()<.5)[a,b]=[b,a];const ans=a*b;
   const story=Math.random()<.35&&a>0&&b>0;
-  return{text:story?`Spidey builds ${a} LEGO walls. Each wall has ${b} bricks. How many bricks?`:`${a} × ${b} = ?`,choices:opts(ans,[a*(b+1),a*(b-1),(a+1)*b,a+b]),ans:String(ans),
-   pic:null,help:a&&b?array(a,b):svg(400,80,T(200,50,a===0?`0 rows of ${b} = nothing at all!`:`${a} rows of 0 = nothing at all!`,22)),hint:a&&b?`${a} rows with ${b} in each row. Count by ${b}s: ${[...Array(Math.min(a,10))].map((_,i)=>(i+1)*b).join(', ')}.`:'Anything times 0 is 0!',
-   how:`Multiplying means equal groups. ${a} × ${b} means ${a} groups of ${b}. Make ${a} rows of ${b} studs and skip-count by ${b}.`}},
+  return{text:story?`Spidey builds ${a} LEGO wall${a>1?'s':''}. Each wall has ${b} brick${b>1?'s':''}. How many bricks?`:`${a} × ${b} = ?`,choices:opts(ans,[a*(b+1),a*(b-1),(a+1)*b,a+b]),ans:String(ans),
+   pic:null,help:a&&b?array(a,b):svg(400,80,T(200,50,a===0?`0 rows of ${b} = nothing at all!`:`${a} row${a==1?'':'s'} of 0 = nothing at all!`,22)),hint:a&&b?`${a} row${a==1?'':'s'} with ${b} in each row. Count by ${b}s: ${[...Array(Math.min(a,10))].map((_,i)=>(i+1)*b).join(', ')}.`:'Anything times 0 is 0!',
+   how:`Multiplying means equal groups. ${a} × ${b} means ${a} group${a==1?'':'s'} of ${b}. Make ${a} row${a==1?'':'s'} of ${b} stud${b==1?'':'s'} and skip-count by ${b}.`}},
  div(l){const pool=l==1?[1,2,5,10]:l==2?[2,3,4,5]:[3,4,6,7,8,9];const d=pick(pool),q=R(1,10),n=d*q;const story=Math.random()<.35;
-  return{text:story?`Sadie puts ${n} LEGO bricks into ${d} bins equally. How many bricks go in each bin?`:`${n} ÷ ${d} = ?`,choices:opts(q,[q+1,q-1,d,q+2]),ans:String(q),
-   pic:null,help:groups(d,q,n),hint:`Share ${n} bricks into ${d} equal groups. Or think: ${d} × what = ${n}?`,how:`Division is fair sharing. Put one brick in each of the ${d} groups again and again until all ${n} are used. Count one group. You can also use a times fact: ${d} × ${q} = ${n}.`}},
+  return{text:story&&d>1?`Sadie puts ${n} LEGO bricks into ${d} bins equally. How many bricks go in each bin?`:`${n} ÷ ${d} = ?`,choices:opts(q,[q+1,q-1,d,q+2]),ans:String(q),
+   pic:null,help:groups(d,q,n),hint:`Share ${n} brick${n==1?"":"s"} into ${d} equal group${d==1?"":"s"}. Or think: ${d} × what = ${n}?`,how:`Division is fair sharing. Put one brick in each of the ${d} group${d==1?'':'s'} again and again until all ${n} are used. Count one group. You can also use a times fact: ${d} × ${q} = ${n}.`}},
  frac(l){if(l<3){const d=l==1?pick([2,3,4]):pick([2,3,4,5,6,8]),n=R(1,d-1+(l==2?1:0));const circle=Math.random()<.5;
    const f=n+'/'+d;return{text:circle?`What fraction of the pizza is cheese (yellow)?`:`What fraction of the bar is shaded red?`,choices:opts(f,[(d-n||1)+'/'+d,d+'/'+n,n+'/'+(d+1),(n+1)+'/'+d].filter(x=>!x.startsWith('0'))),ans:f,
     pic:circle?fracCircle(n,d):fracModel(n,d),help:circle?fracCircle(n,d):fracModel(n,d),hint:`Count ALL the equal parts: ${d}. That's the bottom number. Count the colored parts: ${n}. That's the top number.`,how:`The bottom number (denominator) is how many equal parts in all. The top number (numerator) is how many parts we're talking about. Here: ${n} out of ${d}.`}}
@@ -163,7 +164,7 @@ const G={
     hint:`Count the sides: it has ${n}. Tri = 3, quad = 4, penta = 5, hexa = 6, octo = 8 (like an octopus!).`,how:`Count the straight sides. The number of sides gives the shape its name. 3 triangle, 4 quadrilateral, 5 pentagon, 6 hexagon, 8 octagon.`}}
   const w=R(2,l==2?5:8),h=R(2,l==2?4:6);
   if(l==2||Math.random()<.4)return{text:`Each square is 1 square unit. What is the area of the rectangle?`,choices:opts(w*h,[w*h+w,w+h,2*(w+h),w*h-1]),ans:String(w*h),pic:gridRect(w,h),help:gridRect(w,h,1),
-   hint:`Count the squares, or: ${h} rows of ${w} = ${h} × ${w}.`,how:`Area is how many squares cover the shape. Count them, or multiply rows × squares in each row.`};
+   hint:`Count the squares, or: ${h} row${h==1?'':'s'} of ${w} = ${h} × ${w}.`,how:`Area is how many squares cover the shape. Count them, or multiply rows × squares in each row.`};
   return{text:`A LEGO base is ${w} units long and ${h} units wide. What is its perimeter?`,choices:opts(2*(w+h),[w*h,w+h,2*(w+h)+2]),ans:String(2*(w+h)),pic:gridRect(w,h,0,1),help:gridRect(w,h,0,1),
    hint:`Perimeter is the walk all the way around: ${w} + ${h} + ${w} + ${h}.`,how:`Perimeter is the distance around the outside. Add up all four sides: ${w} + ${h} + ${w} + ${h} = ${2*(w+h)}.`}},
  data(l){const names=shuf(['Spidey','Ghost-Spider','Iron Man','Miles','Hulk']).slice(0,4),cols=['#e63946','#ff5fa2','#ffb703','#2f6fdf'];const data=names.map((n,i)=>[n,R(1,l==1?6:9),cols[i]]);
@@ -186,7 +187,8 @@ const PRAISE=['Amazing work, hero!','You got it!','Web-tastic!','Super smart!','
 const AGAIN=['Good try! Let\'s look at the picture.','That\'s okay, heroes practice!','Nice effort! Let\'s look together.','Brave try! The picture can help.'];
 const STORY=['Help save the city!','A crane is stuck downtown!','The subway lights went out!','Bricks fell off the bridge!','The museum needs a hero!','A cat is stuck on a roof!'];
 // ---------- screens ----------
-function show(id){window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
+let tapLock=0;['pointerdown','touchstart','click','touchend','pointerup'].forEach(ev=>document.addEventListener(ev,e=>{if(Date.now()<tapLock){e.stopPropagation();if(e.cancelable&&ev!=='touchstart'&&ev!=='pointerdown')e.preventDefault()}},true));
+function show(id){tapLock=Date.now()+400;window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
 const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
 function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇'}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
@@ -217,7 +219,7 @@ function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$
 let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI],true);howI++}
 function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');dad('rest',`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
 let restUnlock=false;
-function finish(){const st=S.skills[M.id];st.missions++;sess.n++;if(M.brave)S.brave++;st.best=Math.max(st.best||1,st.lvl);const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN,l:st.best,b:M.brave?1:0});if(S.log.length>200)S.log.shift();save();
+function finish(){$('ov').classList.remove('on');const st=S.skills[M.id];st.missions++;sess.n++;if(M.brave)S.brave++;st.best=Math.max(st.best||1,st.lvl);const col=BRICK[S.bricks.length%BRICK.length];S.bricks.push(col);S.log.push({t:Date.now(),s:M.id,f:M.firsts,n:QN,l:st.best,b:M.brave?1:0});if(S.log.length>200)S.log.shift();save();
  const unlocked=S.bricks.length%3===0?SUITS[(S.bricks.length/3-1)%SUITS.length]:null;
  $('rwText').textContent=`You helped the city, ${heroName()}! You earned a new LEGO brick.`;
  $('rwItem').innerHTML=`<span class="brick" style="background:${col};transform:scale(1.6)"></span>`+(M.brave?`<div style="font-size:22px;margin:6px">🏅 Brave Try sticker! You used a clue like a real hero. (${S.brave} so far)</div>`:'')+(unlocked?`<div style="font-size:24px;margin-top:14px">NEW SUIT UNLOCKED!</div>${suitSvg(unlocked,140)}<div style="font-size:22px">${unlocked[0]}</div>`:`<div style="font-size:20px;margin-top:10px">${3-S.bricks.length%3} more brick${3-S.bricks.length%3>1?'s':''} until a new suit!</div>`);
@@ -239,7 +241,7 @@ on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a m
 const tv=()=>{S.voice=!S.voice;save();voiceBtns();if(S.voice)say('Okay! I will read to you.',true);else speechSynthesis&&speechSynthesis.cancel()};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
-on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>$('ov').classList.add('on'));on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
+on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(busy||!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
 on('say',()=>say(M.q.speakText||M.q.text,true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
