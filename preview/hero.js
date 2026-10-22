@@ -29,17 +29,9 @@ VZ.onFightStart=F=>{ensureSpecial();F.charge=0;F.special=0;updSpecial();$('fSpec
 // dad mid-fight cameo (visual + line 18)
 let cameoDone=false;VZ.onBlob=F=>{if(!cameoDone&&F.blobs.filter(Boolean).length===1){cameoDone=true;const c=document.createElement('div');c.className='cameo';c.innerHTML='<img src="assets/family/dad_cheer.svg" alt="Dad cheering" style="height:96px;vertical-align:bottom;margin-right:6px"><b>Dad:</b> Go '+heroName()+'! Web him up!';$('fight').appendChild(c);setTimeout(()=>c.remove(),3500)}};
 // ---------- Venom phone call before rematches ----------
-VZ.preFight=(rematch,go)=>{if(!rematch||!SV['venom_call.svg']){go();return}const o=document.createElement('div');o.id='vcall';o.innerHTML=`<div class="vc-ph">${inl('venom_call.svg','vc-svg')}<div class="vc-btns"><button class="btn" id="vcDecline" aria-label="Decline">✖ Decline</button><button class="btn blue" id="vcAnswer" aria-label="Answer">📞 Answer</button></div></div>`;document.body.appendChild(o);
- try{HMA.venomGrowl&&HMA.venomGrowl()}catch(e){}say('Incoming call... from Venom!');const done=(t)=>{o.remove();say(t);setTimeout(go,50)};
- $('vcAnswer').onclick=()=>done("Hello? It's US! We got a new look. Come to the roof for a rematch!");$('vcDecline').onclick=()=>done("Venom called back anyway! He's on the roof. Rematch time!")};
-// ---------- trading cards + Daily Globe after each win ----------
-function globe(hood,tier){const sv=inl('bugle_front.svg','globe');const name=S.hero==='G'?'SADIE':'SAMUEL';const head=`${name} WEBS VENOM! ${hood.toUpperCase().replace('THE ','')} GOO-FREE!`;
- if(!sv)return `<div class="globe fb"><div class="gt">THE DAILY GLOBE</div><div class="gh">${esc(head)}</div></div>`;const d=document.createElement('div');d.innerHTML=sv;const s=d.firstElementChild;setTxt(s,'headline-text',head);setTxt(s,'headline',head);
- s.querySelectorAll('text').forEach(t=>{if(/bugle/i.test(t.textContent))t.textContent=t.textContent.replace(/daily bugle|bugle/ig,'DAILY GLOBE')});return `<div class="globew">${d.innerHTML}<div class="gphoto">${VZ.venomFace(70,'')}<span>🕸️</span></div></div>`}
-VZ.afterWin=(res,hood,mm)=>{let c=null;try{c=window.HMA&&HMA.awardCard?HMA.awardCard({tier:res.tier,power:res.power,hood:hood,skill:mm&&mm.id}):null}catch(e){}const it=$('rwItem');const box=document.createElement('div');box.className='winrow';
- box.innerHTML=`<button class="globebtn" aria-label="Daily Globe front page">${globe(hood,res.tier)}</button><div>${c&&HMA.cardHtml?`<div style="font-size:18px">New card!</div>${HMA.cardHtml(c)}`:''}</div>`;it.prepend(box);
- box.querySelector('.globebtn').onclick=()=>{const o=document.createElement('div');o.className='bigview';o.innerHTML=globe(hood,res.tier)+'<button class="btn blue">Close</button>';o.querySelector('button').onclick=()=>o.remove();document.body.appendChild(o)};
- say(`Extra! Extra! The Daily Globe says: ${heroName()} webs Venom!`+(c&&c.name?` You got a new card: ${c.name}.`:''))};
+VZ.preFight=(rematch,go)=>{if(!rematch||!(window.HMA&&HMA.venomCall)){go();return}let gone=false;const g=()=>{if(!gone){gone=true;go()}};try{HMA.venomCall(g,{speak:!!S.voice}).then(g,g)}catch(e){g()}};
+VZ.afterWin=(res,hood,mm)=>{let c=null;try{c=window.HMA&&HMA.awardCard?HMA.awardCard({tier:res.tier,power:res.power,hood:hood,skill:mm&&mm.id}):null}catch(e){}const it=$('rwItem');if(c&&HMA.cardHtml){const box=document.createElement('div');box.className='winrow';box.innerHTML=`<div><div style="font-size:18px">New card!</div>${HMA.cardHtml(c)}</div>`;it.prepend(box)}
+ try{if(window.HMA&&HMA.showGlobe)HMA.showGlobe(heroName(),hood,{speak:!!S.voice})}catch(e){}};
 // binder + gym buttons on map
 const _bm=window.buildMap;window.buildMap=function(){_bm();const t=$('toColl');if(!t||$('toBinder'))return;const mk=(id,html,lab,fn)=>{const b=document.createElement('button');b.id=id;b.className='btn small pink';b.innerHTML=html;b.setAttribute('aria-label',lab);b.onclick=fn;t.parentNode.insertBefore(b,t.nextSibling)};
  mk('toGym','🥊 Gym','Hero gym',gymGate);mk('toBinder','📇 Cards','Card binder',()=>window.HMA&&HMA.openBinder&&HMA.openBinder())};buildMap=window.buildMap;
@@ -53,5 +45,5 @@ const _next=next;next=function(a,b){_next(a,b);if(M&&M.i===0)streak=0;const h=$(
 const _ofm=onFirstMiss;onFirstMiss=function(){_ofm();streak=0;setTimeout(()=>{if(!M||$('ssBtn'))return;const b=document.createElement('button');b.id='ssBtn';b.className='btn small blue';b.innerHTML='🕷️ Spider-Sense';b.setAttribute('aria-label','Spider-Sense: hide one wrong answer');
  b.onclick=()=>{const w=[...document.querySelectorAll('.ans')].filter(x=>x.textContent!==M.q.ans&&!x.classList.contains('tried'));if(w.length>1){const x=pick(w);x.classList.add('tried','sensed');x.setAttribute('aria-label',x.textContent+' (not it)')}say('Your spider-sense says: not that one!');b.remove();M.brave=1};$('hint').appendChild(b)},50)};
 const _n2=next;next=function(a,b){const o=$('ssBtn');o&&o.remove();_n2(a,b)};
-Object.assign(VZ,{gym:gymGate,globe});
+Object.assign(VZ,{gym:gymGate});
 })();
