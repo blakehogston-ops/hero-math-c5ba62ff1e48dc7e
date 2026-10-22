@@ -183,7 +183,7 @@ const PRAISE=['Amazing work, hero!','You got it!','Web-tastic!','Super smart!','
 const AGAIN=['Good try! Let\'s look together.','Almost! Here\'s a clue.','That\'s okay, heroes practice! Look at this.','Nice effort! Let\'s use the picture.'];
 const STORY=['Help save the city!','A crane is stuck downtown!','The subway lights went out!','Bricks fell off the bridge!','The museum needs a hero!','A cat is stuck on a roof!'];
 // ---------- screens ----------
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
+function show(id){window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
 const heroName=()=>S.hero==='G'?'Ghost-Spider':'Spidey';
 function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇'}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
@@ -201,10 +201,10 @@ function next(){const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
 function cheer(t){const c=$('cheer');c.textContent=t;c.classList.add('on');setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false;
 function answer(b,c){if(busy||b.classList.contains('tried'))return;const st=S.skills[M.id];
- if(c===M.q.ans){busy=true;b.classList.add('good');chime();const p=pick(PRAISE);cheer(p);say(p);
+ if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?HMA.fx('correct'):chime();const p=pick(PRAISE);cheer(p);say(p);
   if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;setTimeout(()=>cheer('LEVEL UP! ⭐'),900)}}
   st.q++;st.last=Date.now();save();M.i++;setTimeout(()=>{busy=false;M.i>=QN?finish():next()},1500)}
- else{M.tries++;b.classList.add('tried');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
+ else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   helpOn(pick(AGAIN)+' '+M.q.hint);
   if(M.tries>=2){[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}})}}}
 function helpOn(t){$('hint').textContent=t;$('hint').className='on';if(M.q.help)$('model').innerHTML=M.q.help;say(t)}
@@ -212,7 +212,7 @@ function finish(){const st=S.skills[M.id];st.missions++;const col=BRICK[S.bricks
  const unlocked=S.bricks.length%3===0?SUITS[(S.bricks.length/3-1)%SUITS.length]:null;
  $('rwText').textContent=`You helped the city, ${heroName()}! You earned a new LEGO brick.`;
  $('rwItem').innerHTML=`<span class="brick" style="background:${col};transform:scale(1.6)"></span>`+(unlocked?`<div style="font-size:24px;margin-top:14px">NEW SUIT UNLOCKED!</div>${suitSvg(unlocked,140)}<div style="font-size:22px">${unlocked[0]}</div>`:`<div style="font-size:20px;margin-top:10px">${3-S.bricks.length%3} more brick${3-S.bricks.length%3>1?'s':''} until a new suit!</div>`);
- show('reward');chime();say(`Mission complete! You helped the city! ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`,false)}
+ show('reward');if(window.HMA){HMA.fx('fanfare');setTimeout(()=>HMA.fx(unlocked?'suit':'brick'),1300);setTimeout(()=>HMA.music('map'),3200)}else chime();say(`Mission complete! You helped the city! ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`,false)}
 function buildColl(){$('bricks').innerHTML=S.bricks.length?S.bricks.map(c=>`<span class="brick" style="background:${c}"></span>`).join(''):'<div style="font-size:20px">No bricks yet. Finish a mission to earn one!</div>';
  const n=Math.floor(S.bricks.length/3);$('suits').innerHTML=SUITS.map((s,i)=>`<div class="suit ${i<n?'':'lock'}">${suitSvg(s,110)}<div>${i<n?s[0]:'🔒 '+(i+1)*3+' bricks'}</div></div>`).join('')}
 // gate
