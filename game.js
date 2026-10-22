@@ -155,7 +155,7 @@ const G={
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${a}/${c} ___ ${b}/${d}</span>`,speakText:`Which sign makes this true? ${a}/${c}, blank, ${b}/${d}. Greater than, less than, or equal?`,choices:['>','<','='],ans,pic:null,help:svg(620,150,fracBar(a,c,10,a+'/'+c)+fracBar(b,d,84,b+'/'+d,'#2f6fdf')),
    hint:same?`Same-size pieces! The one with more pieces is bigger.`:`Same number of pieces, but bigger pieces when the bottom number is smaller. Look at the bars!`,how:`Draw both fractions as bars the same length. The bar with more color is the bigger fraction.`}},
  money(l){if(l<3){const set=l==1?[1,5,10,25]:[1,5,10,25,100];const list=[];const n=l==1?R(2,5):R(3,6);for(let i=0;i<n;i++)list.push(pick(set));list.sort((a,b)=>b-a);const tot=list.reduce((a,b)=>a+b,0);
-   const cents=l==1&&tot+10<100;const show=v=>cents?v+'¢':money(v);
+   const show=v=>tot<95&&l==1?v+'¢':money(v);
    return{text:`How much money is this?`,choices:opts(show(tot),[show(tot+5),show(Math.max(1,tot-5)),show(tot+10),show(tot+1)]),ans:show(tot),pic:coinsSvg(list,false,l<3),help:coinsSvg(list,true,true),
     hint:`Start with the biggest one and count on: ${(()=>{let s=0;return list.map(v=>(s+=v,s<100?s+'¢':money(s))).join(', ')})()}.`,how:`Quarter = 25¢, dime = 10¢, nickel = 5¢, penny = 1¢, a dollar bill = 100¢. Line them up from biggest to smallest and count on.`}}
   const cost=R(105,495),ch=500-cost;return{text:`A LEGO minifigure costs ${money(cost)}. You pay with a $5 bill. How much change do you get?`,choices:opts(money(ch),[money(ch+10),money(ch-10>0?ch-10:ch+25),money(ch+100)]),ans:money(ch),
@@ -200,10 +200,7 @@ const STORY=['Help save the city!','A crane is stuck downtown!','The subway ligh
 let tapLock=0;['pointerdown','touchstart','click','touchend','pointerup'].forEach(ev=>document.addEventListener(ev,e=>{if(Date.now()<tapLock){e.stopPropagation();if(e.cancelable&&ev!=='touchstart'&&ev!=='pointerdown')e.preventDefault()}},true));
 function show(id){tapLock=Date.now()+400;window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
 const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
-function voiceBtns(){$('voiceT').textContent=(S.voice?'🔊':'🔇')+' Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇';$('voiceM').setAttribute('aria-label','Read aloud '+(S.voice?'on':'off'));$('voiceM').setAttribute('aria-pressed',S.voice);
- const b=$('say');if(b){b.innerHTML=S.voice?'🔊 Read: ON':'🔇 Read: OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
- const c=document.getElementById('setVoice');if(c)c.checked=!!S.voice;document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'))}
-function setVoice(on){S.voice=!!on;save();if(!S.voice){stopVoice();armed=null}voiceBtns()}
+function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇'}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
  SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
@@ -253,13 +250,13 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
 const on=(id,f)=>$(id).addEventListener('click',f);
 on('pickS',()=>{S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
 on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
-const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
+const tv=()=>{S.voice=!S.voice;save();voiceBtns();if(S.voice)say('Okay! I will read to you.',true);else speechSynthesis&&speechSynthesis.cancel()};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
 on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
-on('say',()=>{if(S.voice){setVoice(false)}else{setVoice(true);if(M&&M.q)say((M.q.speakText||M.q.text)+choiceList(),true)}});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
+on('say',()=>say((M.q.speakText||M.q.text)+choiceList(),true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
 on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();

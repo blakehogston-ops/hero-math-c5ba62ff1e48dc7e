@@ -1,0 +1,32 @@
+/* Hero Math Academy - realistic art layer. Calm, no flashing. */
+body{background:#070b16}
+h1{font-weight:800;letter-spacing:2px;background:linear-gradient(#fff 30%,#c9d3e6);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 12px #000c)}
+.panel{background:linear-gradient(rgba(22,28,44,.86),rgba(10,14,24,.9));border:1px solid rgba(255,255,255,.14);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.btn{background:linear-gradient(#c8323b,#8e1a20);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #4a0c10,0 10px 20px rgba(0,0,0,.5)}
+.btn.blue{background:linear-gradient(#3567c4,#1c3a7d);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d1f45,0 10px 20px rgba(0,0,0,.5)}
+.btn.ghost{background:linear-gradient(#eef0f5,#c3c7d3);box-shadow:inset 0 1px 0 #fff,0 5px 0 #6d7285,0 10px 20px rgba(0,0,0,.5)}
+.btn.pink{background:linear-gradient(#d9497f,#9c1f52);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #560c2a,0 10px 20px rgba(0,0,0,.5)}
+.portrait-hero{filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+/* mission map: street-grid map under glass cards */
+#map .grid{position:relative;border-radius:22px;padding:14px;background:
+ linear-gradient(rgba(8,12,22,.55),rgba(8,12,22,.7)),
+ url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Crect width='240' height='240' fill='%23161c2a'/%3E%3Cg fill='%2320283a'%3E%3Crect x='8' y='8' width='64' height='44' rx='3'/%3E%3Crect x='88' y='8' width='64' height='44' rx='3'/%3E%3Crect x='168' y='8' width='64' height='44' rx='3'/%3E%3Crect x='8' y='68' width='64' height='44' rx='3'/%3E%3Crect x='88' y='68' width='144' height='44' rx='3' fill='%231c3324'/%3E%3Crect x='8' y='128' width='64' height='44' rx='3'/%3E%3Crect x='88' y='128' width='64' height='44' rx='3'/%3E%3Crect x='168' y='128' width='64' height='44' rx='3'/%3E%3Crect x='8' y='188' width='224' height='44' rx='3'/%3E%3C/g%3E%3Cpath d='M0 60h240M0 120h240M0 180h240M80 0v240M160 0v240' stroke='%233a4256' stroke-width='3'/%3E%3Cpath d='M0 60h240M0 120h240M0 180h240M80 0v240M160 0v240' stroke='%23d9b45a' stroke-opacity='.25' stroke-width='.8' stroke-dasharray='6 6'/%3E%3C/svg%3E");
+ border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 0 40px rgba(0,0,0,.6)}
+.mission{background:linear-gradient(160deg,rgba(38,48,74,.92),rgba(16,21,36,.94));border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 8px 18px rgba(0,0,0,.55);min-height:120px}
+.mission.done{border-color:rgba(242,193,78,.55)}
+.mission .ic{display:flex;align-items:center;gap:8px;font-size:0}
+.mission .pin{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#3a4a72,#121a30);border:2px solid #c99a3a;box-shadow:0 0 0 3px rgba(0,0,0,.35),0 4px 8px rgba(0,0,0,.5)}
+.mission .num{font-size:15px;font-weight:700;color:#c9cfdd;opacity:.8}
+.mission .stars{display:flex;gap:2px;font-size:0;top:14px}
+/* problem screen */
+.model{background:linear-gradient(#fbfaf6,#ecebe4);box-shadow:inset 0 2px 6px rgba(0,0,0,.15),0 8px 18px rgba(0,0,0,.45)}
+.ans{background:linear-gradient(#fdfdfb,#dfe3ea);box-shadow:inset 0 1px 0 #fff,0 6px 0 #7e889b,0 12px 20px rgba(0,0,0,.45)}
+.prog i.d{background:radial-gradient(circle at 35% 30%,#fff3c4,#e5b24a 45%,#8a5d12);border-color:#5a3d0a}
+#cheer{color:#f2d27a;text-shadow:0 2px 0 #6b470c,0 0 20px rgba(0,0,0,.8)}
+/* rewards */
+.medal{display:flex;justify-content:center;margin-bottom:22px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))}
+.brick{background-image:linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,0) 40%,rgba(0,0,0,.25))!important;background-blend-mode:normal;box-shadow:inset 0 -6px 0 rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.4),0 5px 10px rgba(0,0,0,.6)}
+.suit{background:linear-gradient(rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12)}
+@media (max-height:500px){.mission .pin{width:40px;height:40px}.medal svg{width:80px;height:94px}#rwTitle{font-size:30px}}
+#reward{overflow-y:auto}#reward .panel{margin:auto}
+@media (max-height:500px){#reward .panel{padding:10px 16px}#rwText{font-size:19px!important;margin:2px 0!important}#rwItem{margin:6px!important;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}#rwItem>div{margin:0!important}#rwItem svg.hp{width:84px;height:84px}}
