@@ -42,3 +42,9 @@ const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy
 const _fin=finish;finish=function(){try{if(M&&M.rushed&&window.HMA&&HMA.progress)HMA.progress.log({kid:window.GS_MODE?'Sadie':'Samuel',mode:'rushed answers',skill:M.id,questions:M.rushed,firstTry:0,hints:0,minutes:0,venom:''})}catch(e){}return _fin.apply(this,arguments)};
 window.__focus={get paused(){return paused}};
 })();
+/* Samuel spaced review: first-try miss returns ~1h later, then ~3 days later (saved in S.rev) */
+(function(){if(window.GS_MODE)return;const GG=window.__g.G,_G=Object.assign({},GG);
+Object.keys(_G).forEach(id=>{GG[id]=function(l){if(M&&M.i>=1&&!M.inTurn&&!M.yourTurn){const due=(S.rev||[]).filter(r=>r.due<=Date.now()&&r.id!==id&&_G[r.id]);if(due.length&&Math.random()<.4){const r=due[Math.floor(Math.random()*due.length)];if(r.stage===0){r.stage=1;r.due=Date.now()+3*864e5}else S.rev.splice(S.rev.indexOf(r),1);save();const q=_G[r.id]((S.skills[r.id]||{lvl:1}).lvl);q.review=1;return q}}return _G[id](l)}});
+const _o=onFirstMiss;onFirstMiss=function(){_o();S.rev=S.rev||[];if(M&&!S.rev.some(r=>r.id===M.id&&r.stage===0))S.rev.push({id:M.id,due:Date.now()+36e5,stage:0});save()}})();
+/* only one Spider-Sense button (#senseBtn in help row) */
+(function(){const s=document.createElement('style');s.textContent='#ssBtn{display:none!important}';document.head.appendChild(s)})();
