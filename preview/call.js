@@ -94,7 +94,7 @@ H.venomCall = function(done, opts){
     const ph = document.createElement('div'); ph.className = 'hc-phone';
     let svg = null;
     if (txt){ const d = document.createElement('div'); d.innerHTML = txt; svg = d.querySelector('svg'); }
-    if (svg){ svg.setAttribute('aria-hidden', 'true'); ph.appendChild(svg); }
+    if (svg){ svg.setAttribute('aria-hidden', 'true'); svg.querySelectorAll('#answer,#decline').forEach(x => x.style.display = 'none'); ph.appendChild(svg); }
     else ph.innerHTML = '<div class="hc-fb" aria-hidden="true"><div>INCOMING CALL</div><div class="hc-face">😜</div><div>VENOM</div><div style="font-size:18px;opacity:.7">ringing…</div></div>';
     const side = document.createElement('div'); side.className = 'hc-side';
     side.innerHTML = '<div class="hc-bubble" aria-live="polite"></div><div class="hc-btns">' +
@@ -102,6 +102,7 @@ H.venomCall = function(done, opts){
       '<button type="button" class="hc-ans" aria-label="Answer call">📞 Answer</button>' +
       '<button type="button" class="hc-go" aria-label="Hang up and let\'s go">Let\'s go! 🕷️</button></div>';
     o.append(ph, side); document.body.appendChild(o);
+    { const bb = side.querySelector('.hc-bubble'); if (bb) bb.textContent = '😄 Spider-Sense says: it\'s just silly Venom calling. No worries!'; if (document.body.classList.contains('calm')) o.classList.remove('ringing'); }
     const stopRing = opts.sound === false ? () => {} : ringer();
     try { H.fx && H.fx('soft'); } catch (e) {}
     let fin = false;

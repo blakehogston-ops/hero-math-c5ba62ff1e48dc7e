@@ -50,3 +50,13 @@ const _ofm=onFirstMiss;onFirstMiss=function(){_ofm();streak=0;setTimeout(()=>{if
 const _n2=next;next=function(a,b){const o=$('ssBtn');o&&o.remove();_n2(a,b)};
 Object.assign(VZ,{gym:gymGate});
 })();
+// ---------- phone portrait: compact map header (☰ More menu) ----------
+(function(){const KEEP=['calmM','voiceM','mapMenu'];
+function compact(){const row=document.querySelector('#map .top .row');if(!row)return;let menu=document.getElementById('mapMenuP');
+ if(innerWidth>=600){if(menu){[...menu.children].forEach(c=>row.appendChild(c));menu.remove();const mb=document.getElementById('mapMenu');mb&&mb.remove()}return}
+ if(!menu){menu=document.createElement('div');menu.id='mapMenuP';menu.setAttribute('role','menu');document.getElementById('map').appendChild(menu)}
+ let mb=document.getElementById('mapMenu');if(!mb){mb=document.createElement('button');mb.id='mapMenu';mb.className='btn small ghost';mb.textContent='☰';mb.setAttribute('aria-label','More buttons');mb.setAttribute('aria-expanded','false');mb.onclick=()=>{const o=menu.classList.toggle('on');mb.setAttribute('aria-expanded',o)};row.appendChild(mb)}
+ [...row.children].forEach(c=>{if(!KEEP.includes(c.id)&&c.id!=='miniHero')menu.appendChild(c)});const mh=document.getElementById('miniHero');if(mh)mh.style.display='none';
+ menu.onclick=e=>{if(e.target.closest('button'))setTimeout(()=>menu.classList.remove('on'),50)}}
+const st=document.createElement('style');st.textContent='#mapMenuP{display:none;position:absolute;top:calc(110px + env(safe-area-inset-top));right:12px;z-index:40;background:#16223df5;border:2px solid #ffffff33;border-radius:20px;padding:12px;gap:10px;grid-template-columns:repeat(2,minmax(88px,auto));box-shadow:0 10px 30px #000a}#mapMenuP.on{display:grid}#map{position:relative}';document.head.appendChild(st);
+const _b=buildMap;buildMap=function(){const r=_b.apply(this,arguments);setTimeout(compact,0);return r};window.buildMap=buildMap;addEventListener('resize',()=>setTimeout(compact,0))})();
