@@ -1,13 +1,7 @@
 'use strict';
 // ===== 1) Dad voice lines: audio/dad/NN.mp3 if listed in audio/dad/manifest.json, else TTS =====
 const DAD=[
- [1,'intro',"Hey buddy, it's Dad. Let's save the city together!"],[2,'intro',"Hero time! I'm right here with you."],[3,'intro',"New mission! Take your time, there's no rush."],
- [4,'cheer',"Yes! That's my boy!"],[5,'cheer',"Amazing work, buddy!"],[6,'cheer',"You got it! I'm so proud of you."],[7,'cheer',"Web-tastic!"],[8,'cheer',"Look at that big brain go!"],[9,'cheer',"Nailed it, hero!"],[10,'cheer',"High five! Boom!"],
- [11,'again',"Good try, buddy. Let's look at the picture together."],[12,'again',"That's okay. Mistakes help our brains grow."],[13,'again',"You've got this. Give it another try."],[14,'again',"Brave try! Let's figure it out together."],[15,'again',"No rush. Take a breath and look again."],
- [16,'complete',"Mission complete! You saved the city!"],[17,'complete',"That was awesome. You worked so hard."],
- [18,'boss',"Uh oh, a villain! Every right answer knocks him back. You can do this."],[19,'bosswin',"You beat the boss! I knew you could do it!"],
- [20,'levelup',"Level up! You're getting stronger every day."],[21,'calm',"Let's take a hero breath together. Breathe in... and out."],[22,'calmdone',"Feeling better? Let's keep going whenever you're ready."],
- [23,'rest',"Hero rest! You did so much today. I'm proud of you."],[24,'build',"Another brick for your LEGO hero!"],[25,'hello',"Hi Samuel! Ready to be a math hero?"]];
+ [1,'hello',"Hi Samuel! Ready to be a math hero?"],[2,'intro',"Hey buddy, it's Dad. Let's save the city together!"],[3,'intro',"Hero time! I'm right here with you."],[4,'intro',"New mission! Take your time, there's no rush."],[5,'cheer',"Yes! That's my boy!"],[6,'cheer',"Amazing work, buddy!"],[7,'cheer',"You got it! I'm so proud of you."],[8,'cheer',"Web-tastic!"],[9,'cheer',"Look at that big brain go!"],[10,'cheer',"Nailed it, hero!"],[11,'cheer',"High five! Boom!"],[12,'again',"Good try, buddy. Let's look at the picture together."],[13,'again',"That's okay. Mistakes help our brains grow."],[14,'again',"You've got this. Give it another try."],[15,'again',"Brave try! Let's figure it out together."],[16,'again',"No rush. Take a breath and look again."],[17,'venom',"Uh oh, it's Venom! Every right answer powers you up. You can do this."],[18,'fightcheer',"Go Samuel! Web him up!"],[19,'venomwin',"You beat Venom! I knew you could do it!"],[20,'complete',"Mission complete! You saved the city!"],[21,'complete',"That was awesome. You worked so hard."],[22,'levelup',"Level up! You're getting stronger every day."],[23,'build',"Another brick for your LEGO hero!"],[24,'calm',"Let's take a hero breath together. Breathe in... and out."],[25,'rest',"Hero rest! You did so much today. I'm proud of you."]];
 const dadFile=n=>'audio/dad/'+String(n).padStart(2,'0')+'.mp3';
 let dadHave=new Set();
 try{fetch('audio/dad/manifest.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(a=>{dadHave=new Set((a||[]).map(Number))}).catch(()=>{})}catch(e){}
@@ -16,7 +10,7 @@ function dad(cat,fallback,afterAudio,before,isIntro){
  const lines=DAD.filter(d=>d[1]===cat&&dadHave.has(d[0]));
  if(!S.voice||!lines.length){if(before)before();else say(fallback);return false}
  const d=pick(lines);if(isIntro)next('',true);
- try{speechSynthesis&&speechSynthesis.cancel();if(dadAudio)dadAudio.pause();dadAudio=new Audio(dadFile(d[0]));dadAudio.onended=()=>afterAudio&&afterAudio();
+ try{stopVoice();dadAudio=new Audio(dadFile(d[0]));dadAudio.onended=()=>afterAudio&&afterAudio();
   dadAudio.onerror=()=>{dadHave.delete(d[0]);say(isIntro?fallback+(M.q.speakText||M.q.text):fallback)};
   dadAudio.play().catch(()=>dadAudio.onerror())}catch(e){say(fallback)}return true}
 // ===== 2) Build-your-own LEGO hero =====
@@ -42,7 +36,7 @@ function bossUI(){const bb=$('bossBar');if(!M.boss){bb.className='';bb.innerHTML
  bb.innerHTML=`<div id="bossFig">${bossArt(M.boss.id)}</div><div style="flex:1"><div style="font-weight:800;font-size:20px">BOSS: ${M.boss.name}</div><div class="hp"><i id="bossHp" style="width:100%"></i></div></div>`}
 // ===== hooks used by game.js =====
 let missRun=0;
-function onCorrect(){if(M.tries===0)missRun=0;document.querySelectorAll('.calmOffer').forEach(x=>x.remove());S.build++;if(S.build>=SLOTS.length){S.build=0;S.heroesDone++;setTimeout(()=>cheer('LEGO HERO COMPLETE! 🦸'),700)}save();renderHero();
+function onCorrect(){if(M.tries===0)missRun=0;document.querySelectorAll('.calmOffer').forEach(x=>x.remove());S.build++;if(S.build>=SLOTS.length){S.build=0;S.heroesDone++;setTimeout(()=>{cheer('LEGO HERO COMPLETE! 🦸');dad('build','Your LEGO hero is complete!')},700)}save();renderHero();
  if(M.boss){const f=$('bossFig');f.classList.remove('hit');void f.offsetWidth;f.classList.add('hit');const hp=$('bossHp');if(hp)hp.style.width=Math.max(0,100*(1-(M.i+1)/QN))+'%'}}
 function onFirstMiss(){missRun++;if(missRun>=3){missRun=0;setTimeout(()=>{const h=$('hint');if(!h.querySelector('.calmOffer')){const d=document.createElement('div');d.className='calmOffer';d.style.marginTop='10px';d.innerHTML='Tricky ones today! Want a quick hero breath? <button class="btn small blue">🫧 Breathe</button>';d.querySelector('button').onclick=calm;h.appendChild(d)}},3200)}}
 // ===== 5) Calm-down breathing (30 s) =====
@@ -51,7 +45,7 @@ function calm(){clearTimeout(hintT);calmT.forEach(clearTimeout);calmT=[];$('calm
  const step=k=>{if(k>=8){$('breathTxt').textContent='Great breathing, hero!';$('breathLeft').textContent='';return}const inn=k%2===0;$('breathTxt').textContent=inn?'Breathe in… 🌬️':'Breathe out… 😌';$('breathLeft').textContent=`${Math.max(0,Math.ceil(30-(Date.now()-t0)/1000))} seconds`;
   if(k===0){if(!dad('calm','Let\'s take a hero breath together, like Spidey before a big swing. Breathe in...'))0}else say(inn?'Breathe in, slowly...':'And breathe out...');calmT.push(setTimeout(()=>step(k+1),k===0?4000:3700))};
  $('breathBall').style.animation='none';void $('breathBall').offsetWidth;$('breathBall').style.animation='';step(0)}
-function calmDone(){calmT.forEach(clearTimeout);$('calm').classList.remove('on');dad('calmdone',"Feeling better? Let's keep going whenever you're ready.")}
+function calmDone(){calmT.forEach(clearTimeout);$('calm').classList.remove('on');say("Feeling better? Let's keep going whenever you're ready.")}
 $('calmP').addEventListener('click',calm);$('calmM').addEventListener('click',calm);$('calmDone').addEventListener('click',calmDone);
 // ===== 4) Real-life word problems =====
 const _add=G.addsub,_time=G.time,_mult=G.mult;

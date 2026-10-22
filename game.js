@@ -28,7 +28,17 @@ let sess={n:0,t0:Date.now()};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 // ---------- speech & sound ----------
 function spoken(t){t=String(t);const W={'>':'greater than','<':'less than','=':'equals'};if(W[t.trim()])return W[t.trim()];return t.replace(/&nbsp;/g,' ').replace(/ ___ /g,' blank ').replace(/ &gt; | > /g,' greater than ').replace(/ &lt; | < /g,' less than ').replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>a+' '+({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b))+(a=='1'?'':'s'))}
-function say(t,force,onend){if(!(S.voice||force)||!window.speechSynthesis){onend&&onend();return}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(spoken(t));u.rate=.92;u.pitch=1.05;if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u)}catch(e){onend&&onend()}}
+let enVoice=null,sayT=0,sayW=0,primed=false;
+function pickVoice(){try{const v=speechSynthesis.getVoices();enVoice=v.find(x=>/en-US/i.test(x.lang)&&/Samantha|Google US|Aaron|Nicky/i.test(x.name))||v.find(x=>/en-US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}catch(e){}}
+if(window.speechSynthesis){pickVoice();try{speechSynthesis.addEventListener('voiceschanged',pickVoice)}catch(e){}}
+function primeSpeech(){if(primed||!window.speechSynthesis)return;primed=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch(e){}}
+document.addEventListener('pointerdown',primeSpeech,{capture:true,once:true});
+function stopVoice(){clearTimeout(sayT);clearTimeout(sayW);try{if(typeof dadAudio!=='undefined'&&dadAudio)dadAudio.pause()}catch(e){}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
+function say(t,force,onend){stopVoice();if(!(S.voice||force)||!window.speechSynthesis){onend&&onend();return}
+ const wasBusy=speechSynthesis.speaking||speechSynthesis.pending;
+ const go=()=>{try{const u=new SpeechSynthesisUtterance(spoken(t));u.lang='en-US';if(enVoice)u.voice=enVoice;u.rate=.92;u.pitch=1.05;let st=false;u.onstart=()=>{st=true};if(onend){u.onend=onend;u.onerror=onend}speechSynthesis.speak(u);
+  sayW=setTimeout(()=>{if(!st&&!speechSynthesis.speaking){const b=$('say');b&&b.classList.add('pulse')}},1000)}catch(e){onend&&onend()}};
+ if(wasBusy)sayT=setTimeout(go,60);else go()}
 const sents=t=>String(t).match(/[^.!?]+[.!?]*(\s|$)/g).map(s=>s.trim()).filter(Boolean);
 let AC;function chime(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;[523,659,784,1047].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.08);g.gain.linearRampToValueAtTime(.12,t+i*.08+.02);g.gain.exponentialRampToValueAtTime(.001,t+i*.08+.5);o.connect(g).connect(AC.destination);o.start(t+i*.08);o.stop(t+i*.08+.55)})}catch(e){}}
 // ---------- sky ----------
@@ -194,9 +204,10 @@ function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
  SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
-function start(id){stopAll();if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};if(window.HMA){HMA.setFight(!!M.boss);if(M.boss&&M.boss.id==='venom')setTimeout(()=>HMA.venomGrowl(),500)}show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
-function readQ(pre){const b=$('say');b.classList.add('pulse');say((pre||'')+(M.q.speakText||M.q.text),false,()=>b.classList.remove('pulse'));if(!S.voice)b.classList.remove('pulse')}
-let hintT=0;function next(pre,noRead){clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
+function start(id){stopAll();if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
+function choiceList(){const c=M.q.choices.map(spoken);return ' The choices are: '+c.slice(0,-1).join(', ')+', or '+c[c.length-1]+'.'}
+function readQ(pre){const b=$('say');b.classList.add('pulse');say((pre||'')+(M.q.speakText||M.q.text)+choiceList(),false,()=>b.classList.remove('pulse'));if(!S.voice)b.classList.remove('pulse')}
+let hintT=0;function next(pre,noRead){armed=null;clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
  if(M.q.choices.indexOf(M.q.ans)<0){M.q.choices[0]=M.q.ans;M.q.choices=shuf(M.q.choices)}
  $('qtext').innerHTML=M.q.text;$('hint').className='';$('hintTxt').textContent='';$('nextStep').style.display='none';
  $('model').innerHTML=M.q.pic||`<div style="color:#14213d;font-size:22px;padding:20px;text-align:center">Need help? Tap <b>💡 Show me how</b></div>`;
@@ -207,9 +218,10 @@ let hintT=0;function next(pre,noRead){clearTimeout(hintT);const st=S.skills[M.id
 let cheerT=0;function cheer(t){const c=$('cheer');clearTimeout(cheerT);c.textContent=t;c.classList.add('on');cheerT=setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false,advT=0;
 function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}if(typeof dadAudio!=='undefined'&&dadAudio)try{dadAudio.pause()}catch(e){}if(typeof calmT!=='undefined')calmT.forEach(clearTimeout);if($('calm'))$('calm').classList.remove('on')}
-function answer(b,c){if(busy||b.classList.contains('tried'))return;const st=S.skills[M.id];
- clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(M.boss?(M.i+1>=QN?HMA.finisher():(HMA.charge(),setTimeout(()=>{HMA.thwip();HMA.hit(M.tries>0?false:true)},650))):HMA.fx('correct')):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
-  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M)cheer('LEVEL UP! ⭐')},1150)}}}
+let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;
+ if(S.hear!==false&&S.voice&&armed!==b){document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'));armed=b;b.classList.add('armed');say(spoken(c)+'. Tap again to pick it.');return}armed=null;b.classList.remove('armed');const st=S.skills[M.id];
+ clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
+  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}},1650)}}}
   st.q++;st.last=Date.now();save();M.i++;const mm=M;advT=setTimeout(()=>{busy=false;if(M!==mm||!document.getElementById('play').classList.contains('on'))return;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();
@@ -224,7 +236,7 @@ function finish(){$('ov').classList.remove('on');const st=S.skills[M.id];st.miss
  $('rwText').textContent=`You helped the city, ${heroName()}! You earned a new LEGO brick.`;
  $('rwItem').innerHTML=`<span class="brick" style="background:${col};transform:scale(1.6)"></span>`+(M.brave?`<div style="font-size:22px;margin:6px">🏅 Brave Try sticker! You used a clue like a real hero. (${S.brave} so far)</div>`:'')+(unlocked?`<div style="font-size:24px;margin-top:14px">NEW SUIT UNLOCKED!</div>${suitSvg(unlocked,140)}<div style="font-size:22px">${unlocked[0]}</div>`:`<div style="font-size:20px;margin-top:10px">${3-S.bricks.length%3} more brick${3-S.bricks.length%3>1?'s':''} until a new suit!</div>`);
 if(M.boss){$('rwTitle').textContent=`${M.boss.name.toUpperCase()} DEFEATED!`;$('rwText').textContent=`You knocked ${M.boss.name} out of the city, ${heroName()}! Boss bonus brick earned.`}else $('rwTitle').textContent='MISSION COMPLETE!';
- show('reward');if(window.HMA){const wasBoss=!!M.boss;HMA.setFight(false);HMA.fx(wasBoss?'victory':'fanfare');if(wasBoss&&M.boss.id==='venom')setTimeout(()=>HMA.venomRoar(),300);setTimeout(()=>HMA.fx(unlocked?'suit':'brick'),1300);setTimeout(()=>HMA.music('map'),3200)}else chime();dad(M.boss?'bosswin':'complete',`${M.boss?'You beat '+M.boss.name+'!':'Mission complete! You helped the city!'} ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`)}
+ show('reward');if(window.HMA){HMA.fx(window.__afterFight?'brick':'fanfare');setTimeout(()=>HMA.fx(unlocked?'suit':'brick'),1300);setTimeout(()=>HMA.music('map'),3200)}else chime();dad(M.boss?'bosswin':'complete',`${M.boss?'You beat '+M.boss.name+'!':'Mission complete! You helped the city!'} ${unlocked?'You unlocked the '+unlocked[0]+'!':'You earned a new brick.'}`)}
 function buildColl(){$('bricks').innerHTML=S.bricks.length?S.bricks.map(c=>`<span class="brick" style="background:${c}"></span>`).join(''):'<div style="font-size:20px">No bricks yet. Finish a mission to earn one!</div>';
  const n=Math.floor(S.bricks.length/3);$('suits').innerHTML=SUITS.map((s,i)=>`<div class="suit ${i<n?'':'lock'}">${suitSvg(s,110)}<div>${i<n?s[0]:'🔒 '+(i+1)*3+' bricks'}</div></div>`).join('')}
 // gate
@@ -236,7 +248,7 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
  $('cap').value=String(S.cap);$('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}. Brave Try stickers (used a clue): ${S.brave}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
-on('pickS',()=>{S.hero='S';save();buildMap();show('map');say("Hi Samuel! Pick a mission.")});
+on('pickS',()=>{S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
 on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
 const tv=()=>{S.voice=!S.voice;save();voiceBtns();if(S.voice)say('Okay! I will read to you.',true);else speechSynthesis&&speechSynthesis.cancel()};
 on('voiceT',tv);on('voiceM',tv);
@@ -244,7 +256,7 @@ on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('
 on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
-on('say',()=>say(M.q.speakText||M.q.text,true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
+on('say',()=>say((M.q.speakText||M.q.text)+choiceList(),true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
 on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();
