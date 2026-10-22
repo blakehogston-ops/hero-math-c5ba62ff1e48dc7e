@@ -201,7 +201,8 @@ const STORY=['Help save the city!','A crane is stuck downtown!','The subway ligh
 // ---------- screens ----------
 let tapLock=0;['pointerdown','touchstart','click','touchend','pointerup'].forEach(ev=>document.addEventListener(ev,e=>{if(Date.now()<tapLock){e.stopPropagation();if(e.cancelable&&ev!=='touchstart'&&ev!=='pointerdown')e.preventDefault()}},true));
 function show(id){tapLock=Date.now()+400;window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
-const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
+S.hero=window.GS_MODE?'G':'S';
+const heroName=()=>window.GS_MODE?'Sadie':'Samuel';
 function voiceBtns(){$('voiceT').textContent=(S.voice?'🔊':'🔇')+' Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇';$('voiceM').setAttribute('aria-label','Read aloud '+(S.voice?'on':'off'));$('voiceM').setAttribute('aria-pressed',S.voice);
  const b=$('sayT');if(b){b.innerHTML=S.voice?'🔊 ON':'🔇 OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
  const c=document.getElementById('setVoice');if(c)c.checked=!!S.voice;document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'))}

@@ -4,7 +4,7 @@
 (function(){
 const KEY='hma_mask',D='assets/family/';
 let on=localStorage.getItem(KEY)!=='off';
-const who=()=>{try{return S.hero==='G'?'sadie':'samuel'}catch(e){return 'samuel'}};
+const who=()=>window.GS_MODE?'sadie':'samuel';
 const reduce=()=>(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)||document.body.classList.contains('calm');
 const cache={};
 function load(n){return cache[n]||(cache[n]=fetch(D+n).then(r=>r.ok?r.text():'').catch(()=>''))}
@@ -50,6 +50,6 @@ window.HMA_MASK={play,get on(){return on},sprite};
 (function(){const b=document.getElementById('maskBtn');if(!b)return;const st=document.createElement('style');
 st.textContent='#maskBtn.docked{position:static;min-width:88px;min-height:88px;font-size:18px;padding:8px 12px;border-width:3px;border-radius:22px;box-shadow:0 4px 10px #0006}@media (max-width:600px),(max-height:500px){#maskBtn.docked{font-size:16px}body.vfight #maskBtn{display:none}}';document.head.appendChild(st);
 function dock(){const fight=document.getElementById('fight');const inFight=fight&&fight.classList.contains('on');document.body.classList.toggle('vfight',!!inFight);
- const mp=document.getElementById('mapMenuP');const host=(innerWidth<420&&mp&&document.getElementById('map').classList.contains('on'))?mp:document.querySelector('.screen.on .top');
+ const mp=document.getElementById('mapMenuP');const host=(innerWidth<1000&&mp&&document.getElementById('map').classList.contains('on'))?mp:document.querySelector('.screen.on .top');
  if(host&&!inFight){if(b.parentNode!==host||(host.id!=='mapMenuP'&&b.previousElementSibling!==host.firstElementChild))(host.id==='mapMenuP'?host.appendChild(b):host.insertBefore(b,host.firstElementChild?host.firstElementChild.nextSibling:null));if(!b.classList.contains('docked'))b.classList.add('docked')}else{if(b.parentNode!==document.body)document.body.appendChild(b);if(b.classList.contains('docked'))b.classList.remove('docked')}}
 let qd=0;const sched=()=>{if(qd)return;qd=1;requestAnimationFrame(()=>{qd=0;dock()})};const mo=new MutationObserver(sched);const watch=()=>document.querySelectorAll('.screen,#fight').forEach(el=>mo.observe(el,{attributes:true,attributeFilter:['class']}));watch();setInterval(()=>{watch();sched()},1500);dock()})();
