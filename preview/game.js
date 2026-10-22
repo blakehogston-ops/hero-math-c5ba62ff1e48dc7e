@@ -203,7 +203,7 @@ let tapLock=0;['pointerdown','touchstart','click','touchend','pointerup'].forEac
 function show(id){tapLock=Date.now()+400;window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
 const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
 function voiceBtns(){$('voiceT').textContent=(S.voice?'🔊':'🔇')+' Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇';$('voiceM').setAttribute('aria-label','Read aloud '+(S.voice?'on':'off'));$('voiceM').setAttribute('aria-pressed',S.voice);
- const b=$('say');if(b){b.innerHTML=S.voice?'🔊 Read: ON':'🔇 Read: OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
+ const b=$('sayT');if(b){b.innerHTML=S.voice?'🔊 ON':'🔇 OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
  const c=document.getElementById('setVoice');if(c)c.checked=!!S.voice;document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'))}
 function setVoice(on){S.voice=!!on;save();if(!S.voice){stopVoice();armed=null}voiceBtns()}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
@@ -261,7 +261,7 @@ on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('
 on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
-on('say',()=>{if(S.voice){setVoice(false)}else{setVoice(true);if(M&&M.q)say((M.q.speakText||M.q.text)+choiceList(),true)}});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
+on('say',()=>{if(M&&M.q){stopVoice();say((M.q.speakText||M.q.text)+choiceList(),true)}});on('sayT',()=>{setVoice(!S.voice);if(S.voice&&M&&M.q)say((M.q.speakText||M.q.text)+choiceList())});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
 on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();
