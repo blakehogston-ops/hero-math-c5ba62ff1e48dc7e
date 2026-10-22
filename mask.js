@@ -4,7 +4,7 @@
 (function(){
 const KEY='hma_mask',D='assets/family/';
 let on=localStorage.getItem(KEY)!=='off';
-const who=()=>{try{return S.hero==='G'?'sadie':'samuel'}catch(e){return 'samuel'}};
+const who=()=>window.GS_MODE?'sadie':'samuel';
 const reduce=()=>(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)||document.body.classList.contains('calm');
 const cache={};
 function load(n){return cache[n]||(cache[n]=fetch(D+n).then(r=>r.ok?r.text():'').catch(()=>''))}
@@ -13,7 +13,7 @@ function sprite(){const V=window.__v,A=window.__AS;if(!V)return;const sfx=on?'_m
  [['heroImg','idle'],['heroWin','victory']].forEach(([k,p])=>{const n=`family/${who()}_${p}${sfx}.svg`;
   if(A&&!A[n]){const i=new Image();i.onerror=()=>{i.bad=1};i.src='assets/'+n;A[n]=i}V[k]=n})}
 const css=document.createElement('style');css.textContent=`
-#maskBtn{position:fixed;left:14px;bottom:14px;z-index:60;min-width:120px;min-height:64px;padding:10px 18px;border-radius:32px;border:4px solid #fff;background:#c41a26;color:#fff;font:bold 22px system-ui,sans-serif;box-shadow:0 4px 12px #0006;touch-action:manipulation}
+#maskBtn{position:fixed;left:14px;bottom:14px;z-index:60;min-width:120px;min-height:88px;padding:10px 18px;border-radius:32px;border:4px solid #fff;background:#c41a26;color:#fff;font:bold 22px system-ui,sans-serif;box-shadow:0 4px 12px #0006;touch-action:manipulation}
 #maskBtn.off{background:#1c3a9a}
 #maskFx{position:fixed;inset:0;z-index:59;display:flex;align-items:center;justify-content:center;background:#0008;pointer-events:none}
 #maskFx svg{width:min(70vw,420px);height:auto}
@@ -46,3 +46,10 @@ b.onclick=async()=>{if(b.disabled)return;b.disabled=true;const toOff=on;await pl
 ['pickS','pickG'].forEach(id=>{const e=document.getElementById(id);e&&e.addEventListener('click',()=>setTimeout(sprite,0))});
 window.HMA_MASK={play,get on(){return on},sprite};
 })();
+/* Builder: dock the mask button into the current screen's top bar (never over answers); hidden during the Venom fight on phones */
+(function(){const b=document.getElementById('maskBtn');if(!b)return;const st=document.createElement('style');
+st.textContent='#maskBtn.docked{position:static;min-width:88px;min-height:88px;font-size:18px;padding:8px 12px;border-width:3px;border-radius:22px;box-shadow:0 4px 10px #0006}@media (max-width:600px),(max-height:500px){#maskBtn.docked{font-size:16px}body.vfight #maskBtn{display:none}}';document.head.appendChild(st);
+function dock(){const fight=document.getElementById('fight');const inFight=fight&&fight.classList.contains('on');document.body.classList.toggle('vfight',!!inFight);
+ const mp=document.getElementById('mapMenuP');const host=(innerWidth<1000&&mp&&document.getElementById('map').classList.contains('on'))?mp:document.querySelector('.screen.on .top');
+ if(host&&!inFight){if(b.parentNode!==host||(host.id!=='mapMenuP'&&b.previousElementSibling!==host.firstElementChild))(host.id==='mapMenuP'?host.appendChild(b):host.insertBefore(b,host.firstElementChild?host.firstElementChild.nextSibling:null));if(!b.classList.contains('docked'))b.classList.add('docked')}else{if(b.parentNode!==document.body)document.body.appendChild(b);if(b.classList.contains('docked'))b.classList.remove('docked')}}
+let qd=0;const sched=()=>{if(qd)return;qd=1;requestAnimationFrame(()=>{qd=0;dock()})};const mo=new MutationObserver(sched);const watch=()=>document.querySelectorAll('.screen,#fight').forEach(el=>mo.observe(el,{attributes:true,attributeFilter:['class']}));watch();setInterval(()=>{watch();sched()},1500);dock()})();

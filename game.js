@@ -25,7 +25,7 @@ let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S={hero:'S',voice:true,bricks:[],skills:{},log:[]};
 SK.forEach(k=>{if(!S.skills[k.id])S.skills[k.id]={lvl:1,streak:0,miss:0,q:0,first:0,missions:0,last:0}});
 SK.forEach(k=>{const s=S.skills[k.id];s.best=Math.max(s.best||1,s.lvl)});if(S.cap===undefined)S.cap=3;S.brave=S.brave||0;
-let sess={n:0,t0:Date.now()};
+let sess={get n(){return S.sessDay===new Date().toDateString()?(S.sessN||0):0},set n(v){S.sessDay=new Date().toDateString();S.sessN=v;save()},t0:Date.now()};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 // ---------- speech & sound ----------
 function spoken(t){t=String(t);const W={'>':'greater than','<':'less than','=':'equals'};if(W[t.trim()])return W[t.trim()];return t.replace(/&nbsp;/g,' ').replace(/ ___ /g,' blank ').replace(/ &gt; | > /g,' greater than ').replace(/ &lt; | < /g,' less than ').replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>a+' '+({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b))+(a=='1'?'':'s'))}
@@ -126,7 +126,7 @@ const G={
   const names=['ones','tens','hundreds','thousands','ten thousands','hundred thousands'];
   const fs=fmt(n);let di=-1,cnt=0;for(let k=0;k<fs.length;k++){if(/\d/.test(fs[k])){if(cnt===i){di=k;break}cnt++}}const shown=fs.slice(0,di)+`<span style="color:#ffd23f;text-decoration:underline;text-underline-offset:6px">${fs[di]}</span>`+fs.slice(di+1);
   return{text:`What is the value of the ${d} in <span style="font-size:1.25em">${shown}</span>?`,speakText:`What is the value of the ${d} in ${fmt(n)}? Look for the yellow ${d}.`,choices:opts(fmt(val),[fmt(d),fmt(d*10**(p+1)),fmt(p>0?d*10**(p-1):d*100)]),ans:fmt(val),
-   pic:n<1000?blocks(n):null,help:pvChart(n,p),work:`The ${d} is in the ${names[p]} place. ${d} ${names[p]} is worth ${fmt(val)}.`,hint:`Which place is the ${d} in? What is each of those worth?`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
+   pic:n<1000?blocks(n):null,help:pvChart(n,p),work:`The ${d} is in the ${names[p]} place. ${d} ${d==1?names[p].replace(/s$/,''):names[p]} is worth ${fmt(val)}.`,hint:`Which place is the ${d} in? What is each of those worth?`,how:`Put each digit in the place value chart. Find the ${d}. Look at the name of its place. That tells you what it is worth.`}},
  compare(l){const mx=l==1?999:l==2?9999:9999;let a=R(l==1?100:1000,mx),b=Math.random()<.15?a:(l==3?a+pick([-1,1])*pick([1,10,100,90,9]):R(l==1?100:1000,mx));if(b<0)b=a+10;
   const ans=a>b?'>':a<b?'<':'=';let k=0;const sa=String(a),sb=String(b);while(k<sa.length&&sa[k]===sb[k])k++;
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${fmt(a)} ___ ${fmt(b)}</span>`,speakText:`Which sign makes this true? ${fmt(a)}, blank, ${fmt(b)}. Greater than, less than, or equal?`,choices:['>','<','='],ans,
@@ -201,9 +201,10 @@ const STORY=['Help save the city!','A crane is stuck downtown!','The subway ligh
 // ---------- screens ----------
 let tapLock=0;['pointerdown','touchstart','click','touchend','pointerup'].forEach(ev=>document.addEventListener(ev,e=>{if(Date.now()<tapLock){e.stopPropagation();if(e.cancelable&&ev!=='touchstart'&&ev!=='pointerdown')e.preventDefault()}},true));
 function show(id){tapLock=Date.now()+400;window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
-const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
+S.hero=window.GS_MODE?'G':'S';
+const heroName=()=>window.GS_MODE?'Sadie':'Samuel';
 function voiceBtns(){$('voiceT').textContent=(S.voice?'🔊':'🔇')+' Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇';$('voiceM').setAttribute('aria-label','Read aloud '+(S.voice?'on':'off'));$('voiceM').setAttribute('aria-pressed',S.voice);
- const b=$('say');if(b){b.innerHTML=S.voice?'🔊 Read: ON':'🔇 Read: OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
+ const b=$('sayT');if(b){b.innerHTML=S.voice?'🔊 ON':'🔇 OFF';b.setAttribute('aria-pressed',S.voice);b.setAttribute('aria-label','Read aloud '+(S.voice?'on, tap to turn off':'off, tap to turn on'));b.classList.toggle('voff',!S.voice);if(!S.voice)b.classList.remove('pulse')}
  const c=document.getElementById('setVoice');if(c)c.checked=!!S.voice;document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'))}
 function setVoice(on){S.voice=!!on;save();if(!S.voice){stopVoice();armed=null}voiceBtns()}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
@@ -254,14 +255,14 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
 on('pickS',()=>{if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
-on('pickG',()=>{if(!window.GS_MODE){return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
+on('pickG',()=>{if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
 const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
 on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>{if(!M||M.i>=QN)return;$('ov').classList.add('on')});on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
-on('say',()=>{if(S.voice){setVoice(false)}else{setVoice(true);if(M&&M.q)say((M.q.speakText||M.q.text)+choiceList(),true)}});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
+on('say',()=>{if(M&&M.q){stopVoice();say((M.q.speakText||M.q.text)+choiceList(),true)}});on('sayT',()=>{setVoice(!S.voice);if(S.voice&&M&&M.q)say((M.q.speakText||M.q.text)+choiceList())});on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
 on('grownT',gate);on('gateBack',()=>{restUnlock=false;show('title')});on('gateGo',()=>{if(+$('gateIn').value===gateA){if(restUnlock){restUnlock=false;sess.n=0;buildMap();show('map')}else parent()}else $('gateMsg').textContent='Not quite. Ask a grown-up!'});
 on('parBack',()=>show('title'));on('reset',()=>{if(confirm('Reset all progress and bricks?')){localStorage.removeItem(KEY);location.reload()}});
 voiceBtns();layout();

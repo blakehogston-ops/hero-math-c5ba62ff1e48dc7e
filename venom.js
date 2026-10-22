@@ -46,7 +46,7 @@ function webAttack(){const f=$('bossFig');if(!f)return;const r=f.getBoundingClie
  document.body.appendChild(L);setTimeout(()=>L.remove(),700);
  f.classList.remove('hit','glow');void f.offsetWidth;f.classList.add(reduce()?'glow':'hit');
  if(!reduce()){const p=$('play');p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake')}}
-const _oc=onCorrect;onCorrect=function(){const first=M&&M.tries===0;_oc();if(!M)return;M.power=Math.min(8,(M.power||0)+(first?1:.5));setPower();if(!first)bubble('vBubble','Still powering up! ⚡',2500);webAttack()};
+const _oc=onCorrect;onCorrect=function(){const first=M&&M.tries===0;_oc();if(!M)return;M.power=Math.min(8,(M.power||0)+(first?1:M.tries===1?.5:0));setPower();if(!first)bubble('vBubble','Still powering up! ⚡',2500);webAttack()};
 heroSwing=function(){};
 // taunts between problems
 const _next=next;next=function(pre,noRead){if(M&&M.i>0&&M.i%3===0&&!pre){const t=LINES.taunts[(S.log.length+M.i/3)%LINES.taunts.length|0];pre=`Venom says: ${t} `;_next(pre,noRead);bubble('vBubble',t);return}_next(pre,noRead)};
@@ -187,7 +187,7 @@ function drawVenom(){const b=venBox();let sc=1,dx=0,dy=0;const t=F.t;
  const wob=reduce()?0:Math.sin(t*3)*.03;const lean=F.wind>0?-.12:0;
  const img=F.shrink>0&&ok('venom_defeat.svg')?AS['venom_defeat.svg']:F.vhit>0&&ok('venom_hit.svg')?AS['venom_hit.svg']:ok('venom.svg')?AS['venom.svg']:null;
  ctx.save();const cx=b.x+b.w/2+dx,base=b.y+b.h;ctx.translate(cx,base);ctx.rotate(lean);ctx.scale(sc*(1+wob)*(F.vhit>0?1.06:1),sc*(1-wob)*(F.vhit>0?.92:1));
- if(img){ctx.translate(-b.w/2,-b.h);drawImgBox(img,0,0,b.w,b.h);if(F.look&&F.shrink<=0){const r=Math.min(b.w/400,b.h/500),k=r*500/300;ctx.translate(b.w/2,b.h);ctx.scale(k,k);lookProps(F.look)}if(F.vhit>0){ctx.globalAlpha=.18;ctx.fillStyle='#fff';ctx.fillRect(0,0,b.w,b.h);ctx.globalAlpha=1}ctx.restore();venomExtras(b,cx,base,sc);return}
+ if(img){ctx.translate(-b.w/2,-b.h);drawImgBox(img,0,0,b.w,b.h);if(F.look&&F.shrink<=0){const r=Math.min(b.w/400,b.h/500),k=r*500/300;ctx.save();const ih=500*r,hTop=b.h-ih+ih*(VZ.headF==null?.135:VZ.headF);ctx.translate(b.w/2,hTop+282*k);ctx.scale(k,k);lookProps(F.look);ctx.restore()}if(F.vhit>0){ctx.globalAlpha=.18;ctx.fillStyle='#fff';ctx.fillRect(0,0,b.w,b.h);ctx.globalAlpha=1}ctx.restore();venomExtras(b,cx,base,sc);return}
  const s=Math.min(b.w/220,b.h/300);ctx.scale(s,s);
  // body
  const bg=ctx.createRadialGradient(-30,-200,10,0,-140,190);bg.addColorStop(0,'#59607f');bg.addColorStop(.35,'#1a1c2b');bg.addColorStop(1,'#020205');ctx.fillStyle=bg;
@@ -243,7 +243,8 @@ const _bm=window.buildMap;window.buildMap=function(){_bm();const g=$('grid');if(
  hd.innerHTML=`<div class="vh-face">${venomFace(86,lookFor())}</div>${miniMap(cleared)}<div class="vh-txt"><div class="vh-t">⚠ VENOM ALERT!</div><div class="vh-s">Venom's goo is spreading over the city. Every mission powers up your web-shooters, then you fight Venom!</div>
  <div class="vh-hoods" aria-label="${inWave} of 6 neighborhoods cleared">${HOODS.map((n,i)=>`<span class="${i<inWave?'ok':''}" title="${n}">${i<inWave?'✔':'●'}</span>`).join('')} <small>${inWave}/6 neighborhoods clean</small></div>
  <div class="vh-s"><b>${cleared}</b> Venom fights won · ${toRe===3?'<b>REMATCH next fight!</b>':`Big REMATCH in ${toRe} mission${toRe>1?'s':''}`}</div></div>`;
- g.parentNode.insertBefore(hd,g)};
+ const x=document.createElement('button');x.id='vhClose';x.setAttribute('aria-label',window.__vhMin?'Show Venom alert':'Hide Venom alert');x.textContent=window.__vhMin?'⚠':'✕';x.onclick=()=>{window.__vhMin=!window.__vhMin;buildMap()};hd.appendChild(x);if(window.__vhMin)hd.classList.add('min');
+ g.insertBefore(hd,g.firstChild)};
 window.buildMap=window.buildMap;buildMap=window.buildMap;
 // ---------- grown-up settings ----------
 const _par=parent;parent=function(){_par();const w=$('week');if(!w||$('vset'))return;const d=document.createElement('div');d.id='vset';d.className='row';d.style.cssText='margin:0 0 14px;gap:14px';
