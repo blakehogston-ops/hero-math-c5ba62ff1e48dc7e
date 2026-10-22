@@ -63,8 +63,8 @@ function pvChart(n,hi){const s=String(n),names=['ones','tens','hundreds','thousa
 function numLine(a,b0,step,marks,lab){const W=640,pad=40,n=(b0-a)/step;let b=`<line x1="${pad}" x2="${W-pad}" y1="80" y2="80" stroke="#14213d" stroke-width="4"/>`;const X=v=>pad+(v-a)/(b0-a)*(W-2*pad);
  for(let i=0;i<=n;i++){const v=a+i*step;b+=`<line x1="${X(v)}" x2="${X(v)}" y1="68" y2="92" stroke="#14213d" stroke-width="3"/>`+(n<=10||i%2==0||i==n?T(X(v),120,fmt(v),n>10?14:18):'')}
  (marks||[]).forEach(m=>{b+=`<circle cx="${X(m.v)}" cy="80" r="11" fill="${m.c||'#e63946'}" stroke="#fff" stroke-width="3"/>`+(m.t?T(X(m.v),45,m.t,20,m.c||'#e63946'):'')});
- (lab||[]).forEach(j=>{const x1=X(j[0]),x2=X(j[1]);b+=`<path d="M${x1} 66 Q${(x1+x2)/2} ${20} ${x2} 66" fill="none" stroke="#2f6fdf" stroke-width="3" marker-end=""/>`+(j[2]?T((x1+x2)/2,30,j[2],16,'#2f6fdf'):'')});
- return svg(W,135,b)}
+ (lab||[]).forEach(j=>{const x1=X(j[0]),x2=X(j[1]);b+=`<path d="M${x1} 66 Q${(x1+x2)/2} ${0} ${x2} 66" fill="none" stroke="#2f6fdf" stroke-width="3"/>`+(j[2]?T((x1+x2)/2,14,j[2],16,'#2f6fdf'):'')});
+ return svg(W,135,`<g transform="translate(0,6)">${b}</g>`).replace('viewBox="0 0 640 135"','viewBox="0 -4 640 145"')}
 function array(r,c,col){const s=Math.min(46,Math.floor(380/Math.max(r,c,1)));let b='';const W=c*s+20,H=r*s+50;
  b+=`<rect x="6" y="6" width="${c*s+8}" height="${r*s+8}" rx="8" fill="${col||'#e63946'}" stroke="#0004" stroke-width="2"/>`;
  for(let i=0;i<r;i++)for(let j=0;j<c;j++)b+=stud(10+j*s+s/2,10+i*s+s/2,s*.36,col||'#e63946');
@@ -79,8 +79,8 @@ function fracBar(n,d,y0,lab,col){let b='';const W=520,w=W/d;for(let i=0;i<d;i++)
 function fracModel(n,d){return svg(600,80,fracBar(n,d,10,''))}
 function fracCircle(n,d){let b='';const cx=110,cy=110,r=95;for(let i=0;i<d;i++){const a1=i/d*2*Math.PI-Math.PI/2,a2=(i+1)/d*2*Math.PI-Math.PI/2;b+=`<path d="M${cx} ${cy}L${cx+r*Math.cos(a1)} ${cy+r*Math.sin(a1)}A${r} ${r} 0 0 1 ${cx+r*Math.cos(a2)} ${cy+r*Math.sin(a2)}Z" fill="${i<n?'#ffb703':'#fff'}" stroke="#7a3d00" stroke-width="3"/>`}return svg(220,220,`<circle cx="110" cy="110" r="100" fill="#d98c3f"/>`+b)}
 const COINS={1:{n:'penny',r:24,c:'#c77b3b'},5:{n:'nickel',r:28,c:'#b8bcc4'},10:{n:'dime',r:21,c:'#c9cdd4'},25:{n:'quarter',r:32,c:'#c4c8cf'},100:{n:'$1 bill'},500:{n:'$5 bill'}};
-function coinsSvg(list,labels){let x=10,b='';list.forEach(v=>{const k=COINS[v];if(v>=100){b+=`<rect x="${x}" y="30" width="120" height="60" rx="6" fill="#cfe3c2" stroke="#3d6b2c" stroke-width="3"/><ellipse cx="${x+60}" cy="60" rx="18" ry="22" fill="#a9c79a"/>`+T(x+16,52,v/100,18,'#2d5020')+T(x+104,84,v/100,18,'#2d5020')+(labels?T(x+60,118,'$'+v/100,18):'');x+=132}
-  else{const g=`c${v}`;b+=`<defs><radialGradient id="${g}" cx="35%" cy="30%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${k.c}"/><stop offset="1" stop-color="#555"/></radialGradient></defs><circle cx="${x+k.r}" cy="60" r="${k.r}" fill="url(#${g})" stroke="#333" stroke-width="2"/><circle cx="${x+k.r}" cy="60" r="${k.r-5}" fill="none" stroke="#0003" stroke-width="2"/>`+(labels?T(x+k.r,118,v+'¢',18):'');x+=k.r*2+12}});
+function coinsSvg(list,labels,face){let x=10,b='';list.forEach(v=>{const k=COINS[v];if(v>=100){b+=`<rect x="${x}" y="30" width="120" height="60" rx="6" fill="#cfe3c2" stroke="#3d6b2c" stroke-width="3"/><ellipse cx="${x+60}" cy="60" rx="18" ry="22" fill="#a9c79a"/>`+T(x+16,52,v/100,18,'#2d5020')+T(x+104,84,v/100,18,'#2d5020')+(labels?T(x+60,118,'$'+v/100,18):'');x+=132}
+  else{const g=`c${v}`;b+=`<defs><radialGradient id="${g}" cx="35%" cy="30%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${k.c}"/><stop offset="1" stop-color="#555"/></radialGradient></defs><circle cx="${x+k.r}" cy="60" r="${k.r}" fill="url(#${g})" stroke="#333" stroke-width="2"/><circle cx="${x+k.r}" cy="60" r="${k.r-5}" fill="none" stroke="#0003" stroke-width="2"/>`+(face?T(x+k.r,67,v+'¢',k.r>25?18:15,'#222'):'')+(labels?T(x+k.r,118,v+'¢',18):'');x+=k.r*2+12}});
  return svg(Math.max(x,200),labels?130:100,b)}
 function clock(h,m){let b=`<circle cx="120" cy="120" r="112" fill="#2b2d42"/><circle cx="120" cy="120" r="102" fill="#fdfcf7"/>`;
  for(let i=0;i<60;i++){const a=i/60*2*Math.PI,l=i%5?6:14;b+=`<line x1="${120+96*Math.sin(a)}" y1="${120-96*Math.cos(a)}" x2="${120+(96-l)*Math.sin(a)}" y2="${120-(96-l)*Math.cos(a)}" stroke="#2b2d42" stroke-width="${i%5?2:4}"/>`}
@@ -125,7 +125,7 @@ const G={
   else{a=R(150,700);b=R(105,1000-a);if(!add){a=R(400,1000);b=R(105,a-20)}}
   const ans=add?a+b:a-b,op=add?'+':'−';
   return{text:`${fmt(a)} ${op} ${fmt(b)} = ?`,choices:opts(ans,near(ans,[10,-10,1,-1,100,-100]).slice(R(0,2))),ans:String(ans),
-   pic:a+b<=999&&add?blocks(a,'')+'':null,help:add?(a<1000&&b<1000&&a+b<10000?blocks(a,`${fmt(a)} …`)+blocks(b,`… plus ${fmt(b)}`):''):numLine(Math.floor(ans/10)*10-10>=0?Math.floor(ans/10)*10-10:0,Math.ceil(a/10)*10+10,Math.ceil((Math.ceil(a/10)*10+20-Math.floor(ans/10)*10)/100)*10||10,[{v:a,t:fmt(a)},{v:ans,c:'#2fbf71',t:'?'}],[[a,ans,'back '+b]]),
+   pic:a+b<=999&&add?blocks(a,'')+'':null,help:add?(a<1000&&b<1000&&a+b<10000?blocks(a,`${fmt(a)} …`)+blocks(b,`… plus ${fmt(b)}`):''):(b<=10?numLine(Math.max(0,a-10),Math.max(0,a-10)+10,1,[{v:a,t:fmt(a)},{v:ans,c:'#2fbf71',t:'?'}],[[a,ans,'back '+b]]):numLine(Math.floor(ans/10)*10-10>=0?Math.floor(ans/10)*10-10:0,Math.ceil(a/10)*10+10,Math.ceil((Math.ceil(a/10)*10+20-Math.floor(ans/10)*10)/100)*10||10,[{v:a,t:fmt(a)},{v:ans,c:'#2fbf71',t:'?'}],[[a,ans,'back '+b]])),
    hint:add?`Add the ones first, then the tens, then the hundreds. If a place makes 10 or more, trade 10 for 1 in the next place.`:`Start at ${fmt(a)} and jump back ${fmt(b)}. Take away hundreds, then tens, then ones. If you need more ones, trade a ten for 10 ones.`,
    how:add?`Stack the numbers by place: ones under ones, tens under tens. Add ones: ${a%10} + ${b%10} = ${a%10+b%10}. ${a%10+b%10>9?'That is 10 or more, so trade 10 ones for one ten.':''} Then add the tens and hundreds.`:`Break ${fmt(b)} into hundreds, tens and ones. Jump back from ${fmt(a)} one part at a time on the number line.`}},
  mult(l){const pool=l==1?[0,1,2,5,10]:l==2?[2,3,4,5,10]:[3,4,6,7,8,9];let a=pick(pool),b=R(l==1?1:2,10);if(Math.random()<.5)[a,b]=[b,a];const ans=a*b;
@@ -144,22 +144,22 @@ const G={
   return{text:`Which sign makes this true?<br><span style="font-size:1.3em">${a}/${c} ___ ${b}/${d}</span>`,speakText:`Which sign makes this true? ${a}/${c}, blank, ${b}/${d}. Greater than, less than, or equal?`,choices:['>','<','='],ans,pic:null,help:svg(620,150,fracBar(a,c,10,a+'/'+c)+fracBar(b,d,84,b+'/'+d,'#2f6fdf')),
    hint:same?`Same-size pieces! The one with more pieces is bigger.`:`Same number of pieces, but bigger pieces when the bottom number is smaller. Look at the bars!`,how:`Draw both fractions as bars the same length. The bar with more color is the bigger fraction.`}},
  money(l){if(l<3){const set=l==1?[1,5,10,25]:[1,5,10,25,100];const list=[];const n=l==1?R(2,5):R(3,6);for(let i=0;i<n;i++)list.push(pick(set));list.sort((a,b)=>b-a);const tot=list.reduce((a,b)=>a+b,0);
-   const show=v=>tot<100&&l==1?v+'¢':money(v);
-   return{text:`How much money is this?`,choices:opts(show(tot),[show(tot+5),show(Math.max(1,tot-5)),show(tot+10),show(tot+1)]),ans:show(tot),pic:coinsSvg(list),help:coinsSvg(list,true),
+   const show=v=>tot<95&&l==1?v+'¢':money(v);
+   return{text:`How much money is this?`,choices:opts(show(tot),[show(tot+5),show(Math.max(1,tot-5)),show(tot+10),show(tot+1)]),ans:show(tot),pic:coinsSvg(list,false,l<3),help:coinsSvg(list,true,true),
     hint:`Start with the biggest one and count on: ${(()=>{let s=0;return list.map(v=>(s+=v,s<100?s+'¢':money(s))).join(', ')})()}.`,how:`Quarter = 25¢, dime = 10¢, nickel = 5¢, penny = 1¢, a dollar bill = 100¢. Line them up from biggest to smallest and count on.`}}
   const cost=R(105,495),ch=500-cost;return{text:`A LEGO minifigure costs ${money(cost)}. You pay with a $5 bill. How much change do you get?`,choices:opts(money(ch),[money(ch+10),money(ch-10>0?ch-10:ch+25),money(ch+100)]),ans:money(ch),
    pic:coinsSvg([500]),help:numLine(Math.floor(cost/100)*100,500,50,[{v:cost,t:money(cost)},{v:500,c:'#2fbf71',t:'$5.00'}],[[cost,500,'count up']]),hint:`Count up from ${money(cost)} to $5.00. Go to the next dollar first, then add the dollars.`,how:`Change means: how much more to get from the price up to what you paid. Count up from ${money(cost)} to ${money(Math.ceil(cost/100)*100)}, then on to $5.00.`}},
  time(l){const two=n=>String(n).padStart(2,'0');
   if(l<3){const h=R(1,12),m=l==1?R(0,11)*5:R(0,59);const f=(H,M)=>`${H}:${two(M)}`;
    return{text:`What time does the clock show?`,choices:opts(f(h,m),[f(h%12+1,m),f(h,(m+5)%60),f(h,(m+30)%60),f(m/5||12,h*5%60)]),ans:f(h,m),pic:clock(h,m),help:clockHelp(h,m),
-    hint:`The short hand is the hour: it's at (or just past) ${h}. The long red hand is the minutes: count by 5s around the edge.`,how:`First look at the short hand: that is the hour. Then the long red hand: count by fives from the 12. 1 is 5, 2 is 10, 3 is 15...${l==2?' then count on by ones for the little marks.':''}`}}
+    hint:(m>=40?`The short hand is almost at ${h%12+1}, but it hasn't got there yet, so it's still ${h} o'clock time.`:`The short hand is the hour: it's at (or just past) ${h}.`)+` The long red hand is the minutes: count by 5s around the edge.`,how:`First look at the short hand: that is the hour. Then the long red hand: count by fives from the 12. 1 is 5, 2 is 10, 3 is 15...${l==2?' then count on by ones for the little marks.':''}`}}
   const h=R(1,8),m=pick([0,30]),dh=R(1,4),dm=pick([0,30]);let eh=h+dh,em=m+dm;if(em>=60){em-=60;eh++}const f=(H,M)=>`${(H-1)%12+1}:${two(M)}`;
   const ev=pick(['Hero training','A LEGO build','Soccer practice','The movie']);
   return{text:`${ev} starts at ${f(h,m)}. It lasts ${dh} hour${dh>1?'s':''}${dm?' and 30 minutes':''}. What time does it end?`,choices:opts(f(eh,em),[f(eh+1,em),f(eh,(em+30)%60),f(eh-1,em)]),ans:f(eh,em),pic:clock(h,m),
    help:numLine(h,h+6,1,[{v:h+m/60,t:f(h,m)},{v:eh+em/60,c:'#2fbf71',t:'?'}],[[h+m/60,eh+em/60,`+${dh}${dm?'½':''} h`]]).replace(/>(\d+)<\/text>/g,(x,n)=>'>'+((n-1)%12+1)+':00</text>'),
    hint:`Start at ${f(h,m)}. Jump ${dh} hour${dh>1?'s':''} forward${dm?', then 30 more minutes':''}.`,how:`Elapsed time: start at the beginning time and jump forward on a timeline. Jump whole hours first, then the extra minutes.`}},
  geo(l){if(l==1){const n=pick([3,4,5,6,8]);const nm={3:'triangle',4:'quadrilateral',5:'pentagon',6:'hexagon',8:'octagon'};
-   return{text:`What is the name of this shape?`,choices:shuf(['triangle','quadrilateral','pentagon','hexagon','octagon'].filter(x=>x!==nm[n]).slice(0,3).concat(nm[n])),ans:nm[n],pic:polySvg(n),help:polySvg(n,1),
+   return{text:`What is the name of this shape?`,choices:shuf(shuf(['triangle','quadrilateral','pentagon','hexagon','octagon'].filter(x=>x!==nm[n])).slice(0,3).concat(nm[n])),ans:nm[n],pic:polySvg(n),help:polySvg(n,1),
     hint:`Count the sides: it has ${n}. Tri = 3, quad = 4, penta = 5, hexa = 6, octo = 8 (like an octopus!).`,how:`Count the straight sides. The number of sides gives the shape its name. 3 triangle, 4 quadrilateral, 5 pentagon, 6 hexagon, 8 octagon.`}}
   const w=R(2,l==2?5:8),h=R(2,l==2?4:6);
   if(l==2||Math.random()<.4)return{text:`Each square is 1 square unit. What is the area of the rectangle?`,choices:opts(w*h,[w*h+w,w+h,2*(w+h),w*h-1]),ans:String(w*h),pic:gridRect(w,h),help:gridRect(w,h,1),
@@ -187,12 +187,12 @@ const AGAIN=['Good try! Let\'s look at the picture.','That\'s okay, heroes pract
 const STORY=['Help save the city!','A crane is stuck downtown!','The subway lights went out!','Bricks fell off the bridge!','The museum needs a hero!','A cat is stuck on a roof!'];
 // ---------- screens ----------
 function show(id){window.HMA&&HMA.screen(id);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(window.speechSynthesis&&id!=='play')speechSynthesis.cancel()}
-const heroName=()=>S.hero==='G'?'Ghost-Spider':'Spidey';
+const heroName=()=>S.hero==='G'?'Sadie':'Samuel';
 function voiceBtns(){$('voiceT').textContent='🔊 Read to me: '+(S.voice?'ON':'OFF');$('voiceM').textContent=S.voice?'🔊':'🔇'}
 function buildMap(){$('hello').textContent=`Pick a mission, ${S.hero==='G'?'Sadie':'Samuel'}!`;const g=$('grid');g.innerHTML='';
  SK.forEach(k=>{const st=S.skills[k.id];const b=document.createElement('button');b.className='mission';b.innerHTML=`<span class="ic">${k.ic}</span><span class="stars">${'⭐'.repeat(st.best)}${'☆'.repeat(3-st.best)}</span><b>${k.name}</b><small>${k.sub}</small>`;b.onclick=()=>start(k.id);g.appendChild(b)})}
 let M=null;const QN=8;
-function start(id){if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
+function start(id){stopAll();if(S.cap&&sess.n>=S.cap){restScreen();return}M={id,i:0,q:null,tries:0,firsts:0,brave:0,boss:bossFor(id)};show('play');const k=SK.find(s=>s.id===id);bossUI();const intro=M.boss?`Boss battle! ${M.boss.name} is attacking the city! Every right answer knocks him back. `:`${pick(STORY)} ${k.name}. ${heroName()}, let's go! `;dad(M.boss?'boss':'intro',intro,()=>readQ(),()=>next(intro),true)}
 function readQ(pre){const b=$('say');b.classList.add('pulse');say((pre||'')+(M.q.speakText||M.q.text),false,()=>b.classList.remove('pulse'));if(!S.voice)b.classList.remove('pulse')}
 let hintT=0;function next(pre,noRead){clearTimeout(hintT);const st=S.skills[M.id];M.q=G[M.id](st.lvl);M.tries=0;
  if(M.q.choices.indexOf(M.q.ans)<0){M.q.choices[0]=M.q.ans;M.q.choices=shuf(M.q.choices)}
@@ -202,16 +202,17 @@ let hintT=0;function next(pre,noRead){clearTimeout(hintT);const st=S.skills[M.id
  M.q.choices.forEach(c=>{const b=document.createElement('button');b.className='ans';b.textContent=c;b.onclick=()=>answer(b,c);A.appendChild(b)});
  $('prog').innerHTML=[...Array(QN)].map((_,i)=>`<i class="${i<M.i?'d':''}" style="${i<M.i?'background:'+BRICK[i%BRICK.length]:''}"></i>`).join('');
  if(!noRead)readQ(pre)}
-function cheer(t){const c=$('cheer');c.textContent=t;c.classList.add('on');setTimeout(()=>c.classList.remove('on'),1000)}
-let busy=false;
+let cheerT=0;function cheer(t){const c=$('cheer');clearTimeout(cheerT);c.textContent=t;c.classList.add('on');cheerT=setTimeout(()=>c.classList.remove('on'),1000)}
+let busy=false,advT=0;
+function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}if(typeof dadAudio!=='undefined'&&dadAudio)try{dadAudio.pause()}catch(e){}if(typeof calmT!=='undefined')calmT.forEach(clearTimeout);if($('calm'))$('calm').classList.remove('on')}
 function answer(b,c){if(busy||b.classList.contains('tried'))return;const st=S.skills[M.id];
  clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?HMA.fx('correct'):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
-  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>cheer('LEVEL UP! ⭐'),900)}}}
-  st.q++;st.last=Date.now();save();M.i++;setTimeout(()=>{busy=false;M.i>=QN?finish():next()},1500)}
+  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M)cheer('LEVEL UP! ⭐')},1150)}}}
+  st.q++;st.last=Date.now();save();M.i++;const mm=M;advT=setTimeout(()=>{busy=false;if(M!==mm||!document.getElementById('play').classList.contains('on'))return;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();
   hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);say(M.q.hint)},3000);
-  if(M.tries>=2){[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}})}}}
+  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt='The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);say(gt)},1200)}}}
 function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$('nextStep').style.display=steps?'inline-block':'none'}
 let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI],true);howI++}
 function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');dad('rest',`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
@@ -238,7 +239,7 @@ on('pickG',()=>{S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a m
 const tv=()=>{S.voice=!S.voice;save();voiceBtns();if(S.voice)say('Okay! I will read to you.',true);else speechSynthesis&&speechSynthesis.cancel()};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});
-on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>$('ov').classList.add('on'));on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');clearTimeout(hintT);buildMap();show('map')});
+on('again',()=>{if(S.cap&&sess.n>=S.cap)restScreen();else{buildMap();show('map')}});on('quit',()=>$('ov').classList.add('on'));on('ovKeep',()=>$('ov').classList.remove('on'));on('ovLeave',()=>{$('ov').classList.remove('on');stopAll();M=null;buildMap();show('map')});
 on('restColl',()=>{buildColl();show('coll')});on('restHome',()=>show('title'));on('restMore',()=>{restUnlock=true;gate()});
 on('cap',()=>{});$('cap').addEventListener('change',e=>{S.cap=+e.target.value;save()});
 on('say',()=>say(M.q.speakText||M.q.text,true));on('how',()=>{clearTimeout(hintT);howS=sents(M.q.how);howI=0;if(M.q.help)$('model').innerHTML=M.q.help;M.brave=1;howStep()});on('nextStep',()=>{if(howI<howS.length)howStep()});
