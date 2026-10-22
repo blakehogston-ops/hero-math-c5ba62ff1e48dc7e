@@ -1,0 +1,9 @@
+:root.bedtime, .bedtime {
+  /* Bedtime palette: dimmer, warmer, low blue light */
+  --bg: #1a1410; --bg-2: #241a14; --panel: #2e221a; --panel-edge: #4a3626;
+  --text: #f0dcc0; --text-dim: #b89c80; --accent: #e8a060; --accent-2: #c87850;
+  --hero-red: #b04a3a; --hero-blue: #4a5a8a; --goo: #1a1420; --goo-rim: #8a6ab0;
+  --good: #9ab070; --warn: #d8a050; --glow: rgba(232,160,96,.25);
+  --sky-top: #140e14; --sky-bottom: #3a2420; --window: #e0a860;
+  --brightness: .8; --filter: brightness(.8) sepia(.25) saturate(.85);
+}
