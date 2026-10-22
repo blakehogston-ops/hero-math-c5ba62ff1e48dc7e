@@ -121,7 +121,7 @@ const bm=window.buildMap;
 window.buildMap=function(){bm();const btns=[...document.querySelectorAll('#grid .mission')];
  btns.forEach((b,n)=>{const k=SK[n],st=S.skills[k.id];
   b.querySelector('.ic').innerHTML=`<span class="pin">${icon(k.id)}</span><span class="num">${n+1}</span>`;
-  b.querySelector('.stars').innerHTML=[0,1,2].map(j=>starSvg(j<st.lvl,22)).join('');
+  b.querySelector('.stars').innerHTML=[0,1,2].map(j=>starSvg(j<(st.best||st.lvl),22)).join('');
   b.classList.toggle('done',st.missions>0)})};
 // reward screen: add a medal above the brick
 const fin=window.finish;
