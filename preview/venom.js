@@ -57,7 +57,7 @@ finish=function(){const pw=Math.min(8,M.power||0),re=isRematch(),hd=M.hood||hood
   $('rwTitle').textContent=`${hd.toUpperCase()} CLEARED!`;
   $('rwText').textContent=`You webbed up Venom${re?' in the big rematch':''} and cleared the goo from ${hd}, ${heroName()}!`+(res.tier===3?' SUPER MOVE bonus sticker! ⭐':'');if(!res.left&&VZ.afterWin)VZ.afterWin(res,hd,mm)});VZ.preFight?VZ.preFight(re,go):go()};
 // ---------- the fight ----------
-let cv,ctx,W=0,Hh=0,raf=0,F=null;
+let cv,ctx,W=0,Hh=0,raf=0,F=null,DPR=1;
 function ensureDom(){if($('fight'))return;const s=document.createElement('section');s.className='screen';s.id='fight';
  s.innerHTML=`<canvas id="fc"></canvas>
  <button id="fPause" class="fbtn" aria-label="Pause (hold)">⏸</button>
@@ -72,7 +72,7 @@ function ensureDom(){if($('fight'))return;const s=document.createElement('sectio
  <div id="fSuper"></div>
  <div id="fMenu"><div class="panel" style="text-align:center"><h2>Paused</h2><div class="row" style="justify-content:center;gap:24px"><button class="btn blue" id="fResume">▶ Keep fighting</button><button class="btn ghost" id="fFinish">⭐ Finish the fight</button><button class="btn ghost" id="fHome">🏠 Map</button></div></div></div>
  <button id="fDone" class="btn">Continue ▶</button>`;
- $('app').appendChild(s);cv=$('fc');ctx=cv.getContext('2d');
+ $('app').appendChild(s);cv=$('fc');ctx=cv.getContext('2d',{alpha:false});
  // input
  let sx=0,sy=0,st=0,pid=null;
  s.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;pid=e.pointerId;sx=e.clientX;sy=e.clientY;st=performance.now();e.preventDefault()},{passive:false});
@@ -89,7 +89,7 @@ function ensureDom(){if($('fight'))return;const s=document.createElement('sectio
  $('fHome').addEventListener('click',()=>{if(!F)return;const cb=F.cb,res={tier:F.tier,power:F.power,time:F.t,left:1};stopFight();stopVoice();cb(res);buildMap();show('map');stopVoice()});
  $('fDone').addEventListener('click',()=>{if(!F||!F.done)return;const cb=F.cb,res={tier:F.tier,power:F.power,time:F.t};stopFight();cb(res)});
  addEventListener('resize',()=>{if(F)size()})}
-function size(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;Hh=innerHeight;cv.width=W*d;cv.height=Hh*d;cv.style.width=W+'px';cv.style.height=Hh+'px';ctx.setTransform(d,0,0,d,0,0);F&&(F.bgc=null)}
+const PX_BUDGET=2.4e6;function size(){W=innerWidth;Hh=innerHeight;const d=Math.max(1,Math.min(2,devicePixelRatio||1,Math.sqrt(PX_BUDGET/Math.max(1,W*Hh))));DPR=d;cv.width=W*d;cv.height=Hh*d;cv.style.width=W+'px';cv.style.height=Hh+'px';ctx.setTransform(d,0,0,d,0,0);F&&(F.bgc=null)}
 const TIERS=[{taps:10,name:'thin',fin:'WEB-WRAP!'},{taps:8,name:'thick',fin:'SPIN WEB-WRAP!'},{taps:7,name:'glow',fin:'THWIP COMBO!'},{taps:6,name:'gold',fin:'SUPER WEB STORM!'}];
 const tierOf=p=>p>=8?3:p>=6?2:p>=3?1:0;VZ.pfmt=pfmt;
 function fight(power,rematch,cb){ensureDom();stopVoice();clearTimeout(hintT);
@@ -149,7 +149,7 @@ function loop(now){if(!F)return;let dt=Math.min(.05,(now-F.last)/1000)*(VZ.speed
  F.vhit=Math.max(0,F.vhit-dt);F.stun=Math.max(0,F.stun-dt);F.shake=Math.max(0,F.shake-dt);
  draw();raf=requestAnimationFrame(loop)}
 // ---------- drawing ----------
-function bgCache(){const c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d');const dusk=F.rematch;const bgn=dusk?'bg_rooftops_dusk.svg':'bg_rooftops_night.svg';
+function bgCache(){const c=document.createElement('canvas');c.width=Math.round(W*DPR);c.height=Math.round(Hh*DPR);const x=c.getContext('2d',{alpha:false});x.scale(DPR,DPR);const dusk=F.rematch;const bgn=dusk?'bg_rooftops_dusk.svg':'bg_rooftops_night.svg';
  if(ok(bgn)){const i=AS[bgn],r=Math.max(W/1600,Hh/900);x.drawImage(i,(W-1600*r)/2,Hh*.82-820*r,1600*r,900*r);if(Hh*.82+80*r<Hh){x.fillStyle='#0b0d14';x.fillRect(0,Hh*.82+80*r,W,Hh)}return c}
  const g=x.createLinearGradient(0,0,0,Hh*.82);if(dusk){g.addColorStop(0,'#3a1450');g.addColorStop(.5,'#c2185b');g.addColorStop(1,'#ff9a3c')}else{g.addColorStop(0,'#070b1f');g.addColorStop(.6,'#1d1f4a');g.addColorStop(1,'#3b2a62')}x.fillStyle=g;x.fillRect(0,0,W,Hh);
  const vb=venBox();if(!dusk){const mg=x.createRadialGradient(vb.x+vb.w*.6,vb.y+vb.h*.25,10,vb.x+vb.w*.6,vb.y+vb.h*.25,Math.min(W,Hh)*.28);mg.addColorStop(0,'#fffbe8');mg.addColorStop(.45,'#e8e2c8');mg.addColorStop(.5,'rgba(232,226,200,.25)');mg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=mg;x.fillRect(0,0,W,Hh)}
@@ -227,7 +227,7 @@ function drawFinisher(){if(F.finT<0)return;const b=venBox(),c=venCenter();const 
  if(F.tier===3&&!reduce()){ctx.globalAlpha=.25;ctx.fillStyle='#ffd23f';ctx.beginPath();for(let i=0;i<12;i++){const a=i/12*6.28+F.finT;ctx.moveTo(c.x,c.y);ctx.arc(c.x,c.y,Math.max(W,Hh),a,a+.12);ctx.closePath()}ctx.fill()}
  ctx.restore()}
 function draw(){if(!F||!ctx)return;if(!F.bgc)F.bgc=bgCache();ctx.save();if(F.shake>0&&!reduce()){const m=4;ctx.translate((Math.random()-.5)*m,(Math.random()-.5)*m)}
- ctx.drawImage(F.bgc,-6,-6,W+12,Hh+12);drawBillboard();
+ ctx.drawImage(F.bgc,-8,-8,W+16,Hh+16);drawBillboard();
  if(!F.rematch&&!reduce()){ctx.strokeStyle='rgba(180,200,255,.18)';ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<40;i++){const x=(i*97+F.t*60)%W,y=(i*53+F.t*500)%(Hh*.8);ctx.moveTo(x,y);ctx.lineTo(x-3,y+12)}ctx.stroke()}
  drawVenom();drawHero();drawWebs();drawFinisher();
  (F.spr||[]).forEach(o=>{const k=o.t/o.life;drawCentered(o.n,o.x,o.y,o.sz*(.7+.5*k),1-k)});
