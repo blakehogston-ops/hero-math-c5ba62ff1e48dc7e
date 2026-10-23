@@ -227,7 +227,7 @@ function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.
 let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;
  if(S.hear!==false&&S.voice&&armed!==b){document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'));armed=b;b.classList.add('armed');say(spoken(c)+'. Tap again to pick it.');return}armed=null;b.classList.remove('armed');const st=S.skills[M.id];
  clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
-  if(M.tries===0){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}},1650)}}}
+  if(M.tries===0&&!M.sensed){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}},1650)}}}
   st.q++;st.last=Date.now();save();M.i++;const mm=M;advT=setTimeout(()=>{busy=false;if(M!==mm||!document.getElementById('play').classList.contains('on'))return;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();

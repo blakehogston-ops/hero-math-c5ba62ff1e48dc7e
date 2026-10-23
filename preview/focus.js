@@ -19,20 +19,20 @@ const skillLvl=id=>S.skills[id];
 function helpRow(){let r=document.getElementById('helpRow');if(!r){r=document.createElement('div');r.id='helpRow';const q=document.getElementById('qtext');q.parentNode.insertBefore(r,q.nextSibling)}
  r.innerHTML='<button class="btn small ghost" id="stuckBtn" aria-label="I\'m stuck, show a hint">🤔 I\'m stuck</button><button class="btn small blue" id="senseBtn" aria-label="Spider-Sense: cross out one wrong answer">🕷️ Spider-Sense</button>';
  r.querySelector('#stuckBtn').onclick=()=>{if(!M||!M.q)return;M.brave=1;M.stuck=1;M.stuckN=(M.stuckN||0)+1;const h=sents(M.q.hint)[0]||M.q.hint;showHint('💡 '+h);if(M.q.help)$('model').innerHTML=M.q.help;say(M.q.hint)};
- r.querySelector('#senseBtn').onclick=e=>{if(!M||!M.q)return;M.senseN=(M.senseN||0)+1;if(M.tries===0)M.tries=1; /* help used: a right answer after Spider-Sense is not first try */const w=[...document.querySelectorAll('#answers .ans')].filter(x=>x.textContent!==M.q.ans&&!x.classList.contains('tried')&&!x.classList.contains('sensed'));if(w.length>1){const x=pick(w);x.classList.add('tried','sensed');x.setAttribute('aria-label',x.textContent+' (not it)');say('Your spider-sense says: not that one!')}e.currentTarget.remove()}}
+ r.querySelector('#senseBtn').onclick=e=>{if(!M||!M.q)return;M.senseN=(M.senseN||0)+1;M.sensed=1; /* help used: no first-try credit, half power; tries untouched so the nudge still comes first */const w=[...document.querySelectorAll('#answers .ans')].filter(x=>x.textContent!==M.q.ans&&!x.classList.contains('tried')&&!x.classList.contains('sensed'));if(w.length>1){const x=pick(w);x.classList.add('tried','sensed');x.setAttribute('aria-label',x.textContent+' (not it)');say('Your spider-sense says: not that one!')}e.currentTarget.remove()}}
 const _next=next;next=function(a,b){if(M&&M.yourTurn){M.yourTurn=0;M.inTurn=1}else if(M)M.inTurn=0;
  const r=_next(a,b);if(!M)return r;lastT=Date.now();M.qT=lastT;paused=false;$('answers').classList.remove('fpause');helpRow();
  if(M.inTurn){$('qtext').innerHTML='<span style="color:#ffd23f">Your turn!</span> '+$('qtext').innerHTML;cheer('Your turn! 🕷️');say('Your turn! Try this one.',false)}
  if(M.modelFirst&&M.q.help)$('model').innerHTML=M.q.help;return r};
 function factOf(q){if(q.fact)return String(q.fact);const t=String(q.text||'').replace(/<[^>]+>/g,'').replace(/^\s*Your turn!\s*/,'');const m=t.match(/(\d+)\s*([+\-−×x÷])\s*(\?|\d+)/);if(m)return m[1]+({'−':'-','×':'x','÷':'/'}[m[2]]||m[2])+m[3];return t.replace(/\s+/g,' ').trim().slice(0,40)}
-function logAns(before,lv0){if(!window.HMA||!HMA.progress||!HMA.progress.answer||!M||!M.q)return;const type=M.inTurn?'yourturn':M.q.review?'review':(M.i<2?'warmup':'normal');HMA.progress.answer({kid:window.GS_MODE?'Sadie':'Samuel',skill:M.q.skill||M.id,fact:factOf(M.q),firstTryRight:before===0&&!M.stuck?1:0,rightSecondOrAfterHint:before>0||M.stuck?1:0,type,level:M.q.lvl||lv0||1})}
-const _qn=next;next=function(){if(M)M.stuck=0;return _qn.apply(this,arguments)};
+function logAns(before,lv0){if(!window.HMA||!HMA.progress||!HMA.progress.answer||!M||!M.q)return;const type=M.inTurn?'yourturn':M.q.review?'review':(M.i<2?'warmup':'normal');HMA.progress.answer({kid:window.GS_MODE?'Sadie':'Samuel',skill:M.q.skill||M.id,fact:factOf(M.q),firstTryRight:before===0&&!M.stuck&&!M.sensed?1:0,rightSecondOrAfterHint:before>0||M.stuck||M.sensed?1:0,type,level:M.q.lvl||lv0||1})}
+const _qn=next;next=function(){if(M){M.stuck=0;M.sensed=0}return _qn.apply(this,arguments)};
 const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy!=='undefined'&&busy)return;
  const lv0=(S.skills[M.id]||{}).lvl,before=M.tries,right=c===M.q.ans,now=Date.now(),dt=now-lastT,wasArmed=b.classList.contains('armed')||!(S.hear!==false&&S.voice);
  _ans(b,c);if(!M)return;if(M.tries===before&&!right)return; // only armed (hear-then-pick)
  if(right&&typeof busy!=='undefined'&&!busy)return; // right answer only armed, not yet picked
  lastT=Date.now();
- if(right){try{logAns(before,lv0)}catch(e){}if(M.tries===0&&dt>=6000&&(M.rushed>0||Math.random()<.34))setTimeout(()=>cheer('You took your time, that\'s real hero focus!'),700);
+ if(right){try{logAns(before,lv0)}catch(e){}if(M.tries===0&&!M.sensed&&dt>=6000&&(M.rushed>0||Math.random()<.34))setTimeout(()=>cheer('You took your time, that\'s real hero focus!'),700);
   if(before>=2&&!M.inTurn){M.yourTurn=1;M.i=Math.max(0,M.i-1)} // fresh similar question, mission length unchanged
   M.fastRun=0;return}
  // wrong
