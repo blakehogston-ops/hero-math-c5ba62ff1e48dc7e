@@ -46,7 +46,7 @@ function webAttack(){const f=$('bossFig');if(!f)return;const r=f.getBoundingClie
  document.body.appendChild(L);setTimeout(()=>L.remove(),700);
  f.classList.remove('hit','glow');void f.offsetWidth;f.classList.add(reduce()?'glow':'hit');
  if(!reduce()){const p=$('play');p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake')}}
-const _oc=onCorrect;onCorrect=function(){const first=M&&M.tries===0;_oc();if(!M)return;M.power=Math.min(8,(M.power||0)+(first?1:M.tries===1?.5:0));setPower();if(!first)bubble('vBubble','Still powering up! ⚡',2500);webAttack()};
+const _oc=onCorrect;onCorrect=function(){const first=M&&M.tries===0&&!M.sensed;_oc();if(!M)return;M.power=Math.min(8,(M.power||0)+(first?1:(M.tries===1||(M.sensed&&M.tries===0))?.5:0));setPower();if(!first)bubble('vBubble','Still powering up! ⚡',2500);webAttack()};
 heroSwing=function(){};
 // taunts between problems
 const _next=next;next=function(pre,noRead){if(M&&M.i>0&&M.i%3===0&&!pre){const t=LINES.taunts[(S.log.length+M.i/3)%LINES.taunts.length|0];pre=`Venom says: ${t} `;_next(pre,noRead);bubble('vBubble',t);return}_next(pre,noRead)};
