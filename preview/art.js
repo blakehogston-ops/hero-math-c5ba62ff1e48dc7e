@@ -73,7 +73,7 @@ window.sky=sky;
 // ---------- hero portraits: original masked heroes (no licensed designs) ----------
 let pid=0;
 function hero(c1,c2,acc,lens,sz){const i='h'+(pid++);
- return `<svg viewBox="0 0 100 100" width="${sz||100}" height="${sz||100}" class="hp" aria-hidden="true"><defs>
+ return `<svg viewBox="0 0 100 100" width="${sz||100}" height="${sz||100}" class="heroart" aria-hidden="true"><defs>
  <radialGradient id="${i}bg" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#2c3a5c"/><stop offset="1" stop-color="#0a0f1c"/></radialGradient>
  <radialGradient id="${i}h" cx="38%" cy="28%" r="80%"><stop offset="0" stop-color="${shade(c1,.35)}"/><stop offset=".45" stop-color="${c1}"/><stop offset="1" stop-color="${shade(c1,-.75)}"/></radialGradient>
  <linearGradient id="${i}s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${shade(c2,.25)}"/><stop offset=".5" stop-color="${c2}"/><stop offset="1" stop-color="${shade(c2,-.7)}"/></linearGradient>
@@ -128,8 +128,8 @@ const fin=window.finish;
 window.finish=function(){fin();document.getElementById('reward').scrollTop=0;const it=document.getElementById('rwItem');if(it&&!it.querySelector('.badge'))it.insertAdjacentHTML('afterbegin',`<div class="medal">${badgeSvg(120)}</div>`)};
 // title portraits
 function portraits(){const a=document.querySelector('#pickS .portrait-hero'),b=document.querySelector('#pickG .portrait-hero');
- if(a)a.outerHTML=hero('#b3121b','#1d3f8f','#d9a441','#e8f2ff',120).replace('class="hp"','class="hp portrait-hero"');
- if(b)b.outerHTML=hero('#eef0f6','#2a2f45','#ff5fa2','#7fd3ff',120).replace('class="hp"','class="hp portrait-hero"')}
+ if(a)a.outerHTML=hero('#b3121b','#1d3f8f','#d9a441','#e8f2ff',120).replace('class="heroart"','class="heroart portrait-hero"');
+ if(b)b.outerHTML=hero('#eef0f6','#2a2f45','#ff5fa2','#7fd3ff',120).replace('class="heroart"','class="heroart portrait-hero"')}
 if(window.__g){__g.finish=window.finish}
 portraits();sky();
 })();
