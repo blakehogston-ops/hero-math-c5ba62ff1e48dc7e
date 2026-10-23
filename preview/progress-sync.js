@@ -86,6 +86,7 @@
   window.HMA.progress = { log: log, answer: answer, isTest: isTest, pendingAnswers: function () { return loadA().length; }, flush: flush, config: config, pending: function () { return load().length; } };
   try {
     window.addEventListener('online', function () { soon(1000); });
+    window.addEventListener('pagehide', function () { flush(); });
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
     soon(3000);
   } catch (e) {}
