@@ -119,7 +119,9 @@ window.GS={SK,G};
 document.addEventListener('DOMContentLoaded',()=>{try{
  if(S.gsInit!==1){S.voice=true;S.hear=true;S.hero='G';S.gsInit=1;S.gsDay='';S.gsOpen=4;S.gsRev=S.gsRev||[];save()}S.hero='G';
  if(typeof VZ!=='undefined'){VZ.heroImg='family/sadie_idle.svg';VZ.heroWin='family/sadie_victory.svg'}
- const today=new Date().toDateString();if(S.gsDay!==today){if(S.gsDay)S.gsOpen=Math.min(SK.length,(S.gsOpen||4)+1);S.gsDay=today;save()}
+ const today=new Date().toDateString();if(S.gsDay!==today){S.gsDay=today;save()}
+  // Unlock the next skill (spec order) after every finished mission; existing S.gsOpen carries over
+  const _fin=finish;finish=function(){const m0=M;const r=_fin.apply(this,arguments);try{const o=S.gsOpen||4;if(m0&&!m0.gsUnl&&o<SK.length){m0.gsUnl=1;S.gsOpen=o+1;save();setTimeout(()=>{try{cheer('New skill unlocked! 🔓 '+SK[o].name)}catch(e){}},2200)}}catch(e){}return r};
  // Lock skills not yet opened (parent toggle S.gsAll opens all)
  const _bm=buildMap;buildMap=function(){_bm();const open=S.gsAll?SK.length:(S.gsOpen||4);[...document.querySelectorAll('#map .mission')].forEach((b,i)=>{if(i>=open){b.disabled=true;b.style.opacity=.45;b.setAttribute('aria-label',b.textContent+' (opens soon)');const s=b.querySelector('small');if(s)s.textContent='🔒 Opens soon!'}})};
  // Warm-up (first 2 items one level easier), 30% spaced review from missed / older skills
