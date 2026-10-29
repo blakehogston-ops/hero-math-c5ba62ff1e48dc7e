@@ -2,18 +2,17 @@
 // ===== 1) Dad voice lines: audio/dad/NN.mp3 if listed in audio/dad/manifest.json, else TTS =====
 const DAD=[
  [1,'hello',"Hi Samuel! Ready to be a math hero?"],[2,'intro',"Hey buddy, it's Dad. Let's save the city together!"],[3,'intro',"Hero time! I'm right here with you."],[4,'intro',"New mission! Take your time, there's no rush."],[5,'cheer',"Yes! That's my boy!"],[6,'cheer',"Amazing work, buddy!"],[7,'cheer',"You got it! I'm so proud of you."],[8,'cheer',"Web-tastic!"],[9,'cheer',"Look at that big brain go!"],[10,'cheer',"Nailed it, hero!"],[11,'cheer',"High five! Boom!"],[12,'again',"Good try, buddy. Let's look at the picture together."],[13,'again',"That's okay. Mistakes help our brains grow."],[14,'again',"You've got this. Give it another try."],[15,'again',"Brave try! Let's figure it out together."],[16,'again',"No rush. Take a breath and look again."],[17,'venom',"Uh oh, it's Venom! Every right answer powers you up. You can do this."],[18,'fightcheer',"Go Samuel! Web him up!"],[19,'venomwin',"You beat Venom! I knew you could do it!"],[20,'complete',"Mission complete! You saved the city!"],[21,'complete',"That was awesome. You worked so hard."],[22,'levelup',"Level up! You're getting stronger every day."],[23,'build',"Another brick for your LEGO hero!"],[24,'calm',"Let's take a hero breath together. Breathe in... and out."],[25,'rest',"Hero rest! You did so much today. I'm proud of you."]];
-const dadFile=n=>'audio/dad/'+String(n).padStart(2,'0')+'.mp3';
-let dadHave=new Set();
-try{fetch('audio/dad/manifest.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(a=>{dadHave=new Set((a||[]).map(Number))}).catch(()=>{})}catch(e){}
+// Generalized: a DAD line is "recorded" when voice-clips.js has a clip for its text (audio/voice/, voice-manifest.js).
+// The clip plays through say(); anything without a clip falls back to the iPad/browser voice.
+const dadHas=t=>!!(window.HM_VOICE_FIND&&HM_VOICE_FIND(t));
+const dadText=t=>window.GS_MODE?String(t).replace(/Samuel/g,'Sadie Grace').replace(/\bbuddy\b/g,'Sadie Grace').replace(/That's my boy/g,"That's my girl"):t;
 let dadAudio=null;
 function dad(cat,fallback,afterAudio,before,isIntro){
  if(window.GS_MODE&&fallback)fallback=String(fallback).replace(/Samuel/g,'Sadie').replace(/\bbuddy\b/g,'sweetie');
- const lines=DAD.filter(d=>d[1]===cat&&dadHave.has(d[0])&&!(window.GS_MODE&&/Samuel|buddy/.test(d[2])));
+ const lines=DAD.filter(d=>d[1]===cat&&dadHas(dadText(d[2])));
  if(!S.voice||!lines.length){if(before)before();else say(fallback);return false}
  const d=pick(lines);if(isIntro)next('',true);
- try{stopVoice();dadAudio=new Audio(dadFile(d[0]));dadAudio.onended=()=>afterAudio&&afterAudio();
-  dadAudio.onerror=()=>{dadHave.delete(d[0]);say(isIntro?fallback+(M.q.speakText||M.q.text):fallback)};
-  dadAudio.play().catch(()=>dadAudio.onerror())}catch(e){say(fallback)}return true}
+ try{say(dadText(d[2]),false,()=>afterAudio&&afterAudio())}catch(e){say(fallback)}return true}
 // ===== 2) Build-your-own LEGO hero =====
 const HERO_ART=[ // top -> bottom, 9 wide
  '..RRRRR..','.RRRRRRR.','.RWWRWWR.','.RWKRKWR.','.RRRRRRR.','..RRRRR..',
