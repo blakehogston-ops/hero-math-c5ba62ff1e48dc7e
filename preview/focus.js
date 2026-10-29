@@ -37,7 +37,7 @@ const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy
   M.fastRun=0;return}
  // wrong
  paused=true;$('answers').classList.add('fpause');setTimeout(()=>{paused=false;lastT=Date.now();$("answers")&&$("answers").classList.remove("fpause")},PAUSE);
- if(dt<FAST){M.fastRun=(M.fastRun||0)+1;M.rushed=(M.rushed||0)+1;rushSess[M.id]=(rushSess[M.id]||0)+1;
+ if(dt<FAST){M.fastT=(M.fastT||[]).filter(t=>now-t<20000).concat(now);M.fastRun=Math.max((M.fastRun||0)+1,M.fastT.length);M.rushed=(M.rushed||0)+1;rushSess[M.id]=(rushSess[M.id]||0)+1;
   if(rushSess[M.id]>=3&&!M.modelFirst){M.modelFirst=1;const s=skillLvl(M.id);if(s&&s.lvl>1){s.lvl--;save()}}
   if(M.fastRun>=3&&!M.slowShown){M.slowShown=1;setTimeout(()=>{sm.classList.add('on');clearTimeout(sm._t);sm._t=setTimeout(smOff,12000);say('Slow-mo Spidey-Sense. Heroes slow down to see clearly. Breathe in, and out.')},600)}}
  else M.fastRun=0;

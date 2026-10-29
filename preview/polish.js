@@ -18,8 +18,13 @@ function fix(){const r=document.getElementById('helpRow'),h=document.getElementB
  if(h&&h.parentNode!==w)w.appendChild(h);
  if(G()){const sy=document.getElementById('say');if(sy&&sy.parentNode!==w)w.insertBefore(sy,w.firstChild);const s=document.getElementById('stuckBtn');if(s&&s.dataset.one!=='1'){s.dataset.one='1';s.textContent='🙋 Help';s.setAttribute('aria-label','Help')}}}
 new MutationObserver(fix).observe(document.documentElement,{childList:true,subtree:true});fix();
-document.addEventListener('click',e=>{if(!G())return;const s=e.target.closest&&e.target.closest('#stuckBtn');if(!s)return;const q=(window.__g&&__g.M&&__g.M.q&&__g.M.q.text)||'';
- if(s.dataset.q===q){e.stopImmediatePropagation();e.preventDefault();const h=document.getElementById('how');h&&h.click()}else s.dataset.q=q},true);
+let lastQ=null;document.addEventListener('click',e=>{if(!G())return;const s=e.target.closest&&e.target.closest('#stuckBtn');if(!s)return;const q=window.__g&&__g.M&&__g.M.q;
+ if(q&&q===lastQ){e.stopImmediatePropagation();e.preventDefault();const h=document.getElementById('how');h&&h.click();setTimeout(()=>{const n=document.getElementById('nextStep')||document.getElementById('hint');n&&n.scrollIntoView({block:'end',behavior:'smooth'})},250)}else lastQ=q},true);
 /* praise: findable + measurable */
 function tagP(){document.querySelectorAll('#cheer,#reward .panel,.bubble').forEach(x=>{x.classList.add('hma-praise');x.dataset.testid='praise'})}
 new MutationObserver(tagP).observe(document.documentElement,{childList:true,subtree:true});tagP()})();
+(function(){function lead(){const q=document.getElementById('qtext');if(!q||q.querySelector('.qlead'))return;const h=q.innerHTML,m=h.match(/^((?:<span[^>]*>Your turn!<\/span>\s*)?)What comes next\?(\s|&nbsp;)*/);if(m)q.innerHTML=m[1]+'<span class="qlead">What comes next?</span>'+h.slice(m[0].length)}
+new MutationObserver(lead).observe(document.documentElement,{childList:true,subtree:true,characterData:true});lead()})();
+
+(function(){const L={hmaMus:'Music',hmaSfx:'Effects'};function f(){for(const id in L){const b=document.getElementById(id);if(b){const t=b.textContent.trim();if(t&&!/[A-Za-z]/.test(t))b.textContent=t+' '+L[id]}}}
+new MutationObserver(f).observe(document.documentElement,{childList:true,subtree:true});f()})();
