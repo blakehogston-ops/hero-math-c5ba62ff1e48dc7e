@@ -205,7 +205,7 @@ function drawTiles(){var st=document.getElementById('strip'),tl=document.getElem
  [].forEach.call(tl.querySelectorAll('.tile'),function(b){b.onclick=function(){S.picked.push(S.tiles[+b.dataset.k]);drawTiles()}})}
 function checkTiles(){var fr=document.getElementById('free');if(fr&&(fr.value.trim()||!S.picked.length))return checkFree();var fb=document.getElementById('fb'),p=S.picked.map(function(x){return x.w}),t=S.target;S.checks++;
  if(p.join(' ')===t.join(' ')){if(!S.tries)S.first++;return good(curText())}
- if(!p.length){fb.innerHTML='<div class="hint">\ud83d\udca1 Tap the word tiles, or tap \u2328\ufe0f Type it and write your own \u2013 start with the word that has a capital letter!</div>';return}
+ if(!p.length){fb.innerHTML='<div class="hint">\ud83d\udca1 Add some words first! Tap the word tiles, or tap \u2328\ufe0f Type it and write your own \u2013 start with the word that has a capital letter!</div>';return}
  S.tries++;S.hints++;var msg;
  if(false)msg='Start with the tile that has a <b>capital letter</b> \u2013 that\u2019s how sentences begin.';
  else if(p[0]!==t[0])msg='Hmm, try starting with <b>'+esc(t[0])+'</b>. It has a capital letter, so it goes first!';
@@ -221,7 +221,7 @@ function dictate(){var R=window.SpeechRecognition||window.webkitSpeechRecognitio
   r.onresult=function(e){var t=e.results[0][0].transcript;showTyped(t);fb.innerHTML='<div class="praise">I heard you! Check the words, then tap ✔.</div>'};
   r.onerror=function(){showTyped('');fb.innerHTML='<div class="hint">🎙 I couldn\u2019t hear that one. No problem \u2013 tap the box and use the keyboard microphone, or try 🎤 again.</div>'};
   r.start()}catch(e){showTyped('')}}
-function checkFree(){var f=document.getElementById('free');f.value=oneLine(f.value);var t=f.value,fb=document.getElementById('fb');S.checks++;
+function checkFree(){var f=document.getElementById('free');f.value=oneLine(f.value);var t=f.value,fb=document.getElementById('fb');if(!t.trim()&&!S.picked.length){fb.innerHTML='<div class="hint">\ud83d\udca1 Add some words first! Type in the box, or tap the word tiles.</div>';return}S.checks++;
  if(!t.trim()){fb.innerHTML='<div class="hint">💡 Your sentence box is empty. Try 🎤, or tap tiles instead!</div>';return}
  if(!realWords(t)){S.tries++;S.hints++;fb.innerHTML='<div class="hint">💡 '+JUNK+'</div>';return}
  var o=check(t);if(!o.length){if(!S.tries)S.first++;return good(t)}
@@ -251,7 +251,7 @@ function drawC(){var m=S.m;
   else if(i===S.slot){var all=m.frame[k],ch=[],js=[];var ex=(S.sentence&&k===(m.kind==='opinion'?'topic':'first'))?[S.sentence]:[];var fade=m.b2&&(S.plays||0)>=2&&!S.remix&&!ex.length&&!S.reveal[k];var n=fade?0:m.b2?Math.max(1,2-(S.plays||0)):all.length,r=(S.plays||0)+(S.remix||0)+(S.reveal[k]||0);
    var cand=[];for(var q=0;q<all.length;q++){var jj=(q+r)%all.length;if(ex.length&&similar(all[jj],ex[0]))continue;cand.push(jj)}cand.slice(0,Math.min(n,cand.length)).forEach(function(jj){ch.push(all[jj]);js.push(jj)});var pk=k==='topic'?'t':k.charAt(0),ix=S.idx||0;
    if(ex.length)tip=1;var pl=ex.map(function(){return m.id+'_i'+(ix+1)}).concat(js.map(function(j){return m.id+'_'+pk+(k==='topic'?j:j+1)}));
-   html+='<div class="frame"><div class="lab">'+s[1]+'</div><b>'+(k==='topic'?(m.kind==='opinion'?(ex.concat(ch).length?'Pick or write your opinion:':'Write your opinion:'):(ex.concat(ch).length?'Pick or write your topic sentence:':'Finish your topic sentence:')):esc(s[2])+' \u2026')+'</b><div class="chips">'+ex.concat(ch).map(function(c,j){return '<button class="chip" data-p="'+pl[j]+'" data-v="'+esc(c)+'">'+esc(k==='topic'||(ex.length&&j===0&&k==='topic')?c:s[2]+' '+lc(c))+'</button>'}).join('')+
+   html+='<div class="frame"><div class="lab">'+s[1]+'</div><b>'+(k==='topic'?(m.kind==='opinion'?(ex.concat(ch).length?'Pick or write your opinion:':'Write your opinion:'):(ex.concat(ch).length?'Pick or write your topic sentence:':(fade?'Finish your topic sentence:':'Write your topic sentence:'))):esc(s[2])+' \u2026')+'</b><div class="chips">'+ex.concat(ch).map(function(c,j){return '<button class="chip" data-p="'+pl[j]+'" data-v="'+esc(c)+'">'+esc(k==='topic'||(ex.length&&j===0&&k==='topic')?c:s[2]+' '+lc(c))+'</button>'}).join('')+
    '</div>'+(fade?'<p class="sub" style="margin:6px 0">Your turn to write this one! Start with <b>'+esc(s[2])+'</b> and use the word bank. <button class="ghost" id="reveal">💡 Show me an idea</button></p><div class="bank sbank"><b>Word bank:</b>'+m.bank.map(function(w){return '<button class="bw2">'+esc(w)+'</button>'}).join('')+'</div>':'')+'<div class="row"><input id="own"'+(fade?' value="'+esc(s[2])+' " data-st="'+esc(s[2])+'"':'')+' placeholder="'+(k==='topic'?esc(s[2])+'\u2026':fade?esc(s[2])+' \u2026':'or write your own\u2026')+'" autocorrect="on" enterkeyhint="done"><button class="say" id="mic2">🎤</button><button class="big" id="add">Add</button></div><div id="fb"></div></div>'}
   else html+='<div class="frame wait"><div class="lab">'+s[1]+'</div>'+esc(s[2])+' \u2026</div>'});
  if(S.slot>=SLOTS.length&&!S.fin)html+='<div class="praise">All four sentences are in! Read it over. Want to change the last one? Tap ↩ Undo. Happy with it? Tap Finish.</div><div class="row"><button class="ghost" id="rdp">🔊 Read it</button><button class="big" id="finish">✔ Finish my paragraph</button></div>';
