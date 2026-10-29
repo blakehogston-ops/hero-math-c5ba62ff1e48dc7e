@@ -1,0 +1,37 @@
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,"SF Pro Rounded","Avenir Next",system-ui,sans-serif;background:linear-gradient(160deg,#0b1f4d,#1a3a8a 55%,#b3122e);color:#fff;min-height:100vh;font-size:22px}
+#app{max-width:1100px;margin:0 auto;padding:24px 28px 60px}
+h1{font-size:40px;margin:6px 0 4px}h2{font-size:30px;margin:8px 0}
+.sub{opacity:.85;margin:0 0 18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.steps{display:flex;gap:8px}.steps span{padding:6px 14px;border-radius:20px;background:#ffffff22;font-size:18px}.steps .on{background:#ffd23f;color:#222;font-weight:700}
+button{font:inherit;border:0;border-radius:18px;min-height:64px;padding:10px 22px;cursor:pointer;color:#1b1b1b;background:#fff;box-shadow:0 4px 0 #0003}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #0003}
+.big{background:#ffd23f;font-weight:800;font-size:26px}.ghost{background:#ffffff26;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.mission{background:#fff;color:#1b1b1b;border-radius:22px;padding:18px;text-align:left;min-height:190px;display:flex;flex-direction:column;gap:6px}
+.mission .em{font-size:54px}.mission b{font-size:24px}.mission small{color:#555;font-size:17px}
+.brick{display:inline-block;width:26px;height:16px;border-radius:4px;margin-right:4px;vertical-align:middle;box-shadow:inset 0 -3px #0003}
+.scene{background:#ffffff18;border-radius:26px;padding:12px;text-align:center}.scene img{width:100%;max-height:360px;object-fit:cover;border-radius:18px;display:block}
+.scene p{font-size:24px;letter-spacing:0;margin:8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+.card{background:#fff;min-height:140px;font-size:22px;text-align:left;display:flex;gap:10px;align-items:center}
+.card .em{font-size:44px}.card.pick{outline:6px solid #ffd23f;background:#fff8d6}
+.strip{min-height:84px;background:#fff;color:#1b1b1b;border-radius:18px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:26px}
+.strip:empty::before{content:"Tap word tiles to build your sentence here";color:#888;font-size:20px}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.tile{background:#e8f0ff;min-height:60px;font-size:26px;font-weight:600}.tile.used{opacity:.25}
+.strip .tile{background:#ffd23f}
+.bank{background:#ffffff1c;border-radius:18px;padding:12px 16px;margin-top:12px;font-size:20px}.bank b{margin-right:8px}
+.bank span{display:inline-block;background:#fff;color:#1b1b1b;border-radius:10px;padding:4px 10px;margin:4px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+textarea,input{font:inherit;font-size:26px;width:100%;border-radius:16px;border:3px solid #ffd23f;padding:12px;min-height:70px}
+.hint{background:#fff8d6;color:#3b2e00;border-radius:16px;padding:12px 16px;margin-top:12px;font-size:21px}
+.praise{background:#d9ffe1;color:#0d3b18;border-radius:16px;padding:12px 16px;margin-top:12px;font-size:22px;font-weight:600}
+.frame{background:#fff;color:#1b1b1b;border-radius:20px;padding:16px;margin-top:12px}
+.frame .lab{font-size:17px;color:#a11;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.frame.done{opacity:.9;border-left:10px solid #2dbb4e}.frame.wait{opacity:.45}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.chip{background:#e8f0ff;min-height:56px;font-size:20px}
+.para{background:#fffdf3;color:#1b1b1b;border-radius:20px;padding:22px 26px;font-size:28px;line-height:1.6;text-indent:2em;font-family:"Chalkboard SE","Comic Sans MS",cursive}
+.say{background:#ff5b7a;color:#fff}
+.mission .thumb{width:100%;height:120px;object-fit:cover;border-radius:14px}
