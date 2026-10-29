@@ -1,0 +1,40 @@
+/* Sadie (age 6, Ghost-Spider): even larger reading text and tap targets */
+body{font-size:22px}
+.btn{min-height:96px!important;font-size:clamp(22px,2.8vw,30px)!important}
+.btn.small{min-height:96px!important;min-width:96px!important;font-size:22px!important}
+.ans{min-height:120px!important;font-size:clamp(40px,5vw,60px)!important}
+#qtext,.q{font-size:clamp(28px,3.4vw,42px)!important}
+.mission b{font-size:26px!important}.mission small{font-size:20px!important}
+#hint{font-size:28px!important}
+@media (pointer:coarse){#hint{font-size:30px!important}}
+/* Ghost-Spider look: white, pink, teal on a lighter dusk */
+body{background:linear-gradient(180deg,#3b2f5c,#5a3d74 55%,#2d3a5a)!important}
+.btn.blue{background:linear-gradient(#2fb8b0,#1a7f7a)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 5px 0 #0d4a47,0 10px 20px rgba(0,0,0,.35)!important}
+.btn.ghost{background:linear-gradient(#ffffff,#e9e4f2)!important;color:#5a2350!important}
+#venomHead,#bossBar{background:rgba(255,255,255,.16)!important;border-color:#ff8fc7!important}
+.vh-t{color:#ffd1ea!important}
+#say{min-height:110px!important;font-size:28px!important}
+.btn.small,#helpRow .btn{min-height:96px!important}
+.vh-face,#miniHero{border-color:#ff8fc7!important}
+/* Sadie play screen: dusk look on every screen */
+#sky{opacity:.35!important}
+body::after{opacity:.15!important}
+#play .left{background:linear-gradient(90deg,rgba(70,40,100,.7),rgba(70,40,100,.4) 80%,transparent)!important}
+#senseBtn,#how{display:none!important}
+#stuckBtn{min-height:110px!important;font-size:30px!important}
+#play #qtext,#play .q{font-size:56px!important}
+#maskBtn{min-height:96px!important}
+/* sequence strip numbers ~32px+ on screen */
+
+/* only Help remains, and it is teal */
+#play #how,#helpWrap #how,#senseBtn{display:none!important}
+#stuckBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.35)!important}
+/* worked step + Next step sit right under the help buttons, above the picture, so they stay on-screen */
+#play .left{display:flex;flex-direction:column}
+#play .left>#bossBar{order:0}#play .left>#qtext{order:1}#play .left>#helpWrap{order:2}#play .left>#hint{order:3}#play .left>#model{order:4}
+#hint .btn{min-height:80px!important}
+.vtitle{font-size:24px!important;line-height:1.25}
+#bossBar{display:flex;align-items:center}#bossBar>div:last-child{flex:1 1 auto;min-width:0;width:100%}
+
+/* no web shot on Sadie's side */.webfx{display:none!important}
+/* Splat's bubble sits above the alert, full width; alert keeps the full width */#bossBar{flex-wrap:wrap!important}#bossBar #vBubble{position:static!important;order:-1;flex:0 0 100%!important;max-width:100%!important;margin:0 0 6px!important}#bossBar #vBubble:not(.on){display:none!important}#bossBar #vBubble:before{display:none}

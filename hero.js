@@ -51,7 +51,7 @@ const _n2=next;next=function(a,b){const o=$('ssBtn');o&&o.remove();_n2(a,b)};
 Object.assign(VZ,{gym:gymGate});
 })();
 // ---------- phones / narrow: compact map header; extra buttons move into a toolbar at the top of the scrollable map ----------
-(function(){const KEEP=['calmM','voiceM','toTitle'];
+(function(){const KEEP=['calmM','voiceM','toTitle','mapMore'];
 function compact(){const row=document.querySelector('#map .top .row'),g=document.getElementById('grid');if(!row||!g)return;let tb=document.getElementById('mapMenuP');
  if(innerWidth>=1000){if(tb){[...tb.children].forEach(c=>row.insertBefore(c,document.getElementById('voiceM')));tb.remove()}const mh=document.getElementById('miniHero');if(mh)mh.style.display='';return}
  if(!tb){tb=document.createElement('div');tb.id='mapMenuP';tb.setAttribute('role','toolbar');tb.setAttribute('aria-label','More')}

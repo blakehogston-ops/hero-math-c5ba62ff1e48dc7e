@@ -1,0 +1,106 @@
+/* Polish pass (preview) — visual consistency, layout, keyboard focus, motion. No teaching content changes. */
+:root{--hma-gold:#ffd23f;--hma-navy:#0b1426}
+/* Keyboard focus ring (home computer) — visible only for keyboard, not taps */
+button:focus{outline:none}
+button:focus-visible,.btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:4px solid var(--hma-gold)!important;outline-offset:3px!important;border-radius:inherit}
+/* Mouse hover feedback (only on devices that really hover) */
+@media (hover:hover) and (pointer:fine){
+ .btn,.ans,.mission:not(:disabled){transition:filter .15s,transform .15s}
+ .btn:hover,.ans:not(.tried):hover,.mission:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-2px)}
+}
+/* Mission cards: never clip the subtitle */
+#map .mission{height:auto!important;overflow:visible}
+#map .grid{grid-auto-rows:max-content!important}#map .mission{min-height:120px}
+/* Big screens (1920x1080 home computer): scale controls up so nothing looks tiny */
+@media (min-width:1600px) and (min-height:950px){
+ .btn.small{font-size:24px!important;padding:14px 22px!important;min-height:76px!important}
+ #play .q{font-size:46px!important}
+ .ans{font-size:58px!important;min-height:130px!important}
+ #play .right{gap:22px}
+ #map .grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important;gap:20px!important}
+ .mission b{font-size:28px!important}.mission small{font-size:20px!important}
+ #hint{font-size:28px!important}
+ h2{font-size:40px}
+}
+/* Respect "reduce motion" */
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* ---- Polish pass 2: one button system + type, glass HUD. Hint card, wrong-answer and praise looks untouched. ---- */
+@font-face{font-family:"Noto Sans";src:url(assets/fonts/NotoSans-var.woff2) format("woff2");font-weight:500 800;font-display:swap}
+body,.btn,.ans,#qtext,.q{font-family:"Noto Sans",-apple-system,"Segoe UI",Roboto,sans-serif}
+.btn{border-radius:18px!important}
+.btn.pink{background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important}
+#bossBar{background:rgba(10,14,28,.62)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18)!important;border-radius:18px!important}
+/* ---- Polish pass 2 ---- */
+.btn.pink,#app .btn.pink,#map .btn.pink{background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important;color:#fff!important}
+/* hint text >= 20px everywhere (look unchanged) */
+#hint{font-size:max(22px,min(3vw,30px))!important}
+/* tried answers: neutral dimmed tile, no strike, no red, no shake */
+.ans.tried{text-decoration:none!important;opacity:.45!important;background:#c9d1df!important;color:#33405a!important;filter:none!important;animation:none!important}
+#play.shake,.shake{animation:none!important}
+/* gentle fade for praise/reward, <0.5s */
+#reward .panel,.bubble.on,#vBubble.on{animation:softin .35s ease-out both}
+@keyframes softin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* one glass panel style: goo tracker, energy bar, combo banner */
+#venomHead,#bossBar,#fPrompt{background:rgba(10,14,28,.62)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2)!important;border-radius:18px!important;box-shadow:0 10px 24px rgba(0,0,0,.45)!important}
+#fPrompt{font-size:clamp(26px,3.4vw,40px)!important;min-height:12%!important;left:20%!important;width:60%!important;color:#ffe680;text-shadow:0 2px 0 #000;transition:opacity .35s}
+@media (max-width:820px){#fPrompt{left:5%!important;width:90%!important}}
+/* My Gear: compact empty brick panel, readable suit row */
+#coll #suits{background:rgba(10,14,28,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:12px}
+#coll #suits>*{color:#e8ecf6}
+/* iPad: reading text 24px (18pt) */
+@media (pointer:coarse){.vh-s,#heroTxt,#coll>div:nth-of-type(2),.mission small,#map .sub{font-size:24px!important}#hint{font-size:max(24px,min(3vw,30px))!important}}
+
+/* ---- Pass 2b: play screen ---- */
+#play #qtext,#play .q{font-size:clamp(40px,4.4vw,56px)!important;line-height:1.15}
+#play .left{background:linear-gradient(90deg,rgba(6,10,22,.72),rgba(6,10,22,.45) 80%,transparent);border-radius:20px;padding:12px}
+#play #prog{display:none!important}
+#maskBtn{background:linear-gradient(#5d6b82,#3e4a5e)!important;border:0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 0 #222a38,0 10px 20px rgba(0,0,0,.45)!important;color:#fff!important}
+.vh-s,.mission small,#heroTxt,#suits small,#suits span,.vh-hoods+*{font-size:max(18px,1em)}
+.vh-s{font-size:20px!important}
+.slot-portrait,.slot-venomhead{display:inline-block;width:64px;height:64px;border-radius:50%;border:3px solid #ffd23f;background:#1b2440 center/cover}
+/* ---- Pass 3: map top bar = 5 labeled buttons, 2 colors; rest under More ---- */
+#map:not(.more-open) #toBinder,#map:not(.more-open) #toGym,#map:not(.more-open) #voiceM,#map:not(.more-open) #maskBtn,#map:not(.more-open) #hmaAudio{display:none!important}
+#map #toStory,#map #toColl,#map #toTitle,#map #toBinder,#map #toGym{background:linear-gradient(#3567c4,#1c3a7d)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d1f45,0 10px 20px rgba(0,0,0,.5)!important}
+#map #calmM,#map #voiceM,#map #mapMore,#map #maskBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;color:#fff!important;border:0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important}
+#map.more-open #hmaAudio{display:flex!important}
+/* faint skyline photo behind math menus */
+body::after{content:"";position:fixed;inset:0;background:url(assets/bg_skyline_photo.jpg) center bottom/cover no-repeat;opacity:.28;pointer-events:none;z-index:0;mix-blend-mode:screen}
+#app{position:relative;z-index:1}
+/* placeholder medallions (Character Artist will supply art; current art is the fallback) */
+.vh-face,#miniHero{border-radius:50%;border:3px solid #ffd23f;box-shadow:0 0 0 3px rgba(0,0,0,.4),0 6px 14px rgba(0,0,0,.5);background:radial-gradient(circle at 40% 35%,#2b3657,#0d1326);overflow:hidden;display:inline-flex;align-items:center;justify-content:center}
+.vh-face{width:96px;height:96px;flex:none}.vh-face svg{width:86%;height:86%}
+#miniHero{width:84px;height:84px}#miniHero svg{width:100%;height:auto}
+/* ---- Pass 3b ---- */
+#helpRow{display:flex;flex-wrap:wrap;gap:12px}
+#helpRow #stuckBtn{order:1}#helpRow #how{order:2}#helpRow::after{content:"";flex-basis:100%;order:3;height:0}#helpRow #senseBtn{order:4}
+#senseBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important;color:#fff!important}
+.hma-praise{animation:softin .35s ease-out both}
+/* no text under 18px */
+#ptxt,#vBubble,.vh-hoods,.vh-hoods *,#model .lab,#model small,.mm-goo,#grid .mission .num,#grid .mission span{font-size:max(18px,1em)!important}
+#ptxt,#vBubble{font-size:18px!important}
+
+/* toolbar: Mask off sits with the right-side buttons */
+#play .top{display:flex;align-items:flex-start;gap:12px}#play .top .row{margin-left:auto}
+#map #hmaAudio button{min-width:88px}
+#helpWrap{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin:6px 0}
+#helpWrap #helpRow{display:contents}
+#helpWrap #say{order:0}#helpWrap #stuckBtn{order:1}#helpWrap #how{order:2}#helpWrap::after{content:"";flex-basis:100%;order:3;height:0}#helpWrap #senseBtn{order:4}
+/* ---- Pass 3c: map bar colors (Story Lab, My Gear, More = blue; Breathe = teal; Home = quiet grey) ---- */
+#map #mapMore{background:linear-gradient(#3567c4,#1c3a7d)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d1f45,0 10px 20px rgba(0,0,0,.5)!important}
+#map #toTitle{background:linear-gradient(#5d6b82,#3e4a5e)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 0 #222a38,0 10px 20px rgba(0,0,0,.45)!important}
+/* hero portrait medallion: plain mask icon placeholder until Character Artist's portrait arrives */
+#miniHero>*{display:none!important}
+#miniHero{background:#b3202a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 12C28 12 18 30 18 50s14 38 32 38 32-18 32-38-10-38-32-38z' fill='%23c8323b'/%3E%3Cpath d='M24 46c8-2 18 2 22 12-8 4-20 2-22-12zM76 46c-8-2-18 2-22 12 8 4 20 2 22-12z' fill='%23fff' stroke='%23111' stroke-width='3'/%3E%3C/svg%3E") center/80% no-repeat!important}
+/* "What comes next?" lead in 24px reading style */
+.qlead{display:block;font-size:24px;font-weight:600;opacity:.9;margin-bottom:4px}
+#vhClose{display:none!important}
+#map.more-open .top,#map.more-open .top .row,#map.more-open #hmaAudio{flex-wrap:wrap!important}
+#map.more-open .top .row{max-width:100%}
+#map #hmaAudio button{font:700 20px "Noto Sans",sans-serif!important;min-height:88px;padding:8px 16px;border:0!important;border-radius:18px!important;color:#fff!important;background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important}
+#map #maskBtn{min-width:120px;white-space:nowrap}
+#slowmo .panel{background:linear-gradient(#16223d,#0d1529)!important;border:1px solid rgba(255,255,255,.2)!important;border-radius:18px!important;box-shadow:0 10px 24px rgba(0,0,0,.45)!important;padding:24px 28px!important}
+/* LEVEL UP / cheer banner floats over the question area, never over answer tiles */
+#cheer{top:15%!important}
+@media (min-width:900px){#cheer{left:28%!important;top:22%!important;font-size:clamp(36px,4.4vw,60px)!important}}
+
+#cheer{background:rgba(16,20,48,.72)!important;border-radius:999px!important;padding:6px 22px!important;box-shadow:0 4px 18px rgba(0,0,0,.35)}

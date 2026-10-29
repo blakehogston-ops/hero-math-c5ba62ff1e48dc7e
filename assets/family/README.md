@@ -9,6 +9,3 @@ Stylized, kid-friendly look-alikes drawn in code by build.py from Blake's refere
 
 Groups: `face` (skin, eyes, mouth, plus `beard` for dad), `hair`, and `hood` for Sadie. Swap faces by editing `face()` and the head strings in build.py, then run `python3 build.py`.
 Nothing is wired into the game yet. To use these, a dev can swap 'hero.svg' for 'family/samuel_idle.svg' in preview hero.js or venom.js. Live ../hero.svg is unchanged.
-
-## Masks (added)
-samuel_* and sadie_* contain `<g id="mask">` drawn over `face`, hidden by default. The `*_masked.svg/png` files show it. Each file also has a hidden `<g id="peelarm">` (`peelpath`, `peelpath2`, `peelhand`) and wraps the right arm in `<g id="armR">`, which ../../mask.js uses for the peel animation.

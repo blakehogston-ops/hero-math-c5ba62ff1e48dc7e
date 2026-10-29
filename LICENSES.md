@@ -12,3 +12,8 @@ All visual art in this game is original and drawn in code by the project team; n
 
 Fonts: system fonts only (-apple-system / Avenir Next / Segoe UI / Roboto), nothing embedded.
 Emoji in button labels render from the device's own system emoji font.
+
+## Story Lab (preview)
+- Photo panels in `assets/story/` (c_*.jpg): AI-generated for this project by Grok Bot; no third-party photos. Original hero design, no logos or emblems.
+- Comic fonts in `assets/fonts/` (Bangers, Comic Neue): SIL Open Font License 1.1 (see the font files' license headers / OFL).
+- assets/bg_skyline_photo.jpg: AI-generated for this project (Grok Bot), no third-party rights.
