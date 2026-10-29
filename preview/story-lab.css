@@ -108,7 +108,7 @@ button:active{box-shadow:0 1px 0 rgba(0,0,0,.28)}
 .mission,.card{border:3px solid #10151f;box-shadow:5px 5px 0 #10151f,0 10px 22px rgba(0,0,0,.35)}
 .mission{position:relative}
 .mission .thumb{height:130px}
-.mission b{font-size:22px;line-height:1.2;min-height:2.4em}
+.mission b{font-size:22px;line-height:1.2}
 .mission small{min-height:2.6em}
 .mission>span:last-child:not(:has(.brick)){position:absolute;top:10px;right:10px;margin:0;background:#ffd23f;color:#1b1b1b;font-size:15px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 /* future steps read "up next", not disabled */
@@ -127,3 +127,24 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;op
 @media (max-width:820px){.top .row{flex:1 1 100%}.top .row button{flex:1 1 0;min-width:0}}
 /* word-bank words = same button as idea chips */
 .bank .bw,.sbank .bw2{background:#e8f0ff;color:#1b1b1b;border:0;font-weight:600;min-height:64px;font-size:22px;padding:10px 20px;border-radius:16px;margin:5px;box-shadow:0 4px 0 rgba(0,0,0,.28),0 8px 18px rgba(0,0,0,.25)}
+/* ---- Polish pass 2 ---- */
+/* faint realistic skyline photo behind the gradient */
+html{background:#0b1426 url(assets/bg_skyline_photo.jpg) center bottom/cover fixed}
+body{background:linear-gradient(180deg,rgba(11,20,38,.82),rgba(18,31,61,.78) 60%,rgba(11,20,38,.9));background-attachment:fixed}
+/* hint text >= 20px (teacher-approved); look unchanged otherwise */
+.hint{font-size:22px}
+/* gentle praise fade (<0.5s), no flashing */
+.praise{animation:softin .35s ease-out both}
+@keyframes softin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* brick drops in when the comic is saved */
+.praise .brick{animation:brickdrop .5s cubic-bezier(.3,1.4,.6,1) .15s both}
+@keyframes brickdrop{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:none}}
+/* real LEGO brick strip on mission cards */
+.brick{position:relative;width:30px;height:18px;border-radius:3px;margin:8px 4px 0 0;box-shadow:inset 0 -4px rgba(0,0,0,.25),inset 0 2px rgba(255,255,255,.3)}
+.brick::before,.brick::after{content:"";position:absolute;top:-6px;width:9px;height:6px;border-radius:2px 2px 0 0;background:inherit;box-shadow:inset 0 2px rgba(255,255,255,.35)}
+.brick::before{left:4px}.brick::after{right:4px}
+.mission>span:last-child:has(.brick){background:#f3f5fa;border-radius:10px;padding:6px 10px 4px}
+/* iPad: reading text 24px (18pt) */
+@media (pointer:coarse){body{font-size:24px}.sub,.scene p,.frame b,.para,.hint,.praise,.mission small,.card,.chip,.tile,.bank .bw,.sbank .bw2,textarea,input{font-size:24px!important}.frame .lab{font-size:20px}}
+.say,#mic{background:#2a8c8c;color:#fff}
+.mission small{min-height:0;margin-top:-2px}
