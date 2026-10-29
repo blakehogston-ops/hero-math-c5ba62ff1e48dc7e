@@ -6,7 +6,7 @@
 (function(){
 const FAST=1500,PAUSE=2000;let paused=false,lastT=0,rushSess={};
 const st=document.createElement('style');st.textContent=`
-#answers{transition:opacity .45s}#answers.fpause{opacity:.4;pointer-events:none}
+#answers{transition:opacity .45s}#answers.fpause{opacity:.6;pointer-events:none} /* teacher: paused taps = gentle dim only, no lock/red/sound/message */
 #helpRow{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0}#helpRow .btn{min-height:88px;min-width:88px}
 #slowmo{position:fixed;inset:0;z-index:35;background:#06102aee;display:none;align-items:center;justify-content:center}#slowmo.on{display:flex}
 #slowmo .panel{text-align:center;max-width:620px}#slowmo h2{margin:4px 0 10px}#slowmo .orb{width:120px;height:120px;margin:10px auto;border-radius:50%;background:radial-gradient(#7fe3ff,#1b3f8f);animation:smb 6s ease-in-out infinite}
