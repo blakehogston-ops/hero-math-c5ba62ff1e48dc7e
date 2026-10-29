@@ -11,7 +11,7 @@ const FULL=[
  [/Venom's goo is spreading over the city!/,"Splat spilled paint on the city!"],[/Oh no, symbiote goo everywhere!/,"Oh no, paint everywhere!"],
  [/Venom is making a gooey mess!/,"Splat is making a messy splash!"],[/You beat Venom! I knew you could do it!/,"You helped Splat! I knew you could!"],
  [/Incoming call from Venom/,"Splat is calling!"],[/It.s just silly Venom calling\. No worries!/,"It's just silly Splat. Hi!"]];
-let ci=0;
+let ci=0;const ALERT="Splat's paint is all over the city!";
 function T(s){if(!s||!/Venom|WE |\bgoo|web him|Web him|symbiote/.test(s))return s;
  for(const [r,t] of FULL)if(r.test(s))return s.replace(r,t);
  if(/^\s*"?(WE |Is your refrigerator|Ring ring! WE|Hello\? It.s Venom)/.test(s))return CALL[(ci++)%CALL.length];
@@ -24,6 +24,7 @@ patchLines();document.addEventListener('DOMContentLoaded',patchLines);setTimeout
 function walk(n){if(n.nodeType===3){const t=T(n.nodeValue);if(t!==n.nodeValue)n.nodeValue=t;return}
  if(n.nodeType!==1)return;if(n.tagName==='IMG'&&/venom/.test(n.getAttribute('src')||''))n.src=/call|head/.test(n.src)?'assets/splat_head.png':'assets/splat.png';
  if(n.classList&&(n.classList.contains('vh-face')||n.classList.contains('vface'))&&!n.querySelector('img.splat')){n.innerHTML='<img class="splat" src="assets/splat_head.png" alt="Splat">'}
+ if(n.classList&&n.classList.contains('vtitle')&&n.textContent!==ALERT){n.textContent=ALERT;return}
  for(const k of [...n.childNodes])walk(k);
  if(n.getAttribute&&n.getAttribute('aria-label'))n.setAttribute('aria-label',T(n.getAttribute('aria-label')))}
 new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData')walk(m.target);else m.addedNodes.forEach(walk)}}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});

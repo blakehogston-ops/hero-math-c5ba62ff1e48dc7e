@@ -28,3 +28,7 @@ new MutationObserver(lead).observe(document.documentElement,{childList:true,subt
 
 (function(){const L={hmaMus:'Music',hmaSfx:'Effects'};function f(){for(const id in L){const b=document.getElementById(id);if(b){const t=b.textContent.trim();if(t&&!/[A-Za-z]/.test(t))b.textContent=t+' '+L[id]}}}
 new MutationObserver(f).observe(document.documentElement,{childList:true,subtree:true});f()})();
+/* Sadie sequence tiles: numbers render at ~36px (32-40) and always fit inside their tile */
+(function(){function fit(){if(!window.GS_MODE)return;document.querySelectorAll('#play svg').forEach(sv=>{const vb=sv.viewBox&&sv.viewBox.baseVal;const r=sv.getBoundingClientRect();if(!vb||!vb.width||!r.width)return;const m=sv.getScreenCTM&&sv.getScreenCTM();const k=m&&m.a?m.a:r.width/vb.width;
+ sv.querySelectorAll('text').forEach(t=>{const base=t.dataset.fs0||t.getAttribute('font-size');if(base!=='40')return;t.dataset.fs0='40';const len=(t.textContent||'').length||1;let u=36/k;u=Math.min(u,100/(0.62*len),80);u=Math.max(u,Math.min(32/k,100/(0.62*len)));if(Math.abs((+t.getAttribute('font-size'))-u)>.5){t.setAttribute('font-size',u.toFixed(1));t.setAttribute('y',String(65+u*0.36))}})})}
+new MutationObserver(()=>requestAnimationFrame(fit)).observe(document.documentElement,{childList:true,subtree:true});addEventListener('resize',fit)})();
