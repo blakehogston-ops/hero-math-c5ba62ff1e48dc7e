@@ -19,7 +19,7 @@ let lineHold=false;
 let qBtn=null,qRun=false;const HELP='#stuckBtn,#senseBtn,#how,#nextStep,#say';
 let qAt=0;function runQ(){if(qBtn&&sm.classList.contains('on')){setTimeout(runQ,300);return}const b=qBtn;if(b)qAt=Date.now();qBtn=null;document.querySelectorAll('.hm-pressed').forEach(x=>x.classList.remove('hm-pressed'));if(b&&document.body.contains(b)){if(b.id!=='say'&&typeof hintT!=='undefined')clearTimeout(hintT); /* kid's hint replaces the automatic one, never twice */qRun=true;try{b.click()}finally{qRun=false}}}
 document.addEventListener('click',e=>{if(qRun||!lineHold)return;const b=e.target.closest&&e.target.closest(HELP);if(!b)return;e.preventDefault();e.stopImmediatePropagation();
- document.querySelectorAll('.hm-pressed').forEach(x=>x.classList.remove('hm-pressed'));qBtn=b;b.classList.add('hm-pressed')},true);const smOff=()=>{sm.classList.remove('on');clearTimeout(sm._t);if(lineHold)return;paused=false;const A=document.getElementById('answers');A&&A.classList.remove('fpause')};sm.addEventListener('click',e=>{if(e.target===sm)smOff()});document.getElementById('slowGo').onclick=()=>{smOff();try{if(M&&M.q)readQ&&S.voice&&readQ('')}catch(e){}};
+ document.querySelectorAll('.hm-pressed').forEach(x=>x.classList.remove('hm-pressed'));qBtn=b;b.classList.add('hm-pressed');if(b.id!=='say'&&typeof hintT!=='undefined')clearTimeout(hintT); /* queued help cancels the automatic hint now, before it can start */},true);const smOff=()=>{sm.classList.remove('on');clearTimeout(sm._t);if(lineHold)return;paused=false;const A=document.getElementById('answers');A&&A.classList.remove('fpause')};sm.addEventListener('click',e=>{if(e.target===sm)smOff()});document.getElementById('slowGo').onclick=()=>{smOff();try{if(M&&M.q)readQ&&S.voice&&readQ('')}catch(e){}};
 const skillLvl=id=>S.skills[id];
 // helper row: I'm stuck + Spider-Sense cross-out (before answering)
 function helpRow(){let r=document.getElementById('helpRow');if(!r){r=document.createElement('div');r.id='helpRow';const q=document.getElementById('qtext');q.parentNode.insertBefore(r,q.nextSibling)}
@@ -61,7 +61,7 @@ const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy
   if(M.fastRun>=3)slowMo()}
  else M.fastRun=0;
  if(M.tries>=2){const q=M.q;setTimeout(function w(t0){t0=t0||Date.now();if(!M||M.q!==q||busy)return;if((speechSynthesis.speaking||paused)&&Date.now()-t0<10000){setTimeout(()=>w(t0),150);return} // let Dad's calm line finish before Show me how talks
-  if(Date.now()-qAt<2500)return; // kid's own queued help already ran
+  if(qBtn||Date.now()-qAt<2500)return; // kid's own queued help already ran
   try{const h=document.getElementById('how');h&&h.click()}catch(e){}},PAUSE)}};
 // e) log rushed answers per skill
 const _fin=finish;finish=function(){try{if(M&&M.rushed&&window.HMA&&HMA.progress)HMA.progress.log({kid:window.GS_MODE?'Sadie':'Samuel',mode:'rushed answers',skill:M.id,questions:M.rushed,firstTry:0,hints:0,minutes:0,venom:''})}catch(e){}return _fin.apply(this,arguments)};
