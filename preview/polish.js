@@ -23,7 +23,7 @@ let lastQ=null;document.addEventListener('click',e=>{if(!G())return;const s=e.ta
 /* praise: findable + measurable */
 function tagP(){document.querySelectorAll('#cheer,#reward .panel,.bubble').forEach(x=>{x.classList.add('hma-praise');x.dataset.testid='praise'})}
 new MutationObserver(tagP).observe(document.documentElement,{childList:true,subtree:true});tagP()})();
-(function(){function lead(){const q=document.getElementById('qtext');if(!q||q.querySelector('.qlead'))return;const h=q.innerHTML,m=h.match(/^((?:<span[^>]*>Your turn!<\/span>\s*)?)What comes next\?(\s|&nbsp;)*/);if(m)q.innerHTML=m[1]+'<span class="qlead">What comes next?</span>'+h.slice(m[0].length)}
+(function(){function lead(){const q=document.getElementById('qtext');if(!q||q.querySelector('.qlead'))return;const h=q.innerHTML,m=h.match(/^((?:<span[^>]*>Your turn!<\/span>\s*)?)(What comes next\?|What number is missing\?)(\s|&nbsp;)*/);if(m)q.innerHTML=m[1]+'<span class="qlead">'+m[2]+'</span>'+h.slice(m[0].length)}
 new MutationObserver(lead).observe(document.documentElement,{childList:true,subtree:true,characterData:true});lead()})();
 
 (function(){const L={hmaMus:'Music',hmaSfx:'Effects'};function f(){for(const id in L){const b=document.getElementById(id);if(b){const t=b.textContent.trim();if(t&&!/[A-Za-z]/.test(t))b.textContent=t+' '+L[id]}}}
@@ -34,3 +34,13 @@ new MutationObserver(f).observe(document.documentElement,{childList:true,subtree
   const tx=+t.getAttribute('x');if(tx<rx||tx>rx+rw)return;const len=t.textContent.trim().length;let u=Math.min(rh*0.45,40/k,(rw-8)/(0.62*len));
   if(t.dataset.fit!==u.toFixed(1)){t.dataset.fit=u.toFixed(1);t.dataset.fs0=t.dataset.fs0||t.getAttribute('font-size');t.setAttribute('font-size',u.toFixed(1));t.setAttribute('y',(ry+rh/2+u*0.36).toFixed(1))}})})}
 new MutationObserver(()=>requestAnimationFrame(fit)).observe(document.documentElement,{childList:true,subtree:true});addEventListener('resize',fit)})();
+
+/* LEVEL UP / cheer: centred just above the answer grid; if that would touch the question, strip or answers, float over the top bar area instead */
+(function(){function place(){const c=document.getElementById('cheer'),A=document.getElementById('answers');if(!c||!A||!A.offsetParent)return;c.style.left=c.style.top='';
+ const a=A.getBoundingClientRect();c.style.whiteSpace='nowrap';c.style.fontSize='';let fs=parseFloat(getComputedStyle(c).fontSize)||60;const sc=c.offsetWidth?c.scrollWidth/fs:6;const fit=Math.min(fs,(Math.min(a.width,innerWidth-24))/Math.max(sc,1));c.style.setProperty('font-size',fit+'px','important');const h=c.offsetHeight||70,w=Math.min(c.scrollWidth||300,innerWidth-24);const cx=Math.min(Math.max(a.left+a.width/2,w/2+12),innerWidth-w/2-12),top=a.top-h-10;
+ const box={left:cx-w/2,right:cx+w/2,top:top,bottom:top+h};const hit=r=>!(r.right<box.left||r.left>box.right||r.bottom<box.top||r.top>box.bottom);
+ const avoid=[...document.querySelectorAll('#qtext,#model,#answers .ans,#helpWrap,#hint.on')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
+ c.style.setProperty('transform','translate(-50%,-50%)','important');if(top>4&&!avoid.some(hit)){c.style.setProperty('left',cx+'px','important');c.style.setProperty('top',(top+h/2)+'px','important')}
+ else{c.style.setProperty('left','50%','important');c.style.setProperty('top',Math.max(h/2+8,70)+'px','important')}}
+const go=()=>{if(typeof window.cheer!=='function'||window.cheer._p)return;const o=window.cheer;const f=function(){const r=o.apply(this,arguments);try{place()}catch(e){}return r};f._p=1;window.cheer=f;try{cheer=f}catch(e){}};go();document.addEventListener('DOMContentLoaded',go);setTimeout(go,500);
+const mo=new MutationObserver(()=>{const c=document.getElementById('cheer');if(c&&c.classList.contains('on'))place()});const w=()=>{const c=document.getElementById('cheer');if(c)mo.observe(c,{attributes:true,attributeFilter:['class']});else setTimeout(w,300)};w()})();

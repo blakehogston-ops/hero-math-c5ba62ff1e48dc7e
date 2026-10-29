@@ -33,3 +33,5 @@ body::after{opacity:.15!important}
 #play .left{display:flex;flex-direction:column}
 #play .left>#bossBar{order:0}#play .left>#qtext{order:1}#play .left>#helpWrap{order:2}#play .left>#hint{order:3}#play .left>#model{order:4}
 #hint .btn{min-height:80px!important}
+.vtitle{font-size:24px!important;line-height:1.25}
+#bossBar{display:flex;align-items:center}#bossBar>div:last-child{flex:1 1 auto;min-width:0;width:100%}
