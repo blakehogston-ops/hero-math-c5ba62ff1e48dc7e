@@ -36,11 +36,15 @@ new MutationObserver(f).observe(document.documentElement,{childList:true,subtree
 new MutationObserver(()=>requestAnimationFrame(fit)).observe(document.documentElement,{childList:true,subtree:true});addEventListener('resize',fit)})();
 
 /* LEVEL UP / cheer: centred just above the answer grid; if that would touch the question, strip or answers, float over the top bar area instead */
-(function(){function place(){const c=document.getElementById('cheer'),A=document.getElementById('answers');if(!c||!A||!A.offsetParent)return;c.style.left=c.style.top='';
- const a=A.getBoundingClientRect();c.style.whiteSpace='nowrap';c.style.fontSize='';let fs=parseFloat(getComputedStyle(c).fontSize)||60;const sc=c.offsetWidth?c.scrollWidth/fs:6;const fit=Math.min(fs,(Math.min(a.width,innerWidth-24))/Math.max(sc,1));c.style.setProperty('font-size',fit+'px','important');const h=c.offsetHeight||70,w=Math.min(c.scrollWidth||300,innerWidth-24);const cx=Math.min(Math.max(a.left+a.width/2,w/2+12),innerWidth-w/2-12),top=a.top-h-10;
- const box={left:cx-w/2,right:cx+w/2,top:top,bottom:top+h};const hit=r=>!(r.right<box.left||r.left>box.right||r.bottom<box.top||r.top>box.bottom);
- const avoid=[...document.querySelectorAll('#qtext,#model,#answers .ans,#helpWrap,#hint.on')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);
- c.style.setProperty('transform','translate(-50%,-50%)','important');if(top>4&&!avoid.some(hit)){c.style.setProperty('left',cx+'px','important');c.style.setProperty('top',(top+h/2)+'px','important')}
- else{c.style.setProperty('left','50%','important');c.style.setProperty('top',Math.max(h/2+8,70)+'px','important')}}
+(function(){function place(){const c=document.getElementById('cheer'),A=document.getElementById('answers');if(!c||!A||!A.offsetParent)return;
+ const T=[...A.querySelectorAll('.ans')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);const a=T.length?{left:Math.min(...T.map(r=>r.left)),right:Math.max(...T.map(r=>r.right)),top:Math.min(...T.map(r=>r.top))}:A.getBoundingClientRect();a.width=a.right-a.left;c.style.whiteSpace='nowrap';c.style.fontSize='';c.style.setProperty('transform','translate(-50%,-50%)','important');
+ const vis=e=>{const r=e.getBoundingClientRect();const s=getComputedStyle(e);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'};
+ const obs=[...document.querySelectorAll('button,a,[role=button],#bossBar,#venomHead,#qtext,#model,#helpWrap,#hint.on,#answers .ans')].filter(e=>!c.contains(e)&&vis(e)).map(e=>e.getBoundingClientRect());
+ const hit=b=>obs.some(r=>!(r.right<=b.left||r.left>=b.right||r.bottom<=b.top||r.top>=b.bottom));
+ let fs=Math.min(parseFloat(getComputedStyle(c).fontSize)||60,60),ok=null;
+ for(let i=0;i<30&&fs>=14;i++,fs*=0.9){c.style.setProperty('font-size',fs+'px','important');const w=c.offsetWidth,h=c.offsetHeight;if(w>a.width)continue;
+  const cx=a.left+a.width/2;for(let t=a.top-6-h;t>=4;t-=4){const b={left:cx-w/2,right:cx+w/2,top:t,bottom:t+h};if(!hit(b)){ok={x:cx,y:t+h/2};break}}if(ok)break}
+ if(ok){c.style.setProperty('left',ok.x+'px','important');c.style.setProperty('top',ok.y+'px','important');c.dataset.fit='1'}
+ else{c.dataset.fit='0';c.style.setProperty('left','50%','important');c.style.setProperty('top','50%','important')}}
 const go=()=>{if(typeof window.cheer!=='function'||window.cheer._p)return;const o=window.cheer;const f=function(){const r=o.apply(this,arguments);try{place()}catch(e){}return r};f._p=1;window.cheer=f;try{cheer=f}catch(e){}};go();document.addEventListener('DOMContentLoaded',go);setTimeout(go,500);
 const mo=new MutationObserver(()=>{const c=document.getElementById('cheer');if(c&&c.classList.contains('on'))place()});const w=()=>{const c=document.getElementById('cheer');if(c)mo.observe(c,{attributes:true,attributeFilter:['class']});else setTimeout(w,300)};w()})();
