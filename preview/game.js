@@ -227,7 +227,7 @@ function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.
 let lastWrongAt=0,pendingLvl=0,lastTapAt=0;
 function lvlUp(){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}
 // low-priority line (hints): wait for the current voice line to finish instead of cutting it; drop it if the question moved on
-function sayLow(t,q){const t0=Date.now();(function w(){if(!M||M.q!==q||busy)return;if(window.speechSynthesis&&speechSynthesis.speaking&&Date.now()-t0<6000){hintT=setTimeout(w,200);return}say(t)})()}
+function sayLow(t,q){const t0=Date.now();(function w(){if(!M||M.q!==q||busy)return;if(((window.speechSynthesis&&speechSynthesis.speaking)||(window.__focus&&__focus.paused))&&Date.now()-t0<10000){hintT=setTimeout(w,200);return}say(t)})()}
 let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;const tn=Date.now();if(tn-lastTapAt<350)return;lastTapAt=tn;
  if(S.hear!==false&&S.voice&&armed!==b){document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'));armed=b;b.classList.add('armed');say(spoken(c)+'. Tap again to pick it.');return}armed=null;b.classList.remove('armed');const st=S.skills[M.id];
  clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);if(pendingLvl&&Date.now()-lastWrongAt>=4000){pendingLvl=0;lvlUp()}else{cheer(p);dad('cheer',spoken(c)+'! '+p)}onCorrect();
