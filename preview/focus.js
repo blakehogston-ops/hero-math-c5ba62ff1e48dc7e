@@ -27,7 +27,14 @@ const _next=next;next=function(a,b){if(M&&M.yourTurn){M.yourTurn=0;M.inTurn=1}el
 function factOf(q){if(q.fact)return String(q.fact);const t=String(q.text||'').replace(/<[^>]+>/g,'').replace(/^\s*Your turn!\s*/,'');const m=t.match(/(\d+)\s*([+\-−×x÷])\s*(\?|\d+)/);if(m)return m[1]+({'−':'-','×':'x','÷':'/'}[m[2]]||m[2])+m[3];return t.replace(/\s+/g,' ').trim().slice(0,40)}
 function logAns(before,lv0){if(!window.HMA||!HMA.progress||!HMA.progress.answer||!M||!M.q)return;const type=M.inTurn?'yourturn':M.q.review?'review':(M.i<2?'warmup':'normal');HMA.progress.answer({kid:window.GS_MODE?'Sadie':'Samuel',skill:M.q.skill||M.id,fact:factOf(M.q),firstTryRight:before===0&&!M.stuck&&!M.sensed?1:0,rightSecondOrAfterHint:before>0||M.stuck||M.sensed?1:0,type,level:M.q.lvl||lv0||1})}
 const _qn=next;next=function(){if(M){M.stuck=0;M.sensed=0}return _qn.apply(this,arguments)};
-function slowMo(){if(!M||M.slowShown)return;M.slowShown=1;setTimeout(()=>{sm.classList.add('on');clearTimeout(sm._t);sm._t=setTimeout(smOff,12000);say('Slow-mo Spidey-Sense. Heroes slow down to see clearly. Breathe in, and out.')},600)}
+function slowMo(){if(!M||M.slowShown)return;M.slowShown=1;setTimeout(()=>{if(typeof hintT!=='undefined')clearTimeout(hintT);
+ const h=sm.querySelector('h2');if(h)h.textContent=window.GS_MODE?'👻 Slow-mo Ghost-Sense':'🕷️ Slow-mo Spidey-Sense';
+ sm.classList.add('on');sm._at=Date.now();clearTimeout(sm._t);sm._t=setTimeout(smOff,12000);
+ // Sadie gets Dad's neutral "Breathe in, slowly..." clip (s04_16), never Samuel's Spidey-Sense clip
+ const t0=Date.now();(function w(){if(!sm.classList.contains('on'))return;if(speechSynthesis.speaking&&Date.now()-t0<4000){setTimeout(w,150);return} // let Dad's calm line finish first
+  smSay=1;say(window.GS_MODE?'Breathe in, slowly...':'Slow-mo Spidey-Sense. Heroes slow down to see clearly. Breathe in, and out.');smSay=0})()},600)}
+// while the slow-mo screen is up, nothing else (hints, Show me how) may talk over its calm line
+let smSay=0;const _say0=say;say=function(t,f,o){if(sm.classList.contains('on')&&!smSay){o&&o();return}return _say0.apply(this,arguments)};
 const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy!=='undefined'&&busy)return;
  const lv0=(S.skills[M.id]||{}).lvl,before=M.tries,right=c===M.q.ans,now=Date.now(),dt=now-lastT,wasArmed=b.classList.contains('armed')||!(S.hear!==false&&S.voice);
  _ans(b,c);if(!M)return;if(M.tries===before&&!right)return; // only armed (hear-then-pick)
@@ -44,7 +51,8 @@ const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy
   if(rushSess[M.id]>=3&&!M.modelFirst){M.modelFirst=1;const s=skillLvl(M.id);if(s&&s.lvl>1){s.lvl--;save()}}
   if(M.fastRun>=3)slowMo()}
  else M.fastRun=0;
- if(M.tries>=2){setTimeout(()=>{try{const h=document.getElementById('how');h&&h.click()}catch(e){}},PAUSE)}};
+ if(M.tries>=2){const q=M.q;setTimeout(function w(t0){t0=t0||Date.now();if(!M||M.q!==q||busy)return;if(speechSynthesis.speaking&&Date.now()-t0<4000){setTimeout(()=>w(t0),150);return} // let Dad's calm line finish before Show me how talks
+  try{const h=document.getElementById('how');h&&h.click()}catch(e){}},PAUSE)}};
 // e) log rushed answers per skill
 const _fin=finish;finish=function(){try{if(M&&M.rushed&&window.HMA&&HMA.progress)HMA.progress.log({kid:window.GS_MODE?'Sadie':'Samuel',mode:'rushed answers',skill:M.id,questions:M.rushed,firstTry:0,hints:0,minutes:0,venom:''})}catch(e){}return _fin.apply(this,arguments)};
 window.__focus={get paused(){return paused}};

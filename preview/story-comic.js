@@ -19,13 +19,13 @@ function create(m,para,pics){pics=pics||{};var P=L().pics||{};
    return{img:img,sp:n&&P[n]?[P[n][0],P[n][1]]:[50,30],cap:clean(para[k[0]]||''),b:''}})};
  put(c);return c.id}
 function page(c,edit){
- return '<div class="comic" id="comicPage">'+c.p.map(function(p,i){
+ return (edit?'<div class="bbar"><b>💬 Speech bubbles (optional):</b>'+c.p.map(function(p,i){return '<button class="addb" data-i="'+i+'">'+(p.b?'✏️ Panel '+(i+1):'💬 Panel '+(i+1))+'</button>'}).join('')+'</div>':'')+
+  '<div class="comic" id="comicPage">'+c.p.map(function(p,i){
   var sp=p.sp||[50,30];
   return '<div class="panel p'+(i+1)+'" data-sx="'+sp[0]+'" data-sy="'+sp[1]+'"><img src="'+p.img+'" alt="">'+
    '<div class="'+(i===0?'titlecap':'cap')+'">'+esc(p.cap)+'</div>'+
    (p.b?'<svg class="tail t0"></svg><div class="bubble">'+esc(p.b)+'</div><svg class="tail t1"></svg>':'')+'</div>'}).join('')+
-  '<div class="credit">A Hero Math Comic by Samuel \u00b7 '+esc(c.title)+'</div></div>'+
-  (edit?'<div class="bbar"><b>💬 Speech bubbles (optional):</b>'+c.p.map(function(p,i){return '<button class="addb" data-i="'+i+'">'+(p.b?'✏️ Panel '+(i+1):'💬 Panel '+(i+1))+'</button>'}).join('')+'</div>':'')}
+  '<div class="credit">A Hero Math Comic by Samuel \u00b7 '+esc(c.title)+'</div></div>'}
 // ---- bubble placement: near the speaker, never over the caption or the speaker's face; tail points at the speaker
 function inter(a,b){return a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h}
 function layout(root){[].forEach.call((root||document).querySelectorAll('.panel'),function(pn){var bu=pn.querySelector('.bubble');if(!bu)return;
@@ -101,7 +101,7 @@ var E=null;// edit state
 function edit(id){var c=get(id);if(!c)return shelf();E={c:c,q:0,ft:0,h:0,tries:0,slot:-1,logged:false};drawEdit()}
 function drawEdit(msg){var c=E.c,app=L().app;
  app.innerHTML='<div class="top"><button class="ghost" id="cHome">⬅ Missions</button><div class="row" style="margin:0"><button class="ghost" id="cRead">🔊 Read my comic</button><button class="big" id="cDone">✅ Save to My Comics</button></div></div>'+
- '<h2 class="ctitle">📖 Your comic is ready!</h2><p class="sub">Want to make your heroes talk? Tap a <b>💬 Panel</b> button under the comic. It\u2019s totally optional.</p>'+page(c,true)+'<div id="bedit"></div>';
+ '<h2 class="ctitle">📖 Your comic is ready!</h2><p class="sub">Want to make your heroes talk? Tap a <b>💬 Panel</b> button just above the comic. It\u2019s totally optional.</p>'+page(c,true)+'<div id="bedit"></div>';
  bind();relayout();if(E.slot>=0)openB(E.slot,msg)}
 function bind(){var app=L().app;
  document.getElementById('cHome').onclick=function(){logB();L().menu()};

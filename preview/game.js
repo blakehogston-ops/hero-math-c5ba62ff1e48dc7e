@@ -224,15 +224,19 @@ let hintT=0;function next(pre,noRead){armed=null;clearTimeout(hintT);const st=S.
 let cheerT=0;function cheer(t){const c=$('cheer');clearTimeout(cheerT);c.textContent=t;c.classList.add('on');cheerT=setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false,advT=0;
 function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}if(typeof dadAudio!=='undefined'&&dadAudio)try{dadAudio.pause()}catch(e){}if(typeof calmT!=='undefined')calmT.forEach(clearTimeout);if($('calm'))$('calm').classList.remove('on')}
-let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;
+let lastWrongAt=0,pendingLvl=0,lastTapAt=0;
+function lvlUp(){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}
+// low-priority line (hints): wait for the current voice line to finish instead of cutting it; drop it if the question moved on
+function sayLow(t,q){const t0=Date.now();(function w(){if(!M||M.q!==q||busy)return;if(window.speechSynthesis&&speechSynthesis.speaking&&Date.now()-t0<6000){hintT=setTimeout(w,200);return}say(t)})()}
+let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;const tn=Date.now();if(tn-lastTapAt<350)return;lastTapAt=tn;
  if(S.hear!==false&&S.voice&&armed!==b){document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'));armed=b;b.classList.add('armed');say(spoken(c)+'. Tap again to pick it.');return}armed=null;b.classList.remove('armed');const st=S.skills[M.id];
- clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
-  if(M.tries===0&&!M.sensed){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}},1650)}}}
+ clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);if(pendingLvl&&Date.now()-lastWrongAt>=4000){pendingLvl=0;lvlUp()}else{cheer(p);dad('cheer',spoken(c)+'! '+p)}onCorrect();
+  if(M.tries===0&&!M.sensed){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;const okAt=Date.now();setTimeout(()=>{if(!M)return;if(lastWrongAt>okAt||Date.now()-lastWrongAt<4000){pendingLvl=1;return}lvlUp()},1650)}}}
   st.q++;st.last=Date.now();save();M.i++;const mm=M;advT=setTimeout(()=>{busy=false;if(M!==mm||!document.getElementById('play').classList.contains('on'))return;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();
-  hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);say(M.q.hint)},3000);
-  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt=(M.q.work?M.q.work+' ':'')+'The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);say(gt)},1200)}}}
+  lastWrongAt=Date.now();hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);sayLow(M.q.hint,M.q)},3000);
+  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt=(M.q.work?M.q.work+' ':'')+'The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);sayLow(gt,M.q)},1200)}}}
 function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$('nextStep').style.display=steps?'inline-block':'none'}
 let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI]);howI++}
 function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');dad('rest',`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
