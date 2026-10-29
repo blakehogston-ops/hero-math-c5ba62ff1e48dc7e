@@ -58,3 +58,30 @@ body,.btn,.ans,#qtext,.q{font-family:"Noto Sans",-apple-system,"Segoe UI",Roboto
 .vh-s,.mission small,#heroTxt,#suits small,#suits span,.vh-hoods+*{font-size:max(18px,1em)}
 .vh-s{font-size:20px!important}
 .slot-portrait,.slot-venomhead{display:inline-block;width:64px;height:64px;border-radius:50%;border:3px solid #ffd23f;background:#1b2440 center/cover}
+/* ---- Pass 3: map top bar = 5 labeled buttons, 2 colors; rest under More ---- */
+#map:not(.more-open) #toBinder,#map:not(.more-open) #toGym,#map:not(.more-open) #voiceM,#map:not(.more-open) #maskBtn,#map:not(.more-open) #hmaAudio{display:none!important}
+#map #toStory,#map #toColl,#map #toTitle,#map #toBinder,#map #toGym{background:linear-gradient(#3567c4,#1c3a7d)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d1f45,0 10px 20px rgba(0,0,0,.5)!important}
+#map #calmM,#map #voiceM,#map #mapMore,#map #maskBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;color:#fff!important;border:0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important}
+#map.more-open #hmaAudio{display:flex!important}
+/* faint skyline photo behind math menus */
+body::after{content:"";position:fixed;inset:0;background:url(assets/bg_skyline_photo.jpg) center bottom/cover no-repeat;opacity:.28;pointer-events:none;z-index:0;mix-blend-mode:screen}
+#app{position:relative;z-index:1}
+/* placeholder medallions (Character Artist will supply art; current art is the fallback) */
+.vh-face,#miniHero{border-radius:50%;border:3px solid #ffd23f;box-shadow:0 0 0 3px rgba(0,0,0,.4),0 6px 14px rgba(0,0,0,.5);background:radial-gradient(circle at 40% 35%,#2b3657,#0d1326);overflow:hidden;display:inline-flex;align-items:center;justify-content:center}
+.vh-face{width:96px;height:96px;flex:none}.vh-face svg{width:86%;height:86%}
+#miniHero{width:84px;height:84px}#miniHero svg{width:100%;height:auto}
+/* ---- Pass 3b ---- */
+#helpRow{display:flex;flex-wrap:wrap;gap:12px}
+#helpRow #stuckBtn{order:1}#helpRow #how{order:2}#helpRow::after{content:"";flex-basis:100%;order:3;height:0}#helpRow #senseBtn{order:4}
+#senseBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important;color:#fff!important}
+.hma-praise{animation:softin .35s ease-out both}
+/* no text under 18px */
+#ptxt,#vBubble,.vh-hoods,.vh-hoods *,#model text,#model .lab,#model small,.mm-goo,#grid .mission .num,#grid .mission span{font-size:max(18px,1em)!important}
+#ptxt,#vBubble{font-size:18px!important}
+#model svg text{font-size:18px}
+/* toolbar: Mask off sits with the right-side buttons */
+#play .top{display:flex;align-items:flex-start;gap:12px}#play .top .row{margin-left:auto}
+#map #hmaAudio button{min-width:88px}
+#helpWrap{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin:6px 0}
+#helpWrap #helpRow{display:contents}
+#helpWrap #say{order:0}#helpWrap #stuckBtn{order:1}#helpWrap #how{order:2}#helpWrap::after{content:"";flex-basis:100%;order:3;height:0}#helpWrap #senseBtn{order:4}

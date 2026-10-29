@@ -15,3 +15,12 @@ body{background:linear-gradient(180deg,#3b2f5c,#5a3d74 55%,#2d3a5a)!important}
 .vh-t{color:#ffd1ea!important}
 #say{min-height:110px!important;font-size:28px!important}
 .btn.small,#helpRow .btn{min-height:96px!important}
+.vh-face,#miniHero{border-color:#ff8fc7!important}
+/* Sadie play screen: dusk look on every screen */
+#sky{opacity:.35!important}
+body::after{opacity:.15!important}
+#play .left{background:linear-gradient(90deg,rgba(70,40,100,.7),rgba(70,40,100,.4) 80%,transparent)!important}
+#senseBtn,#how{display:none!important}
+#stuckBtn{min-height:110px!important;font-size:30px!important}
+#play #qtext,#play .q{font-size:56px!important}
+#maskBtn{min-height:96px!important}
