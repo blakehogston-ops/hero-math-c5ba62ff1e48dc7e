@@ -39,7 +39,7 @@ new MutationObserver(()=>requestAnimationFrame(fit)).observe(document.documentEl
 (function(){function place(){const c=document.getElementById('cheer'),A=document.getElementById('answers');if(!c||!A||!A.offsetParent)return;
  const T=[...A.querySelectorAll('.ans')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);const a=T.length?{left:Math.min(...T.map(r=>r.left)),right:Math.max(...T.map(r=>r.right)),top:Math.min(...T.map(r=>r.top))}:A.getBoundingClientRect();a.width=a.right-a.left;c.style.whiteSpace='nowrap';c.style.fontSize='';c.style.setProperty('transform','translate(-50%,-50%)','important');
  const vis=e=>{const r=e.getBoundingClientRect();const s=getComputedStyle(e);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'};
- const obs=[...document.querySelectorAll('button,a,[role=button],#bossBar,#venomHead,#qtext,#model,#helpWrap,#hint.on,#answers .ans')].filter(e=>!c.contains(e)&&vis(e)).map(e=>e.getBoundingClientRect());
+ const obs=[...document.querySelectorAll('button,a,[role=button],#bossBar,#venomHead,#qtext,#model,#helpWrap,#hint.on,#answers .ans')].filter(e=>!c.contains(e)&&vis(e)).map(e=>{const r=e.getBoundingClientRect();return{left:r.left-8,right:r.right+8,top:r.top-8,bottom:r.bottom+8}});
  const hit=b=>obs.some(r=>!(r.right<=b.left||r.left>=b.right||r.bottom<=b.top||r.top>=b.bottom));
  let fs=Math.min(parseFloat(getComputedStyle(c).fontSize)||60,60),ok=null;
  for(let i=0;i<30&&fs>=14;i++,fs*=0.9){c.style.setProperty('font-size',fs+'px','important');const w=c.offsetWidth,h=c.offsetHeight;if(w>a.width)continue;
@@ -48,3 +48,6 @@ new MutationObserver(()=>requestAnimationFrame(fit)).observe(document.documentEl
  else{c.dataset.fit='0';c.style.setProperty('left','50%','important');c.style.setProperty('top','50%','important')}}
 const go=()=>{if(typeof window.cheer!=='function'||window.cheer._p)return;const o=window.cheer;const f=function(){const r=o.apply(this,arguments);try{place()}catch(e){}return r};f._p=1;window.cheer=f;try{cheer=f}catch(e){}};go();document.addEventListener('DOMContentLoaded',go);setTimeout(go,500);
 const mo=new MutationObserver(()=>{const c=document.getElementById('cheer');if(c&&c.classList.contains('on'))place()});const w=()=>{const c=document.getElementById('cheer');if(c)mo.observe(c,{attributes:true,attributeFilter:['class']});else setTimeout(w,300)};w()})();
+
+/* Sadie: help placeholder names the real Help button */
+(function(){if(!window.GS_MODE)return;const fix=()=>{const m=document.getElementById('model');if(!m){setTimeout(fix,300);return}const f=()=>{if(/Show me how/.test(m.textContent)&&m.children.length===1&&!m.querySelector('svg')){m.firstElementChild.innerHTML='Need help? Tap 🙋 Help.'}};new MutationObserver(f).observe(m,{childList:true,subtree:true});f()};fix()})();
