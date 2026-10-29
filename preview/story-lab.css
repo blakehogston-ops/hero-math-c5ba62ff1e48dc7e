@@ -35,3 +35,5 @@ textarea,input{font:inherit;font-size:26px;width:100%;border-radius:16px;border:
 .para{background:#fffdf3;color:#1b1b1b;border-radius:20px;padding:22px 26px;font-size:28px;line-height:1.6;text-indent:2em;font-family:"Chalkboard SE","Comic Sans MS",cursive}
 .say{background:#ff5b7a;color:#fff}
 .mission .thumb{width:100%;height:120px;object-fit:cover;border-radius:14px}
+.frame .ghost,.hint+.row .ghost{background:#1a3a8a;color:#fff;font-weight:700}
+.sol{font-size:15px;opacity:.8;margin-top:14px}

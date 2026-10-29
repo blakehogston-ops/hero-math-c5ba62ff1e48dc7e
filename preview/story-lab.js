@@ -8,7 +8,7 @@ var M=[
   {em:'🧒',t:'Kids wave for help',s:'The kids wave and shout for help.'},
   {em:'🚒',t:'A fire truck races in',s:'A red fire truck races to the bridge.'}],
   bank:['bridge','bus','webs','rescue','strong','safe'],
-  frame:{topic:['This story is about a bus on a bridge.','This story is about a big rescue.','This story is about a brave hero.'],
+  frame:{topic:['Spider-Man had a scary day.','This story is about a bus on a bridge.','This story is about a big rescue.','This story is about a brave hero.'],
    first:['the bus started to slip.','Spider-Man swung to the bridge.','the kids felt scared.'],
    next:['he shot webs to hold the bus.','the fire truck came to help.','the kids climbed out safely.'],
    end:['everyone was safe and happy.','the city cheered for Spider-Man.','the kids said thank you.']}},
@@ -17,7 +17,7 @@ var M=[
   {em:'🚁',t:'Build a hero jet',s:'I build a fast jet with red bricks.'},
   {em:'🏠',t:'Build Aunt May\u2019s house',s:'I build a cozy house for Aunt May.'}],
   bank:['bricks','build','tower','tall','colors','pieces'],
-  frame:{topic:['This story is about my best LEGO build.','This story is about a giant LEGO city.','This story is about building with bricks.'],
+  frame:{topic:['I had the best idea ever!','This story is about my best LEGO build.','This story is about a giant LEGO city.','This story is about building with bricks.'],
    first:['I sorted all the bricks by color.','I read the steps in the book.','I built a strong base.'],
    next:['I stacked the walls up high.','I added windows and a door.','I put the minifigures inside.'],
    end:['my build was finished and I was proud.','I showed my dad my build.','I put it on my shelf.']}},
@@ -26,7 +26,7 @@ var M=[
   {em:'👀',t:'The eyes can zoom',s:'The mask eyes can zoom far away.'},
   {em:'🕸️',t:'It shoots new webs',s:'The suit shoots super sticky webs.'}],
   bank:['suit','mask','shiny','webs','zoom','gadget'],
-  frame:{topic:['This story is about a new hero suit.','This story is about Peter\u2019s cool suit.','This story is about suit gadgets.'],
+  frame:{topic:['Peter could not believe his eyes!','This story is about a new hero suit.','This story is about Peter\u2019s cool suit.','This story is about suit gadgets.'],
    first:['Peter opened a big box.','he put on the mask.','he tested the web shooters.'],
    next:['the eyes zoomed across the city.','he swung between two buildings.','he showed the suit to Ned.'],
    end:['Peter loved his new suit.','he was ready to help the city.','he hung the suit up carefully.']}},
@@ -35,7 +35,7 @@ var M=[
   {em:'🐾',t:'Find big footprints',s:'He finds big footprints on the floor.'},
   {em:'🦖',t:'The dinosaur is found',s:'The guard finds the bone behind a door.'}],
   bank:['museum','clues','dinosaur','bone','quiet','dark'],
-  frame:{topic:['This story is about a museum mystery.','This story is about a missing bone.','This story is about solving a case.'],
+  frame:{topic:['Something strange happened at the museum.','This story is about a museum mystery.','This story is about a missing bone.','This story is about solving a case.'],
    first:['the museum was dark and quiet.','Spider-Man found a clue.','he heard a strange noise.'],
    next:['he followed the footprints.','he used his spider-sense.','he looked behind a big door.'],
    end:['the bone was back where it belonged.','the mystery was solved.','the guard said thank you.']}},
@@ -44,7 +44,7 @@ var M=[
   {em:'🦸',t:'Pose the figure',s:'I pose the figure on my shelf.'},
   {em:'📸',t:'Take a photo',s:'I take a photo of my new figure.'}],
   bank:['figure','shelf','careful','pose','details','collect'],
-  frame:{topic:['This story is about my new hero figure.','This story is about my collection.','This story is about a special package.'],
+  frame:{topic:['The best box ever came in the mail!','This story is about my new hero figure.','This story is about my collection.','This story is about a special package.'],
    first:['the mail came to my house.','I opened the box carefully.','I looked at all the tiny details.'],
    next:['I gave him a cool hero pose.','I found the best spot on my shelf.','I took a picture to show my family.'],
    end:['it is my favorite figure now.','my shelf looks awesome.','I can\u2019t wait to get the next one.']}},
@@ -53,7 +53,7 @@ var M=[
   {em:'💡',t:'The robot lights up',s:'The robot lights up and beeps.'},
   {em:'🏆',t:'Show the class',s:'They show the robot to the class.'}],
   bank:['robot','science','build','beeps','class','friends'],
-  frame:{topic:['This story is about a science fair robot.','This story is about two smart friends.','This story is about a cool invention.'],
+  frame:{topic:['Peter and Ned had a big surprise.','This story is about a science fair robot.','This story is about two smart friends.','This story is about a cool invention.'],
    first:['Peter drew a plan for the robot.','Ned found wires and wheels.','they worked after school.'],
    next:['they tested the robot in the lab.','the robot rolled across the table.','they fixed a loose wire.'],
    end:['the class clapped for the robot.','Peter and Ned felt proud.','they want to build another one.']}}];
@@ -126,20 +126,22 @@ function checkFree(){var f=document.getElementById('free'),t=f.value,fb=document
 function good(t,lead){S.sentence=t;S.sh=S.hints;S.pf=0;document.getElementById('fb').innerHTML='<div class="praise">'+(lead||'⭐ '+praise())+' \u201c'+esc(t)+'\u201d is a complete sentence: capital letter at the start, stop sign at the end.</div><div class="row"><button class="ghost" id="rd2">🔊 Hear it</button><button class="big" id="go">Make it a paragraph ➜</button></div>';
  document.getElementById('rd2').onclick=function(){speak(t)};document.getElementById('go').onclick=stepC}
 function stepC(){S.slot=0;S.para={};drawC()}
+var NAMES=/^(I|I'm|I\u2019m|I'll|Spider-Man|Spidey|Peter|Ned|Aunt|May|LEGO|MJ|Mr\.|Mrs\.)$/;
+function lc(v){v=v.trim();var w=v.split(/\s+/)[0]||'';var core=w.replace(/[^A-Za-z.'\u2019-]/g,'');if(NAMES.test(core)||/[A-Z]/.test(core.slice(1)))return v;return v.charAt(0).toLowerCase()+v.slice(1)}
 function full(k,v){var st=SLOTS.filter(function(s){return s[0]===k})[0][2];v=v.trim();
  if(k==='topic'){return v}// topic chips/typed are whole sentences
- return st+' '+v.charAt(0).toLowerCase()+v.slice(1)}
+ return st+' '+lc(v)}
 function drawC(){var m=S.m;
  var html=head(3)+'<p class="sub">Fill your paragraph one sentence at a time. Your sentence from step 2 is a chip you can use!</p>';
  SLOTS.forEach(function(s,i){var k=s[0];
   if(S.para[k])html+='<div class="frame done"><div class="lab">'+s[1]+' ✔</div>'+esc(S.para[k])+'</div>';
   else if(i===S.slot){var ch=m.frame[k].slice();if(k!=='topic')ch=ch;else ch=ch;
    var extra=(k==='first'&&S.sentence)?[S.sentence]:[];
-   html+='<div class="frame"><div class="lab">'+s[1]+'</div><b>'+(k==='topic'?'Pick or write your topic sentence:':esc(s[2])+' \u2026')+'</b><div class="chips">'+extra.concat(ch).map(function(c,j){return '<button class="chip" data-v="'+esc(c)+'">'+esc(k==='topic'||j<extra.length?c:s[2]+' '+c)+'</button>'}).join('')+
+   html+='<div class="frame"><div class="lab">'+s[1]+'</div><b>'+(k==='topic'?'Pick or write your topic sentence:':esc(s[2])+' \u2026')+'</b><div class="chips">'+extra.concat(ch).map(function(c,j){return '<button class="chip" data-v="'+esc(c)+'">'+esc(k==='topic'?c:s[2]+' '+lc(c))+'</button>'}).join('')+
    '</div><div class="row"><input id="own" placeholder="'+(k==='topic'?'This story is about\u2026':'or write your own\u2026')+'" autocorrect="on"><button class="say" id="mic2">🎤</button><button class="big" id="add">Add</button></div><div id="fb"></div></div>'}
   else html+='<div class="frame wait"><div class="lab">'+s[1]+'</div>'+esc(s[2])+' \u2026</div>'});
  if(S.slot>=SLOTS.length){var p=SLOTS.map(function(s){return S.para[s[0]]}).join(' ');S.paragraph=p;
-  html='<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps"><span>1 Idea</span><span>2 Sentence</span><span class="on">3 Paragraph</span></div></div><h2>🎉 You wrote a whole paragraph!</h2><div class="para">'+esc(p)+'</div><div class="praise">Topic sentence ✔ &nbsp; Two details (First, Next) ✔ &nbsp; Ending ✔ &nbsp; Capitals and stop signs ✔<br>'+praise()+' You earned a LEGO brick! <span class="brick" style="background:#e3000b"></span></div><div class="row"><button class="big" id="rd3">🔊 Read my paragraph</button><button class="ghost" id="again">Write another</button></div>'}
+  html='<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps"><span>1 Idea</span><span>2 Sentence</span><span class="on">3 Paragraph</span></div></div><h2>🎉 You wrote a whole paragraph!</h2><div class="para">'+esc(p)+'</div><div class="praise">Topic sentence ✔ &nbsp; Two details (First, Next) ✔ &nbsp; Ending ✔ &nbsp; Capitals and stop signs ✔<br>'+praise()+' You earned a LEGO brick! <span class="brick" style="background:#e3000b"></span></div><p class="sol">For grown-ups \u2013 VA English SOL Gr 3: paragraph frame 3.W.2.A (i, iii, iv, v); story in order 3.W.1.B; sentences 3.LU.1.A, 3.LU.1.B; capitals &amp; end marks 3.W.3.B, names 3.LU.2.C; word-bank spelling 3.LU.2.D.</p><div class="row"><button class="big" id="rd3">🔊 Read my paragraph</button><button class="ghost" id="again">Write another</button></div>'}
  app.innerHTML=html;bindHome();
  if(S.slot>=SLOTS.length){document.getElementById('rd3').onclick=function(){speak(S.paragraph)};document.getElementById('again').onclick=menu;finish();return}
  [].forEach.call(app.querySelectorAll('.chip'),function(b){b.onclick=function(){add(b.dataset.v,true)}});
@@ -147,15 +149,14 @@ function drawC(){var m=S.m;
  document.getElementById('mic2').onclick=function(){var R=window.SpeechRecognition||window.webkitSpeechRecognition,o=document.getElementById('own');if(!R){o.focus();document.getElementById('fb').innerHTML='<div class="hint">🎙 Tap the box, then the microphone on the iPad keyboard.</div>';return}try{var r=new R();r.lang='en-US';r.onresult=function(e){o.value=e.results[0][0].transcript};r.onerror=function(){o.focus()};r.start()}catch(e){o.focus()}}}
 function add(v,chip){var k=SLOTS[S.slot][0],fb=document.getElementById('fb');S.checks++;
  if(!v||!v.trim()){fb.innerHTML='<div class="hint">💡 Tap an idea chip, or write your own \u2013 both are great!</div>';return}
- if(k==='first'&&S.sentence&&v===S.sentence)v=S.sentence.charAt(0).toLowerCase()+S.sentence.slice(1);
- var s=full(k,v),o=check(s);
+  var s=full(k,v),o=check(s);
  if(o.length&&!chip){S.hints++;S.lastHint=1;fb.innerHTML='<div class="hint">💡 '+o[0].msg+'</div><div class="row">'+(o[0].fix?'<button class="ghost" id="fix">✨ Fix it for me</button>':'')+'<button class="ghost" id="keep">Keep it</button></div>';
   var fx=document.getElementById('fix');if(fx)fx.onclick=function(){var nv=o[0].fix(document.getElementById('own').value);document.getElementById('own').value=nv;add(nv,false)};
   document.getElementById('keep').onclick=function(){commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s))};return}
- if(!S.lastHint)S.pf++;S.lastHint=0;commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s))}
-function commit(k,s){S.para[k]=s;S.slot++;drawC()}
+ if(!S.lastHint)S.pf++;commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s))}
+function commit(k,s){S.para[k]=s;S.lastHint=0;S.slot++;drawC()}
 function finish(){markDone(S.m.id);var min=(Date.now()-start)/60000;
  try{if(window.HMA&&HMA.progress){
-  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',questions:1,firstTry:S.first>0?1:0,hints:S.hints,minutes:min,venom:S.m.id});
-  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-paragraph',questions:4,firstTry:Math.max(0,S.pf),hints:S.hints-(S.sh||0),minutes:0,venom:S.m.id});}}catch(e){}}
+  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',sol:'3.LU.1.A; 3.LU.1.B; 3.W.3.B; 3.LU.2.C; 3.LU.2.D',questions:1,firstTry:S.first>0?1:0,hints:S.hints,minutes:min,venom:S.m.id});
+  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-paragraph',sol:'3.W.2.A (i, iii, iv, v); 3.W.1.B',questions:4,firstTry:S.pf,hints:S.hints-(S.sh||0),minutes:0,venom:S.m.id});}}catch(e){}}
 window.StoryLab={missions:M,menu:menu,open:open};menu()})();
