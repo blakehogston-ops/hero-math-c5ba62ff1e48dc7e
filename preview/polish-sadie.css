@@ -1,0 +1,7 @@
+/* Sadie (age 6, Ghost-Spider): even larger reading text and tap targets */
+body{font-size:22px}
+.btn{min-height:96px!important;font-size:clamp(22px,2.8vw,30px)!important}
+.btn.small{min-height:96px!important;min-width:96px!important;font-size:22px!important}
+.ans{min-height:120px!important;font-size:clamp(40px,5vw,60px)!important}
+#qtext,.q{font-size:clamp(28px,3.4vw,42px)!important}
+.mission b{font-size:26px!important}.mission small{font-size:20px!important}

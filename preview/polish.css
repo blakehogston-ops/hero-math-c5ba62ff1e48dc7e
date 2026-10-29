@@ -1,0 +1,38 @@
+/* Polish pass (preview) — visual consistency, layout, keyboard focus, motion. No teaching content changes. */
+:root{--hma-gold:#ffd23f;--hma-navy:#0b1426}
+/* Keyboard focus ring (home computer) — visible only for keyboard, not taps */
+button:focus{outline:none}
+button:focus-visible,.btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:4px solid var(--hma-gold)!important;outline-offset:3px!important;border-radius:inherit}
+/* Mouse hover feedback (only on devices that really hover) */
+@media (hover:hover) and (pointer:fine){
+ .btn,.ans,.mission:not(:disabled){transition:filter .15s,transform .15s}
+ .btn:hover,.ans:not(.tried):hover,.mission:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-2px)}
+}
+/* Map top bar: fit every button on an iPad in landscape instead of hiding some off the right edge */
+@media (max-width:1300px) and (min-width:900px){
+ #map .top .row{gap:8px!important;flex-wrap:nowrap!important;justify-content:flex-end}
+ #map .top .row .btn.small{font-size:17px!important;padding:8px 12px!important;min-height:60px!important;min-width:56px!important}
+ #map .top .row #mapMenu,#map .top .row .ic-only{padding:8px!important}
+}
+/* Mission cards: never clip the subtitle */
+#map .mission{height:auto!important;overflow:visible}
+#map .grid{grid-auto-rows:max-content!important}#map .mission{min-height:120px}
+/* Big screens (1920x1080 home computer): scale controls up so nothing looks tiny */
+@media (min-width:1600px) and (min-height:950px){
+ .btn.small{font-size:24px!important;padding:14px 22px!important;min-height:76px!important}
+ #play .q{font-size:46px!important}
+ .ans{font-size:58px!important;min-height:130px!important}
+ #play .right{gap:22px}
+ #map .grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important;gap:20px!important}
+ .mission b{font-size:28px!important}.mission small{font-size:20px!important}
+ #hint{font-size:28px!important}
+ h2{font-size:40px}
+}
+/* Respect "reduce motion" */
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* ---- Polish pass 2: one button system + type, glass HUD. Hint card, wrong-answer and praise looks untouched. ---- */
+@font-face{font-family:"Noto Sans";src:url(assets/fonts/NotoSans-var.woff2) format("woff2");font-weight:500 800;font-display:swap}
+body,.btn,.ans,#qtext,.q{font-family:"Noto Sans",-apple-system,"Segoe UI",Roboto,sans-serif}
+.btn{border-radius:18px!important}
+.btn.pink{background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important}
+#bossBar{background:rgba(10,14,28,.62)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18)!important;border-radius:18px!important}
