@@ -66,7 +66,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 function praise(){return PRAISE[Math.floor(Math.random()*PRAISE.length)]}
 function speak(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
-function head(step){return '<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps">'+['1 Idea','2 Sentence','3 Paragraph'].map(function(s,i){return '<span class="'+(i+1===step?'on':'')+'">'+s+'</span>'}).join('')+'</div></div><h2>'+S.m.em+' '+esc(S.m.title)+'</h2>'}
+function head(step){return '<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps">'+['1 Idea','2 Sentence','3 Paragraph'].map(function(s,i){return '<span class="'+(i+1===step?'on':'')+'">'+s+'</span>'}).join('')+'</div></div><h2>'+esc(S.m.title)+'</h2>'}
 function bindHome(){var h=document.getElementById('home');if(h)h.onclick=menu}
 // gentle mechanics check -> list of {msg,fix}
 function check(t){var o=[],w=t.trim().split(/\s+/).filter(Boolean);
@@ -75,12 +75,12 @@ function check(t){var o=[],w=t.trim().split(/\s+/).filter(Boolean);
  if(w.length&&w.length<3)o.push({msg:'Can you tell a little more? Who is doing what? (It\u2019s OK to keep it, too.)',fix:null});
  return o}
 function menu(){S={};var d=done();
- app.innerHTML='<h1>🕷️ Spider-Man Story Lab</h1><p class="sub">Pick a mission. No timer, no rush \u2013 every story you write earns a LEGO brick for your wall.</p><div class="grid">'+M.map(function(m){var n=d[m.id]||0;return '<button class="mission" data-id="'+m.id+'"><span class="em">'+m.em+'</span><b>'+esc(m.title)+'</b><small>'+esc(m.cap)+'</small><span>'+(n?'<span class="brick" style="background:#e3000b"></span>Built '+n+'\u00d7':'New!')+'</span></button>'}).join('')+'</div>'+
+ app.innerHTML='<h1>🕷️ Spider-Man Story Lab</h1><p class="sub">Pick a mission. No timer, no rush \u2013 every story you write earns a LEGO brick for your wall.</p><div class="grid">'+M.map(function(m){var n=d[m.id]||0;return '<button class="mission" data-id="'+m.id+'"><img class="thumb" src="assets/story/'+m.id+'.jpg" alt=""><b>'+esc(m.title)+'</b><small>'+esc(m.cap)+'</small><span>'+(n?'<span class="brick" style="background:#e3000b"></span>Built '+n+'\u00d7':'New!')+'</span></button>'}).join('')+'</div>'+
  '<p class="sub" style="margin-top:22px">Brick wall: '+(Object.keys(d).reduce(function(a,k){return a+d[k]},0)?Object.keys(d).map(function(k){return new Array(d[k]+1).join('<span class="brick" style="background:#'+['e3000b','0055bf','f2cd37','237841'][k.length%4]+'"></span>')}).join(''):'(your first brick is one story away!)')+'</p>';
  [].forEach.call(app.querySelectorAll('.mission'),function(b){b.onclick=function(){open(b.dataset.id)}})}
 function open(id){S={m:M.filter(function(m){return m.id===id})[0],hints:0,first:0,checks:0,para:{}};start=Date.now();stepA()}
 function stepA(){var m=S.m;
- app.innerHTML=head(1)+'<div class="scene">'+m.em+'<p>'+esc(m.cap)+'</p></div><p class="sub" style="margin-top:14px">What could happen next? Tap an idea \u2013 any one is a great choice. <button class="ghost" id="rd">🔊</button></p><div class="cards">'+m.ideas.map(function(x,i){return '<button class="card" data-i="'+i+'"><span class="em">'+x.em+'</span>'+esc(x.t)+'</button>'}).join('')+'</div><div id="fb"></div>';
+ app.innerHTML=head(1)+'<div class="scene"><img src="assets/story/'+m.id+'.jpg" alt="'+esc(m.cap)+'"><p>'+esc(m.cap)+'</p></div><p class="sub" style="margin-top:14px">What could happen next? Tap an idea \u2013 any one is a great choice. <button class="ghost" id="rd">🔊</button></p><div class="cards">'+m.ideas.map(function(x,i){return '<button class="card" data-i="'+i+'"><span class="em">'+x.em+'</span>'+esc(x.t)+'</button>'}).join('')+'</div><div id="fb"></div>';
  bindHome();document.getElementById('rd').onclick=function(){speak(m.cap+' What could happen next? '+m.ideas.map(function(x){return x.t}).join('. '))};
  [].forEach.call(app.querySelectorAll('.card'),function(b){b.onclick=function(){S.idea=m.ideas[+b.dataset.i];[].forEach.call(app.querySelectorAll('.card'),function(c){c.classList.remove('pick')});b.classList.add('pick');
   document.getElementById('fb').innerHTML='<div class="praise">'+praise()+' \u201c'+esc(S.idea.t)+'\u201d is a cool idea.</div><div class="row"><button class="big" id="go">Build my sentence ➜</button></div>';document.getElementById('go').onclick=stepB}})}
@@ -156,6 +156,6 @@ function add(v,chip){var k=SLOTS[S.slot][0],fb=document.getElementById('fb');S.c
 function commit(k,s){S.para[k]=s;S.slot++;drawC()}
 function finish(){markDone(S.m.id);var min=(Date.now()-start)/60000;
  try{if(window.HMA&&HMA.progress){
-  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'writing-sentence:'+S.m.id,questions:1,firstTry:S.first>0?1:0,hints:S.hints,minutes:min,venom:''});
-  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'writing-paragraph:'+S.m.id,questions:4,firstTry:Math.max(0,S.pf),hints:S.hints-(S.sh||0),minutes:0,venom:''});}}catch(e){}}
+  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',questions:1,firstTry:S.first>0?1:0,hints:S.hints,minutes:min,venom:S.m.id});
+  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-paragraph',questions:4,firstTry:Math.max(0,S.pf),hints:S.hints-(S.sh||0),minutes:0,venom:S.m.id});}}catch(e){}}
 window.StoryLab={missions:M,menu:menu,open:open};menu()})();

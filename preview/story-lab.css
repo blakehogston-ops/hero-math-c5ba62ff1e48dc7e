@@ -12,7 +12,7 @@ button:active{transform:translateY(2px);box-shadow:0 2px 0 #0003}
 .mission{background:#fff;color:#1b1b1b;border-radius:22px;padding:18px;text-align:left;min-height:190px;display:flex;flex-direction:column;gap:6px}
 .mission .em{font-size:54px}.mission b{font-size:24px}.mission small{color:#555;font-size:17px}
 .brick{display:inline-block;width:26px;height:16px;border-radius:4px;margin-right:4px;vertical-align:middle;box-shadow:inset 0 -3px #0003}
-.scene{background:#ffffff18;border-radius:26px;padding:20px;text-align:center;font-size:84px;letter-spacing:10px}
+.scene{background:#ffffff18;border-radius:26px;padding:12px;text-align:center}.scene img{width:100%;max-height:360px;object-fit:cover;border-radius:18px;display:block}
 .scene p{font-size:24px;letter-spacing:0;margin:8px 0 0}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
 .card{background:#fff;min-height:140px;font-size:22px;text-align:left;display:flex;gap:10px;align-items:center}
@@ -34,3 +34,4 @@ textarea,input{font:inherit;font-size:26px;width:100%;border-radius:16px;border:
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.chip{background:#e8f0ff;min-height:56px;font-size:20px}
 .para{background:#fffdf3;color:#1b1b1b;border-radius:20px;padding:22px 26px;font-size:28px;line-height:1.6;text-indent:2em;font-family:"Chalkboard SE","Comic Sans MS",cursive}
 .say{background:#ff5b7a;color:#fff}
+.mission .thumb{width:100%;height:120px;object-fit:cover;border-radius:14px}
