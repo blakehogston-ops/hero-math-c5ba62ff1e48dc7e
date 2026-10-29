@@ -102,8 +102,9 @@ function drawTiles(){var st=document.getElementById('strip'),tl=document.getElem
  [].forEach.call(tl.querySelectorAll('.tile'),function(b){b.onclick=function(){S.picked.push(S.tiles[+b.dataset.k]);drawTiles()}})}
 function checkTiles(){var fr=document.getElementById('free');if(fr&&(fr.value.trim()||!S.picked.length))return checkFree();var fb=document.getElementById('fb'),p=S.picked.map(function(x){return x.w}),t=S.target;S.checks++;
  if(p.join(' ')===t.join(' ')){if(!S.tries)S.first++;return good(curText())}
+ if(!p.length){fb.innerHTML='<div class="hint">\ud83d\udca1 Tap the word tiles, or tap \u2328\ufe0f Type it and write your own \u2013 start with the word that has a capital letter!</div>';return}
  S.tries++;S.hints++;var msg;
- if(!p.length)msg='Start with the tile that has a <b>capital letter</b> \u2013 that\u2019s how sentences begin.';
+ if(false)msg='Start with the tile that has a <b>capital letter</b> \u2013 that\u2019s how sentences begin.';
  else if(p[0]!==t[0])msg='Hmm, try starting with <b>'+esc(t[0])+'</b>. It has a capital letter, so it goes first!';
  else if(p.length<t.length)msg='Great start! There are still tiles left \u2013 a sentence needs its whole idea and a <b>.</b> at the end.';
  else msg='So close! Read it out loud \u2013 does every word sound in the right spot? (Tap a word in the strip to move it back.)';
