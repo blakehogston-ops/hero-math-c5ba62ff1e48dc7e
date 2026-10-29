@@ -50,7 +50,11 @@ window.addEventListener('resize',function(){clearTimeout(relayout.t);relayout.t=
 // ---- export: a printed-comic-page PNG (share sheet on iPad, file download on a computer)
 function wrap(ctx,t,maxW){var w=t.split(/\s+/),lines=[],cur='';w.forEach(function(x){var tr=cur?cur+' '+x:x;if(ctx.measureText(tr).width>maxW&&cur){lines.push(cur);cur=x}else cur=tr});if(cur)lines.push(cur);return lines}
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
-function exportPNG(c,num){return (document.fonts?document.fonts.ready:Promise.resolve()).then(function(){
+function exportPNG(c,num){var pg=document.getElementById('comicPage'),one=pg&&getComputedStyle(pg).gridTemplateColumns.split(' ').length<2;
+ if(!one)return exportPNG0(c,num);
+ // narrow screens show 1 column; lay the page out 2x2 just for the picture, then put it back
+ pg.classList.add('exp2');return new Promise(function(r){layout(pg);requestAnimationFrame(function(){requestAnimationFrame(r)})}).then(function(){return exportPNG0(c,num)}).then(function(b){pg.classList.remove('exp2');layout(pg);return b},function(e){pg.classList.remove('exp2');layout(pg);throw e})}
+function exportPNG0(c,num){return (document.fonts?document.fonts.ready:Promise.resolve()).then(function(){
  var pg=document.getElementById('comicPage'),pr=pg.getBoundingClientRect(),PW=2000,k=(PW-160)/pr.width,HEAD=190,FOOT=110,PH=Math.round(pr.height*k)+HEAD+FOOT+80;
  var cv=document.createElement('canvas');cv.width=PW;cv.height=PH;var x=cv.getContext('2d');
  x.fillStyle='#fbf6e6';x.fillRect(0,0,PW,PH);
