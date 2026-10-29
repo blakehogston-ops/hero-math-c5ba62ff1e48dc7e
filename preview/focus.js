@@ -27,6 +27,7 @@ const _next=next;next=function(a,b){if(M&&M.yourTurn){M.yourTurn=0;M.inTurn=1}el
 function factOf(q){if(q.fact)return String(q.fact);const t=String(q.text||'').replace(/<[^>]+>/g,'').replace(/^\s*Your turn!\s*/,'');const m=t.match(/(\d+)\s*([+\-−×x÷])\s*(\?|\d+)/);if(m)return m[1]+({'−':'-','×':'x','÷':'/'}[m[2]]||m[2])+m[3];return t.replace(/\s+/g,' ').trim().slice(0,40)}
 function logAns(before,lv0){if(!window.HMA||!HMA.progress||!HMA.progress.answer||!M||!M.q)return;const type=M.inTurn?'yourturn':M.q.review?'review':(M.i<2?'warmup':'normal');HMA.progress.answer({kid:window.GS_MODE?'Sadie':'Samuel',skill:M.q.skill||M.id,fact:factOf(M.q),firstTryRight:before===0&&!M.stuck&&!M.sensed?1:0,rightSecondOrAfterHint:before>0||M.stuck||M.sensed?1:0,type,level:M.q.lvl||lv0||1})}
 const _qn=next;next=function(){if(M){M.stuck=0;M.sensed=0}return _qn.apply(this,arguments)};
+function slowMo(){if(!M||M.slowShown)return;M.slowShown=1;setTimeout(()=>{sm.classList.add('on');clearTimeout(sm._t);sm._t=setTimeout(smOff,12000);say('Slow-mo Spidey-Sense. Heroes slow down to see clearly. Breathe in, and out.')},600)}
 const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy!=='undefined'&&busy)return;
  const lv0=(S.skills[M.id]||{}).lvl,before=M.tries,right=c===M.q.ans,now=Date.now(),dt=now-lastT,wasArmed=b.classList.contains('armed')||!(S.hear!==false&&S.voice);
  _ans(b,c);if(!M)return;if(M.tries===before&&!right)return; // only armed (hear-then-pick)
@@ -37,9 +38,11 @@ const _ans=answer;answer=function(b,c){if(paused||!M||!M.q)return;if(typeof busy
   M.fastRun=0;return}
  // wrong
  paused=true;$('answers').classList.add('fpause');setTimeout(()=>{paused=false;lastT=Date.now();$("answers")&&$("answers").classList.remove("fpause")},PAUSE);
+ // Sadie (teacher ruling): 3 wrong picks (confirmed taps) within 20s -> Slow-mo, no speed requirement
+ if(window.GS_MODE){M.wrongT=(M.wrongT||[]).filter(t=>now-t<20000).concat(now);if(M.wrongT.length>=3)slowMo()}
  if(dt<FAST){M.fastT=(M.fastT||[]).filter(t=>now-t<20000).concat(now);M.fastRun=Math.max((M.fastRun||0)+1,M.fastT.length);M.rushed=(M.rushed||0)+1;rushSess[M.id]=(rushSess[M.id]||0)+1;
   if(rushSess[M.id]>=3&&!M.modelFirst){M.modelFirst=1;const s=skillLvl(M.id);if(s&&s.lvl>1){s.lvl--;save()}}
-  if(M.fastRun>=3&&!M.slowShown){M.slowShown=1;setTimeout(()=>{sm.classList.add('on');clearTimeout(sm._t);sm._t=setTimeout(smOff,12000);say('Slow-mo Spidey-Sense. Heroes slow down to see clearly. Breathe in, and out.')},600)}}
+  if(M.fastRun>=3)slowMo()}
  else M.fastRun=0;
  if(M.tries>=2){setTimeout(()=>{try{const h=document.getElementById('how');h&&h.click()}catch(e){}},PAUSE)}};
 // e) log rushed answers per skill
