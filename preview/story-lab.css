@@ -148,3 +148,6 @@ body{background:linear-gradient(180deg,rgba(11,20,38,.82),rgba(18,31,61,.78) 60%
 @media (pointer:coarse){body{font-size:24px}.sub,.scene p,.frame b,.para,.hint,.praise,.mission small,.card,.chip,.tile,.bank .bw,.sbank .bw2,textarea,input{font-size:24px!important}.frame .lab{font-size:20px}}
 .say,#mic{background:#2a8c8c;color:#fff}
 .mission small{min-height:0;margin-top:-2px}
+
+/* Panel buttons never wrap mid-label; label on its own row so Panel 1-4 sit together */
+.addb{white-space:nowrap}.bbar>b{flex-basis:100%}

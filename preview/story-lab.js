@@ -8,7 +8,7 @@ var M=[
   {em:'🧒',t:'Kids wave for help',s:'The kids waved and shouted for help.'},
   {em:'🚒',t:'A fire truck races in',s:'A red fire truck raced to the bridge.'}],
   bank:['bridge','bus','webs','rescue','strong','safe'],
-  frame:{topic:['Spider-Man had a scary day.','This story is about a bus on a bridge.','This story is about a big rescue.','This story is about a brave hero.'],
+  frame:{topic:['Spider-Man had a big day.','This story is about a bus on a bridge.','This story is about a big rescue.','This story is about a brave hero.'],
    first:['the bus started to slip.','Spider-Man swung to the bridge.','the kids felt scared.'],
    next:['he shot webs to hold the bus.','the fire truck came to help.','the kids climbed out safely.'],
    end:['everyone was safe and happy.','the city cheered for Spider-Man.','the kids said thank you.']}},
