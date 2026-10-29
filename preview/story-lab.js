@@ -33,7 +33,7 @@ var M=[
  {id:'museum',em:'🏛️🦖🌙',title:'Night at the Museum',cap:'A dinosaur bone goes missing!',ideas:[
   {em:'🔦',t:'Look for clues',s:'Spider-Man looks for clues with a flashlight.'},
   {em:'🐾',t:'Find big footprints',s:'He finds big footprints on the floor.'},
-  {em:'🦖',t:'The dinosaur is found',s:'The guard finds the bone behind a door.'}],
+  {em:'🦴',t:'The bone is found',s:'The guard finds the bone behind a door.'}],
   bank:['museum','clues','dinosaur','bone','quiet','dark'],
   frame:{topic:['Something strange happened at the museum.','This story is about a museum mystery.','This story is about a missing bone.','This story is about solving a case.'],
    first:['the museum was dark and quiet.','Spider-Man found a clue.','he heard a strange noise.'],
@@ -85,10 +85,11 @@ function stepA(){var m=S.m;
  [].forEach.call(app.querySelectorAll('.card'),function(b){b.onclick=function(){S.idea=m.ideas[+b.dataset.i];[].forEach.call(app.querySelectorAll('.card'),function(c){c.classList.remove('pick')});b.classList.add('pick');
   document.getElementById('fb').innerHTML='<div class="praise">'+praise()+' \u201c'+esc(S.idea.t)+'\u201d is a cool idea.</div><div class="row"><button class="big" id="go">Build my sentence ➜</button></div>';document.getElementById('go').onclick=stepB}})}
 function stepB(){var m=S.m,target=S.idea.s.replace(/([.!?])$/,' $1').split(' ');S.target=target;S.picked=[];S.tiles=shuffle(target.map(function(w,i){return{w:w,i:i}}));S.tries=0;
- app.innerHTML=head(2)+'<p class="sub">Build a sentence about <b>'+esc(S.idea.t.toLowerCase())+'</b>. Tap tiles, say it, or type it.</p><div class="strip" id="strip"></div><div class="tiles" id="tiles"></div>'+
+ app.innerHTML=head(2)+'<p class="sub">Build a sentence about <b>'+esc(lc(S.idea.t))+'</b>. Tap tiles, say it, or type it.</p><div class="strip" id="strip"></div><div class="tiles" id="tiles"></div>'+
  '<div class="row"><button class="big" id="chk">✔ Check my sentence</button><button class="say" id="mic">🎤 Say it</button><button class="ghost" id="kb">⌨️ Type it</button><button class="ghost" id="rd">🔊 Read it</button></div><div id="typed"></div>'+
- '<div class="bank"><b>Word bank:</b>'+m.bank.concat(S.idea.s.replace(/[.!?]/,'').split(' ').filter(function(w){return w.length>3})).filter(function(w,i,a){return a.indexOf(w)===i}).map(function(w){return '<span>'+esc(w)+'</span>'}).join('')+'</div><div id="fb"></div>';
+ '<div class="bank"><b>Word bank:</b>'+m.bank.concat(S.idea.s.replace(/[.!?]/,'').split(' ').filter(function(w){return w.length>3})).filter(function(w,i,a){return a.indexOf(w)===i}).map(function(w){return '<button class="bw">'+esc(w)+'</button>'}).join('')+'</div><div id="fb"></div>';
  bindHome();drawTiles();
+ [].forEach.call(app.querySelectorAll('.bw'),function(b){b.onclick=function(){if(!document.getElementById('free'))showTyped('');var f=document.getElementById('free');f.value=(f.value.trim()?f.value.replace(/\s*$/,' '):'')+b.textContent;f.focus()}});
  document.getElementById('chk').onclick=checkTiles;
  document.getElementById('rd').onclick=function(){speak(curText()||S.idea.s)};
  document.getElementById('kb').onclick=function(){showTyped('')};
@@ -99,7 +100,7 @@ function drawTiles(){var st=document.getElementById('strip'),tl=document.getElem
  tl.innerHTML=S.tiles.map(function(p,k){var u=S.picked.indexOf(p)>=0;return '<button class="tile'+(u?' used':'')+'" data-k="'+k+'"'+(u?' disabled':'')+'>'+esc(p.w)+'</button>'}).join('');
  [].forEach.call(st.querySelectorAll('.tile'),function(b){b.onclick=function(){S.picked.splice(+b.dataset.k,1);drawTiles()}});
  [].forEach.call(tl.querySelectorAll('.tile'),function(b){b.onclick=function(){S.picked.push(S.tiles[+b.dataset.k]);drawTiles()}})}
-function checkTiles(){if(document.getElementById('free'))return checkFree();var fb=document.getElementById('fb'),p=S.picked.map(function(x){return x.w}),t=S.target;S.checks++;
+function checkTiles(){var fr=document.getElementById('free');if(fr&&(fr.value.trim()||!S.picked.length))return checkFree();var fb=document.getElementById('fb'),p=S.picked.map(function(x){return x.w}),t=S.target;S.checks++;
  if(p.join(' ')===t.join(' ')){if(!S.tries)S.first++;return good(curText())}
  S.tries++;S.hints++;var msg;
  if(!p.length)msg='Start with the tile that has a <b>capital letter</b> \u2013 that\u2019s how sentences begin.';
@@ -128,7 +129,7 @@ function good(t,lead){S.sentence=t;S.sh=S.hints;S.pf=0;document.getElementById('
 function stepC(){S.slot=0;S.para={};drawC()}
 var NAMES=/^(I|I'm|I\u2019m|I'll|Spider-Man|Spidey|Peter|Ned|Aunt|May|LEGO|MJ|Mr\.|Mrs\.)$/;
 function lc(v){v=v.trim();var w=v.split(/\s+/)[0]||'';var core=w.replace(/[^A-Za-z.'\u2019-]/g,'');if(NAMES.test(core)||/[A-Z]/.test(core.slice(1)))return v;return v.charAt(0).toLowerCase()+v.slice(1)}
-function full(k,v){var st=SLOTS.filter(function(s){return s[0]===k})[0][2];v=v.trim();
+function full(k,v){var st=SLOTS.filter(function(s){return s[0]===k})[0][2];v=v.trim();if(k!=='topic'){var re=new RegExp('^'+st.replace(/,$/,'')+',?\\s*','i');v=v.replace(re,'')}
  if(k==='topic'){return v}// topic chips/typed are whole sentences
  return st+' '+lc(v)}
 function drawC(){var m=S.m;
@@ -157,6 +158,6 @@ function add(v,chip){var k=SLOTS[S.slot][0],fb=document.getElementById('fb');S.c
 function commit(k,s){S.para[k]=s;S.lastHint=0;S.slot++;drawC()}
 function finish(){markDone(S.m.id);var min=(Date.now()-start)/60000;
  try{if(window.HMA&&HMA.progress){
-  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',sol:'3.LU.1.A; 3.LU.1.B; 3.W.3.B; 3.LU.2.C; 3.LU.2.D',questions:1,firstTry:S.first>0?1:0,hints:S.hints,minutes:min,venom:S.m.id});
+  HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',sol:'3.LU.1.A; 3.LU.1.B; 3.W.3.B; 3.LU.2.C; 3.LU.2.D',questions:1,firstTry:S.first>0?1:0,hints:S.sh||0,minutes:min,venom:S.m.id});
   HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-paragraph',sol:'3.W.2.A (i, iii, iv, v); 3.W.1.B',questions:4,firstTry:S.pf,hints:S.hints-(S.sh||0),minutes:0,venom:S.m.id});}}catch(e){}}
 window.StoryLab={missions:M,menu:menu,open:open};menu()})();
