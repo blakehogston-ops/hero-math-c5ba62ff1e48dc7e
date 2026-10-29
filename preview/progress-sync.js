@@ -30,7 +30,7 @@
         questions: n(s.questions), firstTry: n(s.firstTry), hints: n(s.hints),
         minutes: Math.round(n(s.minutes) * 10) / 10,
         venom: String(s.venom || '').slice(0, 30),
-        level: n(s.level), stuck: n(s.stuck), sense: n(s.sense)
+        level: n(s.level), stuck: n(s.stuck), sense: n(s.sense), sol: String(s.sol || '').slice(0, 80)
       });
       if (isTest()) q[q.length - 1].test = true;
       save(q);
