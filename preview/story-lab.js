@@ -62,18 +62,18 @@ var ST_T=[['topic','Topic sentence','This story is about'],['first','Detail 1','
  ST_O=[['topic','My opinion','I think'],['first','Reason 1','One reason is that'],['next','Reason 2','Another reason is that'],['end','Conclusion','That is why']];
 M.push(
  {id:'shooter',b2:1,kind:'howto',slots:ST_H,sol:'3.W.1.C',em:'',title:'Build a Web-Shooter',cap:'Build a LEGO web-shooter for your wrist!',ideas:[
-  {t:'Pick red bricks',s:'I picked red and gray bricks.'},
-  {t:'Make a wrist band',s:'I made a band to fit my wrist.'},
-  {t:'Add a launcher',s:'I added a launcher on top.'}],
+  {t:'Pick red bricks',s:'Pick red and gray bricks.'},
+  {t:'Make a wrist band',s:'Make a band to fit your wrist.'},
+  {t:'Add a launcher',s:'Add a launcher on top.'}],
   bank:['bricks','wrist','launcher','snap','click','strong'],
   frame:{topic:['You can build your own web-shooter!','Here is how to build a LEGO web-shooter.'],
    first:['find a flat red brick for the base.','snap two gray bricks on each side.'],
    next:['add a round piece for the launcher.','fit the band around your wrist.'],
    end:['test it with a paper web.','show it to a friend.']}},
  {id:'snack',b2:1,kind:'howto',slots:ST_H,sol:'3.W.1.C',em:'',title:'Hero Fruit Snack',cap:'Make a red and blue fruit snack for the team.',ideas:[
-  {t:'Wash the fruit',s:'I washed the berries in cold water.'},
-  {t:'Make a pattern',s:'I made a red and blue pattern.'},
-  {t:'Share with friends',s:'I shared my snack with my friends.'}],
+  {t:'Wash the fruit',s:'Wash the berries in cold water.'},
+  {t:'Make a pattern',s:'Make a red and blue pattern.'},
+  {t:'Share with friends',s:'Share your snack with your friends.'}],
   bank:['berries','wash','pattern','plate','share','yummy'],
   frame:{topic:['You can make a snack fit for a hero!','Here is how to make a hero fruit snack.'],
    first:['wash the strawberries and blueberries.','ask a grown-up to help you.'],
@@ -153,12 +153,21 @@ function check(t){var o=[],w=t.trim().split(/\s+/).filter(Boolean);
  if(w.length&&!/[.!?]["\u201d]?$/.test(t.trim()))o.push({msg:'Every sentence needs a stop sign at the end: . or ! or ?',fix:function(x){return x.trim()+'.'}});
  if(w.length&&w.length<3)o.push({msg:'Can you tell a little more? Who is doing what? (It\u2019s OK to keep it, too.)',fix:null});
  return o}
+var POWERS=[['web-swinging',/\bweb[- ]?(swing|swinging|slinging|shoot|shooting|shooters?)\b|\bswing(ing)?\b|\bwebs?\b/i],['wall-climbing',/\b(wall[- ]?)?climb(ing|s)?\b|\bwall[- ]?crawl(ing)?\b|\bstick(s|ing)? to walls?\b/i],['spider-sense',/\bspider[- ]?sense\b|\bsense\b|\btingl/i],['super strength',/\bstrength\b|\bstrong(est)?\b/i],['speed',/\bspeed\b|\bfast(est)?\b/i],['flying',/\bfly(ing)?\b/i],['being invisible',/\binvisib/i]];
+function powerOf(t){t=String(t||'');for(var i=0;i<POWERS.length;i++)if(POWERS[i][1].test(t))return i;return -1}
+function opinionPic(){var m=S.m,pi=powerOf(S.para.topic||''),i=pi>=0&&pi<3?pi:(S.idx||0);return m.id+'_i'+(i+1)}
+function cmdCheck(t){var w=t.replace(/^(First|Then|Next|Finally|Last),?\s*/i,'').trim();return /^(I|we|he|she|they)\s+\w+ed\b/i.test(w)}
+function oneLine(v){return String(v||'').replace(/\s*[\r\n]+\s*/g,' ')}
+var UNLOCK=['kitten','park','pizza','shooter','snack','best'];
+function unlocks(){var n=0;try{n=+localStorage.getItem('hma_storylab_unlocks')||0}catch(e){}return n}
+function isOpen(m){if(!m.b2)return true;var d=done();if(d[m.id])return true;var i=UNLOCK.indexOf(m.id);return i<0||i<unlocks()}
+function unlockNext(){var nx=M.filter(function(m){return !isOpen(m)}).sort(function(a,b){return UNLOCK.indexOf(a.id)-UNLOCK.indexOf(b.id)})[0];if(!nx)return null;try{localStorage.setItem('hma_storylab_unlocks',String(UNLOCK.indexOf(nx.id)+1))}catch(e){}return nx}
 function menu(){S={};var d=done();
- app.innerHTML='<div class="top"><button class="ghost" id="toHMA">⬅ Hero Math</button><button class="big" id="myComics">📚 My Comics'+(window.StoryComic?' ('+StoryComic.count()+')':'')+'</button></div><h1>🕷️ Spider-Man Story Lab</h1><p class="sub">Pick a mission. No timer, no rush \u2013 every story you write earns a LEGO brick for your wall.</p><div class="grid">'+M.map(function(m){var n=d[m.id]||0;return '<button class="mission" data-id="'+m.id+'"><img class="thumb" src="'+thumb(m)+'" alt=""><b>'+esc(m.title)+'</b><small>'+esc(m.cap)+'</small><span>'+(n?'<span class="brick" style="background:#e3000b"></span>Built '+n+'\u00d7':'New!')+'</span></button>'}).join('')+'</div>'+
+ app.innerHTML='<div class="top"><button class="ghost" id="toHMA">⬅ Hero Math</button><button class="big" id="myComics">📚 My Comics'+(window.StoryComic?' ('+StoryComic.count()+')':'')+'</button></div><h1>🕷️ Spider-Man Story Lab</h1><p class="sub">Pick a mission. No timer, no rush \u2013 every story you write earns a LEGO brick for your wall.</p><div class="grid">'+M.map(function(m){var n=d[m.id]||0;if(!isOpen(m))return '<button class="mission locked" data-id="'+m.id+'" disabled aria-disabled="true"><img class="thumb" src="'+thumb(m)+'" alt=""><b>🔒 '+esc(m.title)+'</b><small>Make a comic to open this mission!</small><span>Coming soon</span></button>';return '<button class="mission" data-id="'+m.id+'"><img class="thumb" src="'+thumb(m)+'" alt=""><b>'+esc(m.title)+'</b><small>'+esc(m.cap)+'</small><span>'+(n?'<span class="brick" style="background:#e3000b"></span>Built '+n+'\u00d7':'New!')+'</span></button>'}).join('')+'</div>'+
  '<p class="sub" style="margin-top:22px">Brick wall: '+(Object.keys(d).reduce(function(a,k){return a+d[k]},0)?Object.keys(d).map(function(k){return new Array(d[k]+1).join('<span class="brick" style="background:#'+['e3000b','0055bf','f2cd37','237841'][k.length%4]+'"></span>')}).join(''):'(your first brick is one story away!)')+'</p>';
  document.getElementById('myComics').onclick=function(){window.StoryComic&&StoryComic.shelf()};
  document.getElementById('toHMA').onclick=function(){try{if(window.parent!==window&&parent.__closeStoryLab)return parent.__closeStoryLab()}catch(e){}location.href='index.html'};
- [].forEach.call(app.querySelectorAll('.mission'),function(b){b.onclick=function(){open(b.dataset.id)}})}
+ [].forEach.call(app.querySelectorAll('.mission:not(.locked)'),function(b){b.onclick=function(){open(b.dataset.id)}})}
 function open(id){S={plays:done()[id]||0,m:M.filter(function(m){return m.id===id})[0],hints:0,first:0,checks:0,para:{}};start=Date.now();stepA()}
 function stepA(){var m=S.m;
  app.innerHTML=head(1)+'<div class="scene"><img src="'+thumb(m)+'" alt="'+esc(m.cap)+'"><p>'+esc(m.cap)+'</p></div><p class="sub" style="margin-top:14px">What could happen next? Tap an idea \u2013 any one is a great choice. <button class="ghost" id="rd">🔊</button></p><div class="cards">'+m.ideas.map(function(x,i){return '<button class="card" data-i="'+i+'">'+(PICS[m.id+'_i'+(i+1)]?'<img class="cimg" src="assets/story/c_'+m.id+'_i'+(i+1)+'.jpg" alt="">':'<span class="em">'+x.em+'</span>')+esc(x.t)+'</button>'}).join('')+'</div><div id="fb"></div>';
@@ -199,7 +208,7 @@ function dictate(){var R=window.SpeechRecognition||window.webkitSpeechRecognitio
   r.onresult=function(e){var t=e.results[0][0].transcript;showTyped(t);fb.innerHTML='<div class="praise">I heard you! Check the words, then tap ✔.</div>'};
   r.onerror=function(){showTyped('');fb.innerHTML='<div class="hint">🎙 I couldn\u2019t hear that one. No problem \u2013 tap the box and use the keyboard microphone, or try 🎤 again.</div>'};
   r.start()}catch(e){showTyped('')}}
-function checkFree(){var f=document.getElementById('free'),t=f.value,fb=document.getElementById('fb');S.checks++;
+function checkFree(){var f=document.getElementById('free');f.value=oneLine(f.value);var t=f.value,fb=document.getElementById('fb');S.checks++;
  if(!t.trim()){fb.innerHTML='<div class="hint">💡 Your sentence box is empty. Try 🎤, or tap tiles instead!</div>';return}
  if(!realWords(t)){S.tries++;S.hints++;fb.innerHTML='<div class="hint">💡 '+JUNK+'</div>';return}
  var o=check(t);if(!o.length){if(!S.tries)S.first++;return good(t)}
@@ -207,9 +216,11 @@ function checkFree(){var f=document.getElementById('free'),t=f.value,fb=document
  fb.innerHTML='<div class="hint">💡 '+o[0].msg+'</div><div class="row">'+(o[0].fix?'<button class="ghost" id="fix">✨ Fix it for me</button>':'')+'<button class="ghost" id="keep">Keep it like this</button></div>';
  var fx=document.getElementById('fix');if(fx)fx.onclick=function(){f.value=o[0].fix(f.value);checkFree()};
  document.getElementById('keep').onclick=function(){good(check(f.value).reduce(function(x,c){return c.fix?c.fix(x):x},f.value))}}
-function good(t,lead){S.sentence=t;S.sh=S.hints;S.pf=0;document.getElementById('fb').innerHTML='<div class="praise">'+(lead||'⭐ '+praise())+' \u201c'+esc(t)+'\u201d is a complete sentence: capital letter at the start, stop sign at the end.</div><div class="row"><button class="ghost" id="rd2">🔊 Hear it</button><button class="big" id="go">Make it a paragraph ➜</button></div>';
+function good(t,lead){t=oneLine(t).trim();S.sentence=t;S.sh=S.hints;S.pf=0;document.getElementById('fb').innerHTML='<div class="praise">'+(lead||'⭐ '+praise())+' \u201c'+esc(t)+'\u201d is a complete sentence: capital letter at the start, stop sign at the end.</div><div class="row"><button class="ghost" id="rd2">🔊 Hear it</button><button class="big" id="go">Make it a paragraph ➜</button></div>';
  document.getElementById('rd2').onclick=function(){speak(t)};document.getElementById('go').onclick=stepC}
-function stepC(){if(S.m.fr)S.m.frame=S.m.fr[S.idx||0];SLOTS=S.m.slots||BASE;S.slot=0;S.para={};S.pics={};S.cred={};S.hist=[];drawC()}
+function stepC(){if(S.m.fr)S.m.frame=S.m.fr[S.idx||0];SLOTS=S.m.slots||BASE;S.slot=0;S.para={};S.pics={};S.cred={};S.hist=[];S.fin=0;S.reveal={};drawC()}
+function words(t){var o={};String(t).toLowerCase().replace(/[^a-z\s-]/g,'').split(/\s+/).forEach(function(w){w=w.replace(/(ed|ing|s)$/,'');if(w.length>2&&!/^(the|and|for|was|his|her|she|spider-man|spidey|then|first|after|that|finally)$/.test(w))o[w]=1});return o}
+function similar(a,b){var x=words(a),y=words(b),k=Object.keys(x),i=k.filter(function(w){return y[w]}).length,u=k.length+Object.keys(y).length-i;return u&&i/u>=0.4}
 var NAMES=/^(I|I'm|I\u2019m|I'll|Spider-Man|Spidey|Peter|Ned|Aunt|May|LEGO|MJ|Mr\.|Mrs\.)$/;
 function lc(v){v=v.trim();var w=v.split(/\s+/)[0]||'';var core=w.replace(/[^A-Za-z.'\u2019-]/g,'');if(NAMES.test(core)||/[A-Z]/.test(core.slice(1)))return v;return v.charAt(0).toLowerCase()+v.slice(1)}
 function full(k,v){var st=SLOTS.filter(function(s){return s[0]===k})[0][2];v=v.trim();if(k!=='topic'){var re=new RegExp('^'+st.replace(/,$/,'')+',?\\s*','i');v=v.replace(re,'')}
@@ -218,29 +229,36 @@ function full(k,v){var st=SLOTS.filter(function(s){return s[0]===k})[0][2];v=v.t
 function drawC(){var m=S.m;
  var html=head(3)+'<p class="sub">Fill your paragraph one sentence at a time. Your sentence from step 2 is a chip you can use!</p>';
  SLOTS.forEach(function(s,i){var k=s[0];
-  if(S.para[k])html+='<div class="frame done"><div class="lab">'+s[1]+' ✔</div>'+esc(S.para[k])+(i===S.slot-1&&S.slot<SLOTS.length?' <button class="ghost undo" id="undo">↩ Undo</button>':'')+'</div>';
-  else if(i===S.slot){var all=m.frame[k],ch=[],js=[];var n=m.b2?Math.max(1,2-(S.plays||0)):all.length,r=S.plays||0;for(var q=0;q<Math.min(n,all.length);q++){var jj=(q+r)%all.length;ch.push(all[jj]);js.push(jj)}
-   var ex=(S.sentence&&k===(m.kind==='opinion'?'topic':'first'))?[S.sentence]:[];var pk=k==='topic'?'t':k.charAt(0),ix=S.idx||0;
+  if(S.para[k])html+='<div class="frame done"><div class="lab">'+s[1]+' ✔</div>'+esc(S.para[k])+(i===S.slot-1&&!S.fin?' <button class="ghost undo" id="undo">↩ Undo</button>':'')+'</div>';
+  else if(i===S.slot){var all=m.frame[k],ch=[],js=[];var ex=(S.sentence&&k===(m.kind==='opinion'?'topic':'first'))?[S.sentence]:[];var fade=m.b2&&(S.plays||0)>=2&&!S.remix&&!ex.length&&!S.reveal[k];var n=fade?0:m.b2?Math.max(1,2-(S.plays||0)):all.length,r=(S.plays||0)+(S.remix||0)+(S.reveal[k]||0);
+   var cand=[];for(var q=0;q<all.length;q++){var jj=(q+r)%all.length;if(ex.length&&similar(all[jj],ex[0]))continue;cand.push(jj)}cand.slice(0,Math.min(n,cand.length)).forEach(function(jj){ch.push(all[jj]);js.push(jj)});var pk=k==='topic'?'t':k.charAt(0),ix=S.idx||0;
    var pl=ex.map(function(){return m.id+'_i'+(ix+1)}).concat(js.map(function(j){return m.id+'_'+pk+(k==='topic'?j:j+1)}));
    html+='<div class="frame"><div class="lab">'+s[1]+'</div><b>'+(k==='topic'?(m.kind==='opinion'?'Pick or write your opinion:':'Pick or write your topic sentence:'):esc(s[2])+' \u2026')+'</b><div class="chips">'+ex.concat(ch).map(function(c,j){return '<button class="chip" data-p="'+pl[j]+'" data-v="'+esc(c)+'">'+esc(k==='topic'||(ex.length&&j===0&&k==='topic')?c:s[2]+' '+lc(c))+'</button>'}).join('')+
-   '</div><div class="row"><input id="own" placeholder="'+(k==='topic'?esc(s[2])+'\u2026':'or write your own\u2026')+'" autocorrect="on" enterkeyhint="done"><button class="say" id="mic2">🎤</button><button class="big" id="add">Add</button></div><div id="fb"></div></div>'}
+   '</div>'+(fade?'<p class="sub" style="margin:6px 0">Your turn to write this one! Start with <b>'+esc(s[2])+'</b> and use the word bank. <button class="ghost" id="reveal">💡 Show me an idea</button></p><div class="bank sbank"><b>Word bank:</b>'+m.bank.map(function(w){return '<button class="bw2">'+esc(w)+'</button>'}).join('')+'</div>':'')+'<div class="row"><input id="own" placeholder="'+(k==='topic'?esc(s[2])+'\u2026':fade?esc(s[2])+' \u2026':'or write your own\u2026')+'" autocorrect="on" enterkeyhint="done"><button class="say" id="mic2">🎤</button><button class="big" id="add">Add</button></div><div id="fb"></div></div>'}
   else html+='<div class="frame wait"><div class="lab">'+s[1]+'</div>'+esc(s[2])+' \u2026</div>'});
- if(S.slot>=SLOTS.length){var p=SLOTS.map(function(s){return S.para[s[0]]}).join(' ');S.paragraph=p;
-  html='<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps"><span>1 Idea</span><span>2 Sentence</span><span class="on">3 Paragraph</span></div></div><h2>🎉 You wrote a whole paragraph!</h2><div class="para">'+esc(p)+'</div><div class="praise">'+(S.m.kind==='opinion'?'Your opinion ✔ &nbsp; Two real reasons ✔ &nbsp; Conclusion says your pick again ✔':S.m.kind==='howto'?'Topic sentence ✔ &nbsp; Steps in order ('+SLOTS.slice(1).map(function(x){return x[2].replace(',','')}).join(', ')+') ✔':'Topic sentence ✔ &nbsp; Two details ('+SLOTS[1][2].replace(',','')+', '+SLOTS[2][2].replace(',','')+') ✔ &nbsp; Ending ✔')+' &nbsp; Capitals and stop signs ✔<br>'+praise()+' You earned a LEGO brick! <span class="brick" style="background:#e3000b"></span></div><p class="sol">For grown-ups \u2013 VA English SOL Gr 3: paragraph frame 3.W.2.A (i, iii, iv, v); '+(S.m.kind==='opinion'?'opinion with reasons and a conclusion 3.W.1.D':S.m.kind==='howto'?'how-to steps in order 3.W.1.C':'story in order 3.W.1.B')+'; sentences 3.LU.1.A, 3.LU.1.B; capitals &amp; end marks 3.W.3.B, names 3.LU.2.C; word-bank spelling 3.LU.2.D.</p><div class="row"><button class="big" id="rd3">🔊 Read my paragraph</button><button class="ghost" id="again">Write another</button></div><div class="row"><button class="big comicgo" id="mkComic">📖 Turn it into a comic!</button></div>'}
+ if(S.slot>=SLOTS.length&&!S.fin)html+='<div class="praise">All four sentences are in! Read it over. Want to change the last one? Tap ↩ Undo. Happy with it? Tap Finish.</div><div class="row"><button class="ghost" id="rdp">🔊 Read it</button><button class="big" id="finish">✔ Finish my paragraph</button></div>';
+ if(S.fin){var p=SLOTS.map(function(s){return S.para[s[0]]}).join(' ');S.paragraph=p;
+  html='<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps"><span>1 Idea</span><span>2 Sentence</span><span class="on">3 Paragraph</span></div></div><h2>🎉 You wrote a whole paragraph!</h2><div class="para">'+esc(p)+'</div><div class="praise">'+(S.m.kind==='opinion'?'Your opinion ✔ &nbsp; Two real reasons ✔ &nbsp; Conclusion says your pick again ✔':S.m.kind==='howto'?'Topic sentence ✔ &nbsp; Steps in order ('+SLOTS.slice(1).map(function(x){return x[2].replace(',','')}).join(', ')+') ✔':'Topic sentence ✔ &nbsp; Two details ('+SLOTS[1][2].replace(',','')+', '+SLOTS[2][2].replace(',','')+') ✔ &nbsp; Ending ✔')+' &nbsp; Capitals and stop signs ✔<br>'+praise()+' You earned a LEGO brick! <span class="brick" style="background:#e3000b"></span></div><p class="sol">For grown-ups \u2013 VA English SOL Gr 3: paragraph frame 3.W.2.A (i, iii, iv, v); '+(S.m.kind==='opinion'?'opinion with reasons and a conclusion 3.W.1.D':S.m.kind==='howto'?'how-to steps in order 3.W.1.C':'story in order 3.W.1.B')+'; sentences 3.LU.1.A, 3.LU.1.B; capitals &amp; end marks 3.W.3.B, names 3.LU.2.C; word-bank spelling 3.LU.2.D.</p><div class="row"><button class="big" id="rd3">🔊 Read my paragraph</button><button class="ghost" id="again">Write another</button><button class="ghost" id="remix">🔀 Remix this story</button></div>'+(S.newM?'<div class="praise unlock">🔓 New mission unlocked: <b>'+esc(S.newM.title)+'</b>! Find it on the mission page.</div>':'')+'<div class="row"><button class="big comicgo" id="mkComic">📖 Turn it into a comic!</button></div>'}
  app.innerHTML=html;bindHome();
- if(S.slot>=SLOTS.length){document.getElementById('rd3').onclick=function(){speak(S.paragraph)};document.getElementById('again').onclick=menu;finish();document.getElementById('mkComic').onclick=function(){StoryComic.edit(S.comicId)};return}
+ if(S.fin){document.getElementById('rd3').onclick=function(){speak(S.paragraph)};document.getElementById('again').onclick=menu;if(!S.logged){S.logged=1;finish()}document.getElementById('remix').onclick=function(){S.remix=(S.remix||0)+1+Math.floor(Math.random()*3);S.logged=0;S.newM=null;stepC()};document.getElementById('mkComic').onclick=function(){StoryComic.edit(S.comicId)};return}
  [].forEach.call(app.querySelectorAll('.chip'),function(b){b.onclick=function(){add(b.dataset.v,true,b.dataset.p)}});var ud=document.getElementById('undo');if(ud)ud.onclick=function(){S.slot--;var k=SLOTS[S.slot][0];delete S.para[k];delete S.pics[k];delete S.cred[k];drawC()};
+ if(S.slot>=SLOTS.length){document.getElementById('rdp').onclick=function(){speak(SLOTS.map(function(s){return S.para[s[0]]}).join(' '))};document.getElementById('finish').onclick=function(){S.fin=1;S.newM=unlockNext();S.plays=(S.plays||0)+1;drawC()};return}
+ var rv=document.getElementById('reveal');if(rv)rv.onclick=function(){var k=SLOTS[S.slot][0];S.hints++;S.lastHint=1;S.reveal[k]=1+((S.plays||0)%Math.max(1,S.m.frame[k].length));drawC()};
+ [].forEach.call(app.querySelectorAll('.bw2'),function(b){b.onclick=function(){var o=document.getElementById('own');o.value=(o.value.trim()?o.value.replace(/\s*$/,' '):'')+b.textContent;o.focus()}});
  document.getElementById('add').onclick=function(){add(document.getElementById('own').value,false)};
  document.getElementById('mic2').onclick=function(){var R=window.SpeechRecognition||window.webkitSpeechRecognition,o=document.getElementById('own');if(!R){o.focus();document.getElementById('fb').innerHTML='<div class="hint">🎙 Tap the box, then the microphone on the iPad keyboard.</div>';return}try{var r=new R();r.lang='en-US';r.onresult=function(e){o.value=e.results[0][0].transcript};r.onerror=function(){o.focus()};r.start()}catch(e){o.focus()}}}
-function add(v,chip,pic){var k=SLOTS[S.slot][0],fb=document.getElementById('fb');S.checks++;
+function add(v,chip,pic){v=oneLine(v);var k=SLOTS[S.slot][0],fb=document.getElementById('fb');S.checks++;
  if(!v||!v.trim()){fb.innerHTML='<div class="hint">💡 Tap an idea chip, or write your own \u2013 both are great!</div>';return}
-  var s=full(k,v),o=check(s);
+  var s=full(k,v),o=check(s),m=S.m,must=0;
+ if(m.kind==='opinion'&&k==='topic'&&powerOf(s)<0){must=1;var pw=m.ideas[S.idx||0].t.toLowerCase();o.unshift({msg:'An opinion tells your pick! Say which power you think is best, like \u201cI think '+pw+' is the best power.\u201d',fix:function(){return 'I think '+pw+' is the best power.'}})}
+ if(m.kind==='opinion'&&k==='end'&&powerOf(s)!==powerOf(S.para.topic)){must=1;var pn=POWERS[Math.max(0,powerOf(S.para.topic))][0];o.unshift({msg:'A conclusion says your pick again. Try naming '+pn+' in this sentence.',fix:function(){return 'That is why '+pn+' is the best power.'}})}
+ if(m.kind==='howto'&&k!=='topic'&&cmdCheck(s)){must=1;var c0=m.frame[k][0];o.unshift({msg:'How-to steps tell the reader what to do, like \u201c'+full(k,c0)+'\u201d Try starting with an action word.',fix:function(){return c0}})}
  if(!chip&&!realWords(v)){S.hints++;S.lastHint=1;fb.innerHTML='<div class="hint">💡 '+JUNK+'</div>';return}
- if(o.length&&!chip){S.hints++;S.lastHint=1;fb.innerHTML='<div class="hint">💡 '+o[0].msg+'</div><div class="row">'+(o[0].fix?'<button class="ghost" id="fix">✨ Fix it for me</button>':'')+'<button class="ghost" id="keep">Keep it</button></div>';
+ if(o.length&&(!chip||must)){S.hints++;S.lastHint=1;fb.innerHTML='<div class="hint">💡 '+o[0].msg+'</div><div class="row">'+(o[0].fix?'<button class="ghost" id="fix">✨ Fix it for me</button>':'')+(must?'':'<button class="ghost" id="keep">Keep it</button>')+'</div>';
   var fx=document.getElementById('fix');if(fx)fx.onclick=function(){var nv=o[0].fix(document.getElementById('own').value);document.getElementById('own').value=nv;add(nv,false)};
-  document.getElementById('keep').onclick=function(){commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s),bestPic(k,s))};return}
+  if(must)return;document.getElementById('keep').onclick=function(){commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s),bestPic(k,s))};return}
  S.cred[k]=S.lastHint?0:1;commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s),pic||bestPic(k,s))}
-function commit(k,s,pic){S.para[k]=s;S.pics[k]=pic;S.lastHint=0;S.slot++;drawC()}
+function commit(k,s,pic){S.para[k]=s;if(S.m.kind==='opinion'){if(k==='topic')pic=S.m.id+'_t1';if(k==='end')pic=opinionPic()}S.pics[k]=pic;S.lastHint=0;S.slot++;drawC()}
 function finish(){markDone(S.m.id);try{S.comicId=window.StoryComic?StoryComic.create(S.m,S.para,S.pics):null}catch(e){}var min=(Date.now()-start)/60000;
  try{if(window.HMA&&HMA.progress){
   HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',sol:'3.LU.1.A; 3.LU.1.B; 3.W.3.B; 3.LU.2.C; 3.LU.2.D',questions:1,firstTry:S.first>0?1:0,hints:S.sh||0,minutes:min,venom:S.m.id});
