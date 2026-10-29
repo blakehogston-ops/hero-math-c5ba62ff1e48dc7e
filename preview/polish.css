@@ -76,12 +76,25 @@ body::after{content:"";position:fixed;inset:0;background:url(assets/bg_skyline_p
 #senseBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important;color:#fff!important}
 .hma-praise{animation:softin .35s ease-out both}
 /* no text under 18px */
-#ptxt,#vBubble,.vh-hoods,.vh-hoods *,#model text,#model .lab,#model small,.mm-goo,#grid .mission .num,#grid .mission span{font-size:max(18px,1em)!important}
+#ptxt,#vBubble,.vh-hoods,.vh-hoods *,#model .lab,#model small,.mm-goo,#grid .mission .num,#grid .mission span{font-size:max(18px,1em)!important}
 #ptxt,#vBubble{font-size:18px!important}
-#model svg text{font-size:18px}
+
 /* toolbar: Mask off sits with the right-side buttons */
 #play .top{display:flex;align-items:flex-start;gap:12px}#play .top .row{margin-left:auto}
 #map #hmaAudio button{min-width:88px}
 #helpWrap{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin:6px 0}
 #helpWrap #helpRow{display:contents}
 #helpWrap #say{order:0}#helpWrap #stuckBtn{order:1}#helpWrap #how{order:2}#helpWrap::after{content:"";flex-basis:100%;order:3;height:0}#helpWrap #senseBtn{order:4}
+/* ---- Pass 3c: map bar colors (Story Lab, My Gear, More = blue; Breathe = teal; Home = quiet grey) ---- */
+#map #mapMore{background:linear-gradient(#3567c4,#1c3a7d)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d1f45,0 10px 20px rgba(0,0,0,.5)!important}
+#map #toTitle{background:linear-gradient(#5d6b82,#3e4a5e)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 0 #222a38,0 10px 20px rgba(0,0,0,.45)!important}
+/* hero portrait medallion: plain mask icon placeholder until Character Artist's portrait arrives */
+#miniHero>*{display:none!important}
+#miniHero{background:#b3202a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 12C28 12 18 30 18 50s14 38 32 38 32-18 32-38-10-38-32-38z' fill='%23c8323b'/%3E%3Cpath d='M24 46c8-2 18 2 22 12-8 4-20 2-22-12zM76 46c-8-2-18 2-22 12 8 4 20 2 22-12z' fill='%23fff' stroke='%23111' stroke-width='3'/%3E%3C/svg%3E") center/80% no-repeat!important}
+/* "What comes next?" lead in 24px reading style */
+.qlead{display:block;font-size:24px;font-weight:600;opacity:.9;margin-bottom:4px}
+#vhClose{display:none!important}
+#map.more-open .top,#map.more-open .top .row,#map.more-open #hmaAudio{flex-wrap:wrap!important}
+#map.more-open .top .row{max-width:100%}
+#map #hmaAudio button{font:700 20px "Noto Sans",sans-serif!important;min-height:88px;padding:8px 16px;border:0!important;border-radius:18px!important;color:#fff!important;background:linear-gradient(#2fa3a3,#1d6f72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.5)!important}
+#map #maskBtn{min-width:120px;white-space:nowrap}

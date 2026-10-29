@@ -24,3 +24,12 @@ body::after{opacity:.15!important}
 #stuckBtn{min-height:110px!important;font-size:30px!important}
 #play #qtext,#play .q{font-size:56px!important}
 #maskBtn{min-height:96px!important}
+/* sequence strip numbers ~32px+ on screen */
+#model svg text{font-size:48px!important}
+/* only Help remains, and it is teal */
+#play #how,#helpWrap #how,#senseBtn{display:none!important}
+#stuckBtn{background:linear-gradient(#2fa3a3,#1d6f72)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 5px 0 #0d3a3c,0 10px 20px rgba(0,0,0,.35)!important}
+/* worked step + Next step sit right under the help buttons, above the picture, so they stay on-screen */
+#play .left{display:flex;flex-direction:column}
+#play .left>#bossBar{order:0}#play .left>#qtext{order:1}#play .left>#helpWrap{order:2}#play .left>#hint{order:3}#play .left>#model{order:4}
+#hint .btn{min-height:80px!important}
