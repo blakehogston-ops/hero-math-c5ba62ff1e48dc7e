@@ -10,6 +10,9 @@
   'use strict';
   var KEY = 'hma_progress_queue_v1', AKEY = 'hma_answers_queue_v1', MAX = 500, AMAX = 2000, busy = false, timer = null;
   var cfg = window.HMA_PROGRESS || {};
+  // /preview/ is a test build: it NEVER queues or sends rows to the real progress sheet (Oct 29). The live root logs normally.
+  var PREVIEW = /\/preview\//.test(location.pathname || '');
+  function previewLog(kind, r) { try { (window.__hmaPreviewLog = window.__hmaPreviewLog || []).push([kind, r]); } catch (e) {} }
   function isTest() { try { return !!(navigator.webdriver || /[?&]test=1\b/.test(location.search) || window.TAE || window.__TAE || localStorage.getItem('hma_test') === '1'); } catch (e) { return false; } }
   function loadA() { try { return JSON.parse(localStorage.getItem(AKEY) || '[]') || []; } catch (e) { return []; } }
   function saveA(q) { try { localStorage.setItem(AKEY, JSON.stringify(q.slice(-AMAX))); } catch (e) {} }
@@ -32,6 +35,7 @@
         venom: String(s.venom || '').slice(0, 30),
         level: n(s.level), stuck: n(s.stuck), sense: n(s.sense), sol: String(s.sol || '').slice(0, 80)
       });
+      if (PREVIEW) { previewLog('session', q.pop()); return; }
       if (isTest()) q[q.length - 1].test = true;
       save(q);
       soon(1500);
@@ -47,6 +51,7 @@
         skill: String(a.skill || '').slice(0, 60), fact: String(a.fact || '').slice(0, 40),
         firstTryRight: a.firstTryRight ? 1 : 0, rightSecondOrAfterHint: a.rightSecondOrAfterHint ? 1 : 0,
         type: T.indexOf(a.type) >= 0 ? a.type : 'normal', level: n(a.level) };
+      if (PREVIEW) { previewLog('answer', r); return; }
       if (isTest()) r.test = true;
       q.push(r); saveA(q);
       if (q.length >= 25) soon(1500); else if (!timer) soon(20000);
@@ -57,7 +62,7 @@
 
   function flush() {
     try {
-      if (busy || !cfg.url || !cfg.token) return;
+      if (PREVIEW || busy || !cfg.url || !cfg.token) return;
       if (navigator.onLine === false) return;
       var q = load(), qa = loadA(); if (!q.length && !qa.length) return;
       var batch = q.slice(0, 50), ids = {}, abatch = qa.slice(0, 200), aids = {};
@@ -83,7 +88,7 @@
   function config(c) { try { for (var k in c) cfg[k] = c[k]; soon(500); } catch (e) {} }
 
   window.HMA = window.HMA || {};
-  window.HMA.progress = { log: log, answer: answer, isTest: isTest, pendingAnswers: function () { return loadA().length; }, flush: flush, config: config, pending: function () { return load().length; } };
+  window.HMA.progress = { preview: PREVIEW, log: log, answer: answer, isTest: isTest, pendingAnswers: function () { return loadA().length; }, flush: flush, config: config, pending: function () { return load().length; } };
   try {
     window.addEventListener('online', function () { soon(1000); });
     window.addEventListener('pagehide', function () { flush(); });
