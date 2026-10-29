@@ -95,7 +95,7 @@ H.venomCall = function(done, opts){
     let svg = null;
     if (txt){ const d = document.createElement('div'); d.innerHTML = txt; svg = d.querySelector('svg'); }
     if (svg){ svg.setAttribute('aria-hidden', 'true'); svg.querySelectorAll('#answer,#decline').forEach(x => x.style.display = 'none'); ph.appendChild(svg); }
-    else ph.innerHTML = '<div class="hc-fb" aria-hidden="true"><div>INCOMING CALL</div><div class="hc-face">😜</div><div>VENOM</div><div style="font-size:18px;opacity:.7">ringing…</div></div>';
+    else ph.innerHTML = '<div class="hc-fb" aria-hidden="true"><div>INCOMING CALL</div><div class="hc-face">😜</div><div>'+(window.GS_MODE?'SPLAT':'VENOM')+'</div><div style="font-size:18px;opacity:.7">ringing…</div></div>';
     const side = document.createElement('div'); side.className = 'hc-side';
     side.innerHTML = '<div class="hc-bubble" aria-live="polite"></div><div class="hc-btns">' +
       '<button type="button" class="hc-dec" aria-label="Decline call">✖ Decline</button>' +

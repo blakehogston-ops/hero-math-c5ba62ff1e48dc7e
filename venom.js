@@ -109,7 +109,7 @@ function stopFight(){cancelAnimationFrame(raf);if(F&&!F.done)hm('fightEnd',false
 VZ.stop=stopFight;
 function prompt(t){const p=$('fPrompt');p.textContent=t;p.classList.add('on')}
 function renderHud(){if(!F)return;$('fPower').innerHTML=`<span class="lbl">⚡</span>${[...Array(8)].map((_,i)=>`<i class="${i<Math.floor(F.power)?'on':i===Math.floor(F.power)&&F.power%1?'half':''}"></i>`).join('')}<span class="lbl">${pfmt(F.power)}/8</span>`;$('fPower').setAttribute('aria-label',`Power ${F.power} of 8`);
- const left=F.blobs.filter(Boolean).length;$('fHp').innerHTML=`<span class="lbl">VENOM</span>`+F.blobs.map((b,i)=>`<span class="blob ${b?'':'pop'}" title="goo blob ${i+1}">${b?'●':'✕'}</span>`).join('')+`<span class="lbl">${left}/3 goo</span>`;$('fHp').setAttribute('aria-label',`Venom has ${left} of 3 goo blobs left`)}
+ const left=F.blobs.filter(Boolean).length;$('fHp').innerHTML=`<span class="lbl">${window.GS_MODE?'SPLAT':'VENOM'}</span>`+F.blobs.map((b,i)=>`<span class="blob ${b?'':'pop'}" title="goo blob ${i+1}">${b?'●':'✕'}</span>`).join('')+`<span class="lbl">${left}/3 goo</span>`;$('fHp').setAttribute('aria-label',`Venom has ${left} of 3 goo blobs left`)}
 // geometry from Level Designer (percent boxes)
 const box=(x,y,w,h)=>({x:x*W,y:y*Hh,w:w*W,h:h*Hh});
 const port=()=>W<Hh*.8;const heroBox=()=>port()?box(.04,.5,.34,.32):box(.08,.38,.22,.42),venBox=()=>port()?box(.46,.3,.48,.46):box(.58,.26,.26,.50);
@@ -118,7 +118,7 @@ function venCenter(){const b=venBox();return{x:b.x+b.w/2,y:b.y+b.h*.45}}
 function shoot(){if(!F||F.finT>=0||F.paused)return;F.lastTap=F.t;$('fHand').classList.remove('on');const a=heroHand(),b=venCenter();F.webs.push({x0:a.x,y0:a.y,x1:b.x,y1:b.y,t:0});hm('thwip')}
 function dodge(how){if(!F||F.finT>=0||F.paused)return;F.lastTap=F.t;if(F.hero.jump<=0){F.hero.jumpT=0.75;F.dodgeOK=F.wind>0}}
 function landHit(){F.hits++;VZ.onHit&&VZ.onHit(F);F.vhit=.3;F.stun=.6;hm('hit',F.tier>=2);burst(venCenter(),F.tier);if(!reduce())F.shake=Math.max(F.shake,.18);
- const i=F.blobs.findIndex(Boolean);if(i<0)return;F.blobHits++;const popped=3-F.blobs.filter(Boolean).length,minT=(popped+1)*(5+(8-F.power)*.5);if(F.blobHits>=F.tapsPer&&F.t<minT){F.blobHits=F.tapsPer-1;if(Math.random()<.25)prompt(pick(['He\'s wobbling! Keep webbing!','Goo is stretching… keep going!','Almost! Keep tapping!']))}if(F.blobHits>=F.tapsPer){F.blobs[i]=0;F.blobHits=0;gooSplat(venCenter());renderHud();VZ.onBlob&&VZ.onBlob(F);
+ const i=F.blobs.findIndex(Boolean);if(i<0)return;F.blobHits++;const popped=3-F.blobs.filter(Boolean).length,minT=(popped+1)*(5+(8-F.power)*.5);if(F.blobHits>=F.tapsPer&&F.t<minT){F.blobHits=F.tapsPer-1;if(Math.random()<.25)prompt(pick(['He\'s wobbling! Keep webbing!','Goo is stretching… keep going!',(window.GS_MODE?'Almost! Keep tapping!':'Almost! Keep going!')]))}if(F.blobHits>=F.tapsPer){F.blobs[i]=0;F.blobHits=0;gooSplat(venCenter());renderHud();VZ.onBlob&&VZ.onBlob(F);
   if(F.blobs.filter(Boolean).length===1&&!F.cheered){F.cheered=true;dad('fightcheer',`Go ${heroName()}! Web him up!`)}
   if(!F.blobs.some(Boolean))startFinisher(false)}}
 function sprite(n,p,sz,life){F.spr=F.spr||[];F.spr.push({n,x:p.x,y:p.y,sz,life,t:0})}
@@ -240,7 +240,7 @@ function miniMap(cleared){if(!MAPSVG)return '';const n=cleared%6||(cleared&&clea
  return `<div class="mm">${MAPSVG.replace(/<svg/,'<svg class="mm-base"')}${goo}</div>`}
 const _bm=window.buildMap;window.buildMap=function(){_bm();const g=$('grid');if(!g)return;let hd=$('venomHead');if(hd)hd.remove();hd=document.createElement('div');hd.id='venomHead';
  const cleared=S.venomWins||0,inWave=cleared%6,toRe=3-(S.log.length%3);
- hd.innerHTML=`<div class="vh-face">${venomFace(86,lookFor())}</div>${miniMap(cleared)}<div class="vh-txt"><div class="vh-t">⚠ VENOM ALERT!</div><div class="vh-s">Venom's goo is spreading over the city. Every mission powers up your web-shooters, then you fight Venom!</div>
+ hd.innerHTML=`<div class="vh-face">${venomFace(86,lookFor())}</div>${miniMap(cleared)}<div class="vh-txt"><div class="vh-t">⚠ ${window.GS_MODE?'SPLAT ALERT!':'VENOM ALERT!'}</div><div class="vh-s">Venom's goo is spreading over the city. Every mission powers up your web-shooters, then you fight Venom!</div>
  <div class="vh-hoods" aria-label="${inWave} of 6 neighborhoods cleared">${HOODS.map((n,i)=>`<span class="${i<inWave?'ok':''}" title="${n}">${i<inWave?'✔':'●'}</span>`).join('')} <small>${inWave}/6 neighborhoods clean</small></div>
  <div class="vh-s"><b>${cleared}</b> Venom fights won · ${toRe===3?'<b>REMATCH next fight!</b>':`Big REMATCH in ${toRe} mission${toRe>1?'s':''}`}</div></div>`;
  const x=document.createElement('button');x.id='vhClose';x.setAttribute('aria-label',window.__vhMin?'Show Venom alert':'Hide Venom alert');x.textContent=window.__vhMin?'⚠':'✕';x.onclick=()=>{window.__vhMin=!window.__vhMin;buildMap()};hd.appendChild(x);if(window.__vhMin)hd.classList.add('min');
