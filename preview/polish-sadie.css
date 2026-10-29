@@ -35,3 +35,6 @@ body::after{opacity:.15!important}
 #hint .btn{min-height:80px!important}
 .vtitle{font-size:24px!important;line-height:1.25}
 #bossBar{display:flex;align-items:center}#bossBar>div:last-child{flex:1 1 auto;min-width:0;width:100%}
+
+/* no web shot on Sadie's side */.webfx{display:none!important}
+/* Splat's bubble sits above the alert, full width; alert keeps the full width */#bossBar{flex-wrap:wrap!important}#bossBar #vBubble{position:static!important;order:-1;flex:0 0 100%!important;max-width:100%!important;margin:0 0 6px!important}#bossBar #vBubble:not(.on){display:none!important}#bossBar #vBubble:before{display:none}

@@ -102,3 +102,5 @@ body::after{content:"";position:fixed;inset:0;background:url(assets/bg_skyline_p
 /* LEVEL UP / cheer banner floats over the question area, never over answer tiles */
 #cheer{top:15%!important}
 @media (min-width:900px){#cheer{left:28%!important;top:22%!important;font-size:clamp(36px,4.4vw,60px)!important}}
+
+#cheer{background:rgba(16,20,48,.72)!important;border-radius:999px!important;padding:6px 22px!important;box-shadow:0 4px 18px rgba(0,0,0,.35)}
