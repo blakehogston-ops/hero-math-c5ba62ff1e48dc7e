@@ -4,54 +4,54 @@
 (function(){'use strict';
 var M=[
  {id:'bridge',em:'🕷️🌉🚌',title:'Bridge Rescue',cap:'A school bus is stuck on the bridge!',ideas:[
-  {em:'🕸️',t:'Spidey webs the bus',s:'Spider-Man webs the bus to the bridge.'},
-  {em:'🧒',t:'Kids wave for help',s:'The kids wave and shout for help.'},
-  {em:'🚒',t:'A fire truck races in',s:'A red fire truck races to the bridge.'}],
+  {em:'🕸️',t:'Spidey webs the bus',s:'Spider-Man webbed the bus to the bridge.'},
+  {em:'🧒',t:'Kids wave for help',s:'The kids waved and shouted for help.'},
+  {em:'🚒',t:'A fire truck races in',s:'A red fire truck raced to the bridge.'}],
   bank:['bridge','bus','webs','rescue','strong','safe'],
   frame:{topic:['Spider-Man had a scary day.','This story is about a bus on a bridge.','This story is about a big rescue.','This story is about a brave hero.'],
    first:['the bus started to slip.','Spider-Man swung to the bridge.','the kids felt scared.'],
    next:['he shot webs to hold the bus.','the fire truck came to help.','the kids climbed out safely.'],
    end:['everyone was safe and happy.','the city cheered for Spider-Man.','the kids said thank you.']}},
  {id:'lego',em:'🧱🏙️✨',title:'LEGO City Build',cap:'You get a giant box of LEGO bricks!',ideas:[
-  {em:'🏢',t:'Build a tall tower',s:'I build a tall tower for Spider-Man.'},
-  {em:'🚁',t:'Build a hero jet',s:'I build a fast jet with red bricks.'},
-  {em:'🏠',t:'Build Aunt May\u2019s house',s:'I build a cozy house for Aunt May.'}],
+  {em:'🏢',t:'Build a tall tower',s:'I built a tall tower for Spider-Man.'},
+  {em:'🚁',t:'Build a hero jet',s:'I built a fast jet with red bricks.'},
+  {em:'🏠',t:'Build Aunt May\u2019s house',s:'I built a cozy house for Aunt May.'}],
   bank:['bricks','build','tower','tall','colors','pieces'],
   frame:{topic:['I had the best idea ever!','This story is about my best LEGO build.','This story is about a giant LEGO city.','This story is about building with bricks.'],
    first:['I sorted all the bricks by color.','I read the steps in the book.','I built a strong base.'],
    next:['I stacked the walls up high.','I added windows and a door.','I put the minifigures inside.'],
    end:['my build was finished and I was proud.','I showed my dad my build.','I put it on my shelf.']}},
  {id:'suit',em:'🦸‍♂️🔴🔵',title:'New Suit Day',cap:'Peter tries on a brand new suit.',ideas:[
-  {em:'🔴',t:'The suit is shiny red',s:'The new suit is shiny and red.'},
-  {em:'👀',t:'The eyes can zoom',s:'The mask eyes can zoom far away.'},
-  {em:'🕸️',t:'It shoots new webs',s:'The suit shoots super sticky webs.'}],
+  {em:'🔴',t:'The suit is shiny red',s:'The new suit was shiny and red.'},
+  {em:'👀',t:'The eyes can zoom',s:'The mask eyes could zoom far away.'},
+  {em:'🕸️',t:'It shoots new webs',s:'The suit shot super sticky webs.'}],
   bank:['suit','mask','shiny','webs','zoom','gadget'],
   frame:{topic:['Peter could not believe his eyes!','This story is about a new hero suit.','This story is about Peter\u2019s cool suit.','This story is about suit gadgets.'],
    first:['Peter opened a big box.','he put on the mask.','he tested the web shooters.'],
    next:['the eyes zoomed across the city.','he swung between two buildings.','he showed the suit to Ned.'],
    end:['Peter loved his new suit.','he was ready to help the city.','he hung the suit up carefully.']}},
  {id:'museum',em:'🏛️🦖🌙',title:'Night at the Museum',cap:'A dinosaur bone goes missing!',ideas:[
-  {em:'🔦',t:'Look for clues',s:'Spider-Man looks for clues with a flashlight.'},
-  {em:'🐾',t:'Find big footprints',s:'He finds big footprints on the floor.'},
-  {em:'🦴',t:'The bone is found',s:'The guard finds the bone behind a door.'}],
+  {em:'🔦',t:'Look for clues',s:'Spider-Man looked for clues with a flashlight.'},
+  {em:'🐾',t:'Find big footprints',s:'He found big footprints on the floor.'},
+  {em:'🦴',t:'The bone is found',s:'The guard found the bone behind a door.'}],
   bank:['museum','clues','dinosaur','bone','quiet','dark'],
   frame:{topic:['Something strange happened at the museum.','This story is about a museum mystery.','This story is about a missing bone.','This story is about solving a case.'],
    first:['the museum was dark and quiet.','Spider-Man found a clue.','he heard a strange noise.'],
    next:['he followed the footprints.','he used his spider-sense.','he looked behind a big door.'],
    end:['the bone was back where it belonged.','the mystery was solved.','the guard said thank you.']}},
  {id:'toys',em:'🧸📦⭐',title:'Collector Shelf',cap:'A new hero figure comes in the mail.',ideas:[
-  {em:'📦',t:'Open the box slowly',s:'I open the box very slowly.'},
-  {em:'🦸',t:'Pose the figure',s:'I pose the figure on my shelf.'},
-  {em:'📸',t:'Take a photo',s:'I take a photo of my new figure.'}],
+  {em:'📦',t:'Open the box slowly',s:'I opened the box very slowly.'},
+  {em:'🦸',t:'Pose the figure',s:'I posed the figure on my shelf.'},
+  {em:'📸',t:'Take a photo',s:'I took a photo of my new figure.'}],
   bank:['figure','shelf','careful','pose','details','collect'],
   frame:{topic:['The best box ever came in the mail!','This story is about my new hero figure.','This story is about my collection.','This story is about a special package.'],
    first:['the mail came to my house.','I opened the box carefully.','I looked at all the tiny details.'],
    next:['I gave him a cool hero pose.','I found the best spot on my shelf.','I took a picture to show my family.'],
    end:['it is my favorite figure now.','my shelf looks awesome.','I can\u2019t wait to get the next one.']}},
  {id:'school',em:'🏫🧪🎒',title:'Science Fair',cap:'Peter and Ned build a robot for the fair.',ideas:[
-  {em:'🤖',t:'Build a robot',s:'Peter and Ned build a small robot.'},
-  {em:'💡',t:'The robot lights up',s:'The robot lights up and beeps.'},
-  {em:'🏆',t:'Show the class',s:'They show the robot to the class.'}],
+  {em:'🤖',t:'Build a robot',s:'Peter and Ned built a small robot.'},
+  {em:'💡',t:'The robot lights up',s:'The robot lit up and beeped.'},
+  {em:'🏆',t:'Show the class',s:'They showed the robot to the class.'}],
   bank:['robot','science','build','beeps','class','friends'],
   frame:{topic:['Peter and Ned had a big surprise.','This story is about a science fair robot.','This story is about two smart friends.','This story is about a cool invention.'],
    first:['Peter drew a plan for the robot.','Ned found wires and wheels.','they worked after school.'],
@@ -75,8 +75,9 @@ function check(t){var o=[],w=t.trim().split(/\s+/).filter(Boolean);
  if(w.length&&w.length<3)o.push({msg:'Can you tell a little more? Who is doing what? (It\u2019s OK to keep it, too.)',fix:null});
  return o}
 function menu(){S={};var d=done();
- app.innerHTML='<div class="top"><button class="ghost" id="toHMA">⬅ Hero Math</button></div><h1>🕷️ Spider-Man Story Lab</h1><p class="sub">Pick a mission. No timer, no rush \u2013 every story you write earns a LEGO brick for your wall.</p><div class="grid">'+M.map(function(m){var n=d[m.id]||0;return '<button class="mission" data-id="'+m.id+'"><img class="thumb" src="assets/story/'+m.id+'.jpg" alt=""><b>'+esc(m.title)+'</b><small>'+esc(m.cap)+'</small><span>'+(n?'<span class="brick" style="background:#e3000b"></span>Built '+n+'\u00d7':'New!')+'</span></button>'}).join('')+'</div>'+
+ app.innerHTML='<div class="top"><button class="ghost" id="toHMA">⬅ Hero Math</button><button class="big" id="myComics">📚 My Comics'+(window.StoryComic?' ('+StoryComic.count()+')':'')+'</button></div><h1>🕷️ Spider-Man Story Lab</h1><p class="sub">Pick a mission. No timer, no rush \u2013 every story you write earns a LEGO brick for your wall.</p><div class="grid">'+M.map(function(m){var n=d[m.id]||0;return '<button class="mission" data-id="'+m.id+'"><img class="thumb" src="assets/story/'+m.id+'.jpg" alt=""><b>'+esc(m.title)+'</b><small>'+esc(m.cap)+'</small><span>'+(n?'<span class="brick" style="background:#e3000b"></span>Built '+n+'\u00d7':'New!')+'</span></button>'}).join('')+'</div>'+
  '<p class="sub" style="margin-top:22px">Brick wall: '+(Object.keys(d).reduce(function(a,k){return a+d[k]},0)?Object.keys(d).map(function(k){return new Array(d[k]+1).join('<span class="brick" style="background:#'+['e3000b','0055bf','f2cd37','237841'][k.length%4]+'"></span>')}).join(''):'(your first brick is one story away!)')+'</p>';
+ document.getElementById('myComics').onclick=function(){window.StoryComic&&StoryComic.shelf()};
  document.getElementById('toHMA').onclick=function(){try{if(window.parent!==window&&parent.__closeStoryLab)return parent.__closeStoryLab()}catch(e){}location.href='index.html'};
  [].forEach.call(app.querySelectorAll('.mission'),function(b){b.onclick=function(){open(b.dataset.id)}})}
 function open(id){S={m:M.filter(function(m){return m.id===id})[0],hints:0,first:0,checks:0,para:{}};start=Date.now();stepA()}
@@ -144,9 +145,9 @@ function drawC(){var m=S.m;
    '</div><div class="row"><input id="own" placeholder="'+(k==='topic'?'This story is about\u2026':'or write your own\u2026')+'" autocorrect="on"><button class="say" id="mic2">🎤</button><button class="big" id="add">Add</button></div><div id="fb"></div></div>'}
   else html+='<div class="frame wait"><div class="lab">'+s[1]+'</div>'+esc(s[2])+' \u2026</div>'});
  if(S.slot>=SLOTS.length){var p=SLOTS.map(function(s){return S.para[s[0]]}).join(' ');S.paragraph=p;
-  html='<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps"><span>1 Idea</span><span>2 Sentence</span><span class="on">3 Paragraph</span></div></div><h2>🎉 You wrote a whole paragraph!</h2><div class="para">'+esc(p)+'</div><div class="praise">Topic sentence ✔ &nbsp; Two details (First, Next) ✔ &nbsp; Ending ✔ &nbsp; Capitals and stop signs ✔<br>'+praise()+' You earned a LEGO brick! <span class="brick" style="background:#e3000b"></span></div><p class="sol">For grown-ups \u2013 VA English SOL Gr 3: paragraph frame 3.W.2.A (i, iii, iv, v); story in order 3.W.1.B; sentences 3.LU.1.A, 3.LU.1.B; capitals &amp; end marks 3.W.3.B, names 3.LU.2.C; word-bank spelling 3.LU.2.D.</p><div class="row"><button class="big" id="rd3">🔊 Read my paragraph</button><button class="ghost" id="again">Write another</button></div>'}
+  html='<div class="top"><button class="ghost" id="home">⬅ Missions</button><div class="steps"><span>1 Idea</span><span>2 Sentence</span><span class="on">3 Paragraph</span></div></div><h2>🎉 You wrote a whole paragraph!</h2><div class="para">'+esc(p)+'</div><div class="praise">Topic sentence ✔ &nbsp; Two details (First, Next) ✔ &nbsp; Ending ✔ &nbsp; Capitals and stop signs ✔<br>'+praise()+' You earned a LEGO brick! <span class="brick" style="background:#e3000b"></span></div><p class="sol">For grown-ups \u2013 VA English SOL Gr 3: paragraph frame 3.W.2.A (i, iii, iv, v); story in order 3.W.1.B; sentences 3.LU.1.A, 3.LU.1.B; capitals &amp; end marks 3.W.3.B, names 3.LU.2.C; word-bank spelling 3.LU.2.D.</p><div class="row"><button class="big" id="rd3">🔊 Read my paragraph</button><button class="ghost" id="again">Write another</button></div><div class="row"><button class="big comicgo" id="mkComic">📖 Turn it into a comic!</button></div>'}
  app.innerHTML=html;bindHome();
- if(S.slot>=SLOTS.length){document.getElementById('rd3').onclick=function(){speak(S.paragraph)};document.getElementById('again').onclick=menu;finish();return}
+ if(S.slot>=SLOTS.length){document.getElementById('rd3').onclick=function(){speak(S.paragraph)};document.getElementById('again').onclick=menu;finish();document.getElementById('mkComic').onclick=function(){StoryComic.edit(S.comicId)};return}
  [].forEach.call(app.querySelectorAll('.chip'),function(b){b.onclick=function(){add(b.dataset.v,true)}});
  document.getElementById('add').onclick=function(){add(document.getElementById('own').value,false)};
  document.getElementById('mic2').onclick=function(){var R=window.SpeechRecognition||window.webkitSpeechRecognition,o=document.getElementById('own');if(!R){o.focus();document.getElementById('fb').innerHTML='<div class="hint">🎙 Tap the box, then the microphone on the iPad keyboard.</div>';return}try{var r=new R();r.lang='en-US';r.onresult=function(e){o.value=e.results[0][0].transcript};r.onerror=function(){o.focus()};r.start()}catch(e){o.focus()}}}
@@ -158,8 +159,8 @@ function add(v,chip){var k=SLOTS[S.slot][0],fb=document.getElementById('fb');S.c
   document.getElementById('keep').onclick=function(){commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s))};return}
  if(!S.lastHint)S.pf++;commit(k,o.reduce(function(x,c){return c.fix?c.fix(x):x},s))}
 function commit(k,s){S.para[k]=s;S.lastHint=0;S.slot++;drawC()}
-function finish(){markDone(S.m.id);var min=(Date.now()-start)/60000;
+function finish(){markDone(S.m.id);try{S.comicId=window.StoryComic?StoryComic.create(S.m,S.para):null}catch(e){}var min=(Date.now()-start)/60000;
  try{if(window.HMA&&HMA.progress){
   HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-sentence',sol:'3.LU.1.A; 3.LU.1.B; 3.W.3.B; 3.LU.2.C; 3.LU.2.D',questions:1,firstTry:S.first>0?1:0,hints:S.sh||0,minutes:min,venom:S.m.id});
   HMA.progress.log({kid:'Samuel',mode:'writing',skill:'w-paragraph',sol:'3.W.2.A (i, iii, iv, v); 3.W.1.B',questions:4,firstTry:S.pf,hints:S.hints-(S.sh||0),minutes:0,venom:S.m.id});}}catch(e){}}
-window.StoryLab={missions:M,menu:menu,open:open};menu()})();
+window.StoryLab={missions:M,menu:menu,open:open,check:check,lc:lc,speak:speak,esc:esc,praise:praise,app:app};menu()})();
