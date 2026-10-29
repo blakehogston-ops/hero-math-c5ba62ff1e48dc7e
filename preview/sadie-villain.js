@@ -12,10 +12,10 @@ const FULL=[
  [/Venom is making a gooey mess!/,"Splat is making a messy splash!"],[/You beat Venom! I knew you could do it!/,"You helped Splat! I knew you could!"],
  [/Incoming call from Venom/,"Splat is calling!"],[/It.s just silly Venom calling\. No worries!/,"It's just silly Splat. Hi!"]];
 let ci=0;const ALERT="Splat's paint is all over the city!";
-function T(s){if(!s||!/Venom|WE |\bgoo|web him|Web him|symbiote/.test(s))return s;
+function T(s){if(!s||!/Venom|VENOM|WE |\bgoo|web him|Web him|symbiote/.test(s))return s;
  for(const [r,t] of FULL)if(r.test(s))return s.replace(r,t);
  if(/^\s*"?(WE |Is your refrigerator|Ring ring! WE|Hello\? It.s Venom)/.test(s))return CALL[(ci++)%CALL.length];
- return s.replace(/Venom says:/g,'Splat says:').replace(/Venom.s/g,"Splat's").replace(/Venom/g,'Splat').replace(/[Ww]eb him up!?/g,'Clean up the mess!').replace(/[Ww]eb him/g,'clean up').replace(/webbed up Splat/g,'cleaned up with Splat').replace(/symbiote goo/g,'paint').replace(/goo blobs?/g,'paint spots').replace(/gooey/g,'messy').replace(/\bgoo\b/g,'paint')}
+ return s.replace(/VENOM/g,'SPLAT').replace(/Venom says:/g,'Splat says:').replace(/Venom.s/g,"Splat's").replace(/Venom/g,'Splat').replace(/[Ww]eb him up!?/g,'Clean up the mess!').replace(/[Ww]eb him/g,'clean up').replace(/webbed up Splat/g,'cleaned up with Splat').replace(/symbiote goo/g,'paint').replace(/goo blobs?/g,'paint spots').replace(/gooey/g,'messy').replace(/\bgoo\b/g,'paint')}
 window.__sadieLine=T;
 function patchLines(){const V=window.__v;if(V&&V.LINES){Object.assign(V.LINES,L)}
  try{if(typeof STORY!=='undefined')STORY.splice(0,STORY.length,"Splat spilled paint on the city!","Oh no, paint everywhere!","Splat is making a messy splash!")}catch(e){}
