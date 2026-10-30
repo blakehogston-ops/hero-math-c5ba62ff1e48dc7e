@@ -65,19 +65,20 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
 #bossFig{transition:transform .35s}#bossFig.hit{animation:knock .6s}@keyframes knock{30%{transform:translateX(40px) rotate(12deg) scale(.9)}60%{transform:translateX(-6px)}}
 .hp{flex:1;height:22px;border-radius:11px;background:#ffffff22;overflow:hidden}.hp i{display:block;height:100%;background:linear-gradient(90deg,#9b5de5,#e63946);transition:width .5s}
 #miniHero svg{display:block}
-</style><link rel="stylesheet" href="art.css"><link rel="stylesheet" href="venom.css"><link rel="stylesheet" href="assets/palette_bedtime.css"><link rel="stylesheet" href="hero.css"><link rel="stylesheet" href="polish.css"></head><body>
+</style><link rel="stylesheet" href="art.css"><link rel="preload" as="image" href="assets/menu/menu_bg_city.webp"><link rel="stylesheet" href="venom.css"><link rel="stylesheet" href="assets/palette_bedtime.css"><link rel="stylesheet" href="hero.css"><link rel="stylesheet" href="polish.css"><link rel="stylesheet" href="menu.css"></head><body>
 <canvas id="sky"></canvas>
 <div id="app">
  <!-- TITLE -->
  <section class="screen on" id="title">
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px">
+  <div class="mBg" aria-hidden="true"></div><div class="mShade" aria-hidden="true"></div>
+  <div class="mWrap">
    <h1>HERO MATH ACADEMY</h1>
-   <div style="font-size:clamp(20px,2.6vw,28px);opacity:.95">Every hero trains. Mistakes are just practice moves!</div>
-   <div class="who" style="margin-top:12px">
-    <button class="btn blue" id="pickS"><svg class="portrait-hero" viewBox="0 0 100 100"><use href="#maskRed"/></svg>Samuel<br><small style="font-size:17px">Web-Slinger</small></button>
-    <button class="btn ghost" id="pickG"><svg class="portrait-hero" viewBox="0 0 100 100"><use href="#maskWhite"/></svg>Sadie<br><small style="font-size:17px">Ghost-Spider</small></button>
+   <div class="mTag">Every hero trains. Mistakes are just practice moves!</div>
+   <div class="who">
+    <button class="hcard" id="pickS" aria-label="Samuel, Web-Slinger"><span class="art"><img src="assets/menu/samuel_spidey.webp" alt="" width="600" height="800" decoding="async"></span><span class="nm">Samuel</span><span class="sub">Web-Slinger</span></button>
+    <button class="hcard" id="pickG" aria-label="Sadie, Ghost-Spider"><span class="art"><img src="assets/menu/sadie_ghost.webp" alt="" width="600" height="800" decoding="async"></span><span class="nm">Sadie</span><span class="sub">Ghost-Spider</span></button>
    </div>
-   <div class="row" style="justify-content:center;margin-top:8px"><button class="btn small blue" id="voiceT">🔊 Read to me: ON</button><button class="btn small ghost" id="grownT">👪 Grown-ups</button></div>
+   <div class="row mRow"><button class="btn small blue" id="voiceT">🔊 Read to me: ON</button><button class="btn small ghost" id="grownT">👪 Grown-ups</button></div>
   </div>
  </section>
  <!-- MAP -->
@@ -143,4 +144,4 @@ table{border-collapse:collapse;width:100%;font-size:19px}td,th{padding:10px;bord
 <script src="voice-manifest.js"></script><script src="voice-clips.js"></script><script src="audio.js"></script>
 <script src="game.js"></script><script src="extras.js"></script><script src="art.js"></script><script src="venom.js"></script><script src="hero.js"></script><script src="mask.js"></script><script src="gym.js"></script><script src="cards.js"></script><script src="globe.js"></script><script src="call.js"></script><script src="focus.js"></script><script src="suit.js"></script><script>window.HMA_PROGRESS={url:'https://script.google.com/macros/s/AKfycbyvkGYirw_SZJnyRjKLuSR-Cm9-5B3_AasbSVyItL7bNXdNVD_39-Qr4l8u5vo0kaaz/exec',token:'51c1150670807c4345525af6'};</script><script src="polish.js"></script><script src="progress-sync.js" defer></script>
 <script>document.getElementById('toStory').onclick=function(){if(window.__openStoryLab)__openStoryLab();else location.href='story-lab.html'};</script>
-</body></html>
+<script src="menu.js"></script></body></html>
