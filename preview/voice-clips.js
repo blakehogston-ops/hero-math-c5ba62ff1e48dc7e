@@ -29,7 +29,7 @@
  let line=null;const endLine=()=>{const l=line;if(!l||l.done)return;l.done=true;clearTimeout(l.st);lg('lineEnd','');l.cbs.splice(0).forEach(f=>{try{f()}catch(e){}})};
  const safety=(l,ms)=>{if(l.done)return;clearTimeout(l.st);l.st=setTimeout(()=>{if(line===l){lg('lineSafety','');endLine()}},ms)};
  window.HM_VOICE_ONEND=cb=>{if(line&&!line.done)line.cbs.push(cb);else cb()};
- function stopAll(){endLine();for(const a of live){try{a.pause();a.removeAttribute('src');a.load()}catch(e){}lg('stop',a.__id)}live.clear();cur=null}
+ function stopAll(){endLine();for(const a of live){try{a.onended=null;a.onerror=null;a.onplaying=null;a.pause();a.removeAttribute('src');a.load();a.dispatchEvent(new Event('ended'))}catch(e){}lg('stop',a.__id)}live.clear();cur=null}
  SS.cancel=function(){token++;stopAll();lg('cancel','');return origCancel()};
  try{const d=Object.getOwnPropertyDescriptor(Object.getPrototypeOf(SS),'speaking');
   Object.defineProperty(SS,'speaking',{configurable:true,get(){return !!cur||(d&&d.get?d.get.call(SS):false)}})}catch(e){}

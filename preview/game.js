@@ -224,11 +224,11 @@ let hintT=0;function next(pre,noRead){armed=null;clearTimeout(hintT);const st=S.
 let cheerT=0;function cheer(t){const c=$('cheer');clearTimeout(cheerT);c.textContent=t;c.classList.add('on');cheerT=setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false,advT=0;
 function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}if(typeof dadAudio!=='undefined'&&dadAudio)try{dadAudio.pause()}catch(e){}if(typeof calmT!=='undefined')calmT.forEach(clearTimeout);if($('calm'))$('calm').classList.remove('on')}
-let lastWrongAt=0,pendingLvl=0,lastTapAt=0;
+let lastWrongAt=0,pendingLvl=0,lastTapAt=0,lastTapEl=null;
 function lvlUp(){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}
 // low-priority line (hints): wait for the current voice line to finish instead of cutting it; drop it if the question moved on
 function sayLow(t,q){const t0=Date.now();(function w(){if(!M||M.q!==q||busy)return;if(((window.speechSynthesis&&speechSynthesis.speaking)||(window.__focus&&__focus.paused))&&Date.now()-t0<10000){hintT=setTimeout(w,200);return}say(t)})()}
-let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;const tn=Date.now();if(tn-lastTapAt<350)return;lastTapAt=tn;
+let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;const tn=Date.now();if(tn-lastTapAt<(armed===b&&lastTapEl===b?120:350))return;lastTapAt=tn;lastTapEl=b;
  if(S.hear!==false&&S.voice&&armed!==b){document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'));armed=b;b.classList.add('armed');say(spoken(c)+'. Tap again to pick it.');return}armed=null;b.classList.remove('armed');const st=S.skills[M.id];
  clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);if(pendingLvl&&Date.now()-lastWrongAt>=4000){pendingLvl=0;lvlUp()}else{cheer(p);dad('cheer',spoken(c)+'! '+p)}onCorrect();
   if(M.tries===0&&!M.sensed){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;const okAt=Date.now();setTimeout(()=>{if(!M)return;if(lastWrongAt>okAt||Date.now()-lastWrongAt<4000){pendingLvl=1;return}lvlUp()},1650)}}}
@@ -258,8 +258,9 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
  $('cap').value=String(S.cap);$('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}. Brave Try stickers (used a clue): ${S.brave}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
-on('pickS',()=>{if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
-on('pickG',()=>{if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
+const HM_T0=Date.now();const early=()=>Date.now()-HM_T0<500;
+on('pickS',()=>{if(early())return;if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
+on('pickG',()=>{if(early())return;if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
 const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});

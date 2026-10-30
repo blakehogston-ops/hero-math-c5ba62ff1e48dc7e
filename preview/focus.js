@@ -6,7 +6,7 @@
 (function(){
 const FAST=1500,PAUSE=2000;let paused=false,lastT=0,rushSess={};
 const st=document.createElement('style');st.textContent=`
-#answers{transition:opacity .45s}.hm-pressed{transform:translateY(2px);filter:brightness(.92);box-shadow:0 0 0 4px #ffffff66!important}#answers.fpause{opacity:.6;pointer-events:none} /* teacher: paused taps = gentle dim only, no lock/red/sound/message */
+#answers{transition:opacity .45s}.hm-tap,.hm-pressed{transform:translateY(2px)!important;filter:brightness(.92)!important;box-shadow:0 0 0 4px #ffffff66!important}.hm-pressed{transform:translateY(2px);filter:brightness(.92);box-shadow:0 0 0 4px #ffffff66!important}#answers.fpause{opacity:.6;pointer-events:none} /* teacher: paused taps = gentle dim only, no lock/red/sound/message */
 #helpRow{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0}#helpRow .btn{min-height:88px;min-width:88px}
 #slowmo{position:fixed;inset:0;z-index:35;background:#06102aee;display:none;align-items:center;justify-content:center}#slowmo.on{display:flex}
 #slowmo .panel{text-align:center;max-width:620px}#slowmo h2{margin:4px 0 10px}#slowmo .orb{width:120px;height:120px;margin:10px auto;border-radius:50%;background:radial-gradient(#7fe3ff,#1b3f8f);animation:smb 6s ease-in-out infinite}
@@ -20,6 +20,11 @@ let qBtn=null,qRun=false;const HELP='#stuckBtn,#senseBtn,#how,#nextStep,#say';
 let qAt=0;function runQ(){if(qBtn&&sm.classList.contains('on')){setTimeout(runQ,300);return}const b=qBtn;if(b)qAt=Date.now();qBtn=null;document.querySelectorAll('.hm-pressed').forEach(x=>x.classList.remove('hm-pressed'));if(b&&document.body.contains(b)){if(b.id!=='say'&&typeof hintT!=='undefined')clearTimeout(hintT); /* kid's hint replaces the automatic one, never twice */qRun=true;try{b.click()}finally{qRun=false}}}
 document.addEventListener('click',e=>{if(qRun||!lineHold)return;const b=e.target.closest&&e.target.closest(HELP);if(!b)return;e.preventDefault();e.stopImmediatePropagation();
  document.querySelectorAll('.hm-pressed').forEach(x=>x.classList.remove('hm-pressed'));qBtn=b;b.classList.add('hm-pressed');if(b.id!=='say'&&typeof hintT!=='undefined')clearTimeout(hintT); /* queued help cancels the automatic hint now, before it can start */},true);const smOff=()=>{sm.classList.remove('on');clearTimeout(sm._t);if(lineHold)return;paused=false;const A=document.getElementById('answers');A&&A.classList.remove('fpause')};sm.addEventListener('click',e=>{if(e.target===sm)smOff()});document.getElementById('slowGo').onclick=()=>{smOff();try{if(M&&M.q)readQ&&S.voice&&readQ('')}catch(e){}};
+// outside the pause: a repeat tap on the same help button while its line is still playing is ignored (no restart), and every help tap gets a pressed look
+let lastHelp=null;document.addEventListener('click',e=>{if(qRun||lineHold)return;const b=e.target.closest&&e.target.closest(HELP);if(!b)return;
+ b.classList.add('hm-tap');clearTimeout(b._tapT);b._tapT=setTimeout(()=>b.classList.remove('hm-tap'),260);
+ if(b===lastHelp&&window.speechSynthesis&&speechSynthesis.speaking){e.preventDefault();e.stopImmediatePropagation();return}lastHelp=b;
+ if(window.HM_VOICE_ONEND)setTimeout(()=>HM_VOICE_ONEND(()=>{if(lastHelp===b)lastHelp=null}),0)},true);
 const skillLvl=id=>S.skills[id];
 // helper row: I'm stuck + Spider-Sense cross-out (before answering)
 function helpRow(){let r=document.getElementById('helpRow');if(!r){r=document.createElement('div');r.id='helpRow';const q=document.getElementById('qtext');q.parentNode.insertBefore(r,q.nextSibling)}
