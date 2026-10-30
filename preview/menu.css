@@ -31,3 +31,6 @@
 @media (max-width:560px){#title .who{gap:12px}#title .who .hcard{width:44vw}}
 @media (prefers-reduced-motion:reduce){#title *{animation:none!important;transition:none!important}#title .mBg{transform:none}}
 body.calm #title .mBg{transition:none;transform:scale(1.04)}
+#title .mRow #maskBtn{position:static!important;min-width:0!important;min-height:56px!important;border-radius:16px!important;border:1.5px solid rgba(255,255,255,.28)!important;padding:10px 22px!important;font:700 clamp(17px,1.8vw,20px) "Noto Sans",system-ui,sans-serif!important;box-shadow:0 8px 20px rgba(0,0,0,.35)!important;background:rgba(150,20,35,.78)!important;backdrop-filter:blur(8px)}
+#title .mRow #maskBtn.off{background:rgba(28,58,154,.8)!important}
+body.mGoing #title .hcard{pointer-events:none}
