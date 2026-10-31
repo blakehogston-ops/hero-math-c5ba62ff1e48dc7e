@@ -28,7 +28,7 @@ SK.forEach(k=>{const s=S.skills[k.id];s.best=Math.max(s.best||1,s.lvl)});if(S.ca
 let sess={get n(){return S.sessDay===new Date().toDateString()?(S.sessN||0):0},set n(v){S.sessDay=new Date().toDateString();S.sessN=v;save()},t0:Date.now()};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 // ---------- speech & sound ----------
-function spoken(t){t=String(t);const W={'>':'greater than','<':'less than','=':'equals'};if(W[t.trim()])return W[t.trim()];return t.replace(/ → /g,', then ').replace(/&nbsp;/g,' ').replace(/ ___ /g,' blank ').replace(/ &gt; | > /g,' greater than ').replace(/ &lt; | < /g,' less than ').replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>a+' '+({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b))+(a=='1'?'':'s'))}
+function spoken(t){t=String(t);const W={'>':'greater than','<':'less than','=':'equals'};if(W[t.trim()])return W[t.trim()];return t.replace(/ → /g,', then ').replace(/&nbsp;/g,' ').replace(/ ___ /g,' blank ').replace(/ &gt; | > /g,' greater than ').replace(/ &lt; | < /g,' less than ').replace(/<[^>]+>/g,' ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/−/g,' minus ').replace(/ - /g,' minus ').replace(/\+/g,' plus ').replace(/ = /g,' equals ').replace(/ \? /g,' what ').replace(/_+/g,' blank ').replace(/(\d+)\/(\d+)/g,(m,a,b)=>b=='1'?a+' over 1':a+' '+(a=='1'?({2:'half',3:'third',4:'fourth',5:'fifth',6:'sixth',8:'eighth',10:'tenth',12:'twelfth'}[b]||('over '+b)):({2:'halves',3:'thirds',4:'fourths',5:'fifths',6:'sixths',8:'eighths',10:'tenths',12:'twelfths'}[b]||('over '+b)))).replace(/\b1¢/g,'1 cent').replace(/(\d)¢/g,'$1 cents')}
 let enVoice=null,sayT=0,sayW=0,primed=false;
 function pickVoice(){try{const v=speechSynthesis.getVoices();enVoice=v.find(x=>/en-US/i.test(x.lang)&&/Samantha|Google US|Aaron|Nicky/i.test(x.name))||v.find(x=>/en-US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}catch(e){}}
 if(window.speechSynthesis){pickVoice();try{speechSynthesis.addEventListener('voiceschanged',pickVoice)}catch(e){}}
@@ -224,15 +224,19 @@ let hintT=0;function next(pre,noRead){armed=null;clearTimeout(hintT);const st=S.
 let cheerT=0;function cheer(t){const c=$('cheer');clearTimeout(cheerT);c.textContent=t;c.classList.add('on');cheerT=setTimeout(()=>c.classList.remove('on'),1000)}
 let busy=false,advT=0;
 function stopAll(){clearTimeout(advT);clearTimeout(hintT);busy=false;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}if(typeof dadAudio!=='undefined'&&dadAudio)try{dadAudio.pause()}catch(e){}if(typeof calmT!=='undefined')calmT.forEach(clearTimeout);if($('calm'))$('calm').classList.remove('on')}
-let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;
+let lastWrongAt=0,pendingLvl=0,lastTapAt=0,lastTapEl=null;
+function lvlUp(){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}
+// low-priority line (hints): wait for the current voice line to finish instead of cutting it; drop it if the question moved on
+function sayLow(t,q){const t0=Date.now();(function w(){if(!M||M.q!==q||busy)return;if(((window.speechSynthesis&&speechSynthesis.speaking)||(window.__focus&&__focus.paused))&&Date.now()-t0<10000){hintT=setTimeout(w,200);return}say(t)})()}
+let armed=null;function answer(b,c){if(busy||b.classList.contains('tried'))return;const tn=Date.now();if(tn-lastTapAt<(armed===b&&lastTapEl===b?120:350))return;lastTapAt=tn;lastTapEl=b;
  if(S.hear!==false&&S.voice&&armed!==b){document.querySelectorAll('.ans.armed').forEach(x=>x.classList.remove('armed'));armed=b;b.classList.add('armed');say(spoken(c)+'. Tap again to pick it.');return}armed=null;b.classList.remove('armed');const st=S.skills[M.id];
- clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);cheer(p);dad('cheer',spoken(c)+'! '+p);onCorrect();
-  if(M.tries===0&&!M.sensed){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;setTimeout(()=>{if(M){cheer('LEVEL UP! ⭐');dad('levelup','Level up! You are getting stronger every day.')}},1650)}}}
+ clearTimeout(hintT);if(c===M.q.ans){busy=true;b.classList.add('good');window.HMA?(HMA.charge?HMA.charge():HMA.fx('correct')):chime();const p=pick(PRAISE);if(pendingLvl&&Date.now()-lastWrongAt>=4000){pendingLvl=0;lvlUp()}else{cheer(p);dad('cheer',spoken(c)+'! '+p)}onCorrect();
+  if(M.tries===0&&!M.sensed){M.firsts++;st.first++;st.streak++;st.miss=0;if(st.streak>=3&&st.lvl<3){st.lvl++;st.streak=0;if(st.lvl>(st.best||1)){st.best=st.lvl;const okAt=Date.now();setTimeout(()=>{if(!M)return;if(lastWrongAt>okAt||Date.now()-lastWrongAt<4000){pendingLvl=1;return}lvlUp()},1650)}}}
   st.q++;st.last=Date.now();save();M.i++;const mm=M;advT=setTimeout(()=>{busy=false;if(M!==mm||!document.getElementById('play').classList.contains('on'))return;M.i>=QN?finish():next()},1500)}
  else{M.tries++;b.classList.add('tried');window.HMA&&HMA.fx('soft');if(M.tries===1){st.streak=0;st.miss++;if(st.miss>=2&&st.lvl>1){st.lvl--;st.miss=0}}save();
   const f=pick(AGAIN);showHint(f);if(M.q.help)$('model').innerHTML=M.q.help;dad('again',spoken(c)+'? '+f);M.brave=1;if(M.tries===1)onFirstMiss();
-  hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);say(M.q.hint)},3000);
-  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt=(M.q.work?M.q.work+' ':'')+'The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);say(gt)},1200)}}}
+  lastWrongAt=Date.now();hintT=setTimeout(()=>{showHint(f+' '+sents(M.q.hint)[0]);sayLow(M.q.hint,M.q)},3000);
+  if(M.tries>=2){clearTimeout(hintT);[...$('answers').children].forEach(x=>{if(x.textContent===M.q.ans){x.style.boxShadow='0 0 0 6px #ffd23f,0 7px 0 #8a96ad';}});const gt=(M.q.work?M.q.work+' ':'')+'The glowing one is the answer. Tap it, hero!';hintT=setTimeout(()=>{showHint(gt);sayLow(gt,M.q)},1200)}}}
 function showHint(t,steps){$('hintTxt').textContent=t;$('hint').className='on';$('nextStep').style.display=steps?'inline-block':'none'}
 let howS=[],howI=0;function howStep(){showHint('💡 '+howS[howI],howI<howS.length-1);say(howS[howI]);howI++}
 function restScreen(){$('restTxt').textContent=`You finished ${sess.n} missions today, ${heroName()}! Amazing!`;show('rest');dad('rest',`Hero rest! You finished ${sess.n} missions. Amazing! Even heroes rest.`)}
@@ -254,8 +258,9 @@ function parent(){const rows=SK.map(k=>{const s=S.skills[k.id];const pct=s.q?Mat
  $('cap').value=String(S.cap);$('parSum').innerHTML=`<b>${ms}</b> missions, <b>${tq}</b> questions, <b>${tq?Math.round(tf/tq*100):0}%</b> right on the first try. Bricks: ${S.bricks.length}. Brave Try stickers (used a clue): ${S.brave}.`+(weak.length?`<br>Could use extra practice together: ${weak.join(', ')}.`:'');show('parent')}
 // wire
 const on=(id,f)=>$(id).addEventListener('click',f);
-on('pickS',()=>{if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
-on('pickG',()=>{if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
+const HM_T0=Date.now();const early=()=>Date.now()-HM_T0<500;
+on('pickS',()=>{if(early())return;if(window.GS_MODE){location.href='index.html';return}S.hero='S';save();buildMap();show('map');dad('hello',"Hi Samuel! Pick a mission.")});
+on('pickG',()=>{if(early())return;if(!window.GS_MODE){location.href='ghost.html';return}S.hero='G';save();buildMap();show('map');say("Hi Sadie! Pick a mission.")});
 const tv=()=>{setVoice(!S.voice);if(S.voice)say('Okay! I will read to you.',true)};
 on('voiceT',tv);on('voiceM',tv);
 on('toTitle',()=>show('title'));on('toColl',()=>{buildColl();show('coll')});on('collBack',()=>{buildMap();show('map')});on('rwColl',()=>{buildColl();show('coll')});

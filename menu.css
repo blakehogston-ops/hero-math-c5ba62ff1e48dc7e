@@ -1,0 +1,36 @@
+/* Premium title / player picker (preview). Spacing scale 8/12/16/24/32/48. No flashing: all motion slow and gentle; reduced-motion respected. */
+@font-face{font-family:"Bangers";src:url(assets/fonts/Bangers.woff2) format("woff2");font-display:swap}
+#title{position:relative;overflow:hidden;isolation:isolate;padding:0!important;border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+#title .mBg{position:absolute;inset:-4%;z-index:-2;background:url(assets/menu/menu_bg_city.webp) center 60%/cover no-repeat;transform:translate3d(var(--px,0),var(--py,0),0) scale(1.04);transition:transform 1.2s cubic-bezier(.2,.7,.2,1);filter:saturate(1.05)}
+#title .mShade{position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 80% at 50% 38%,rgba(10,20,48,.15),rgba(5,10,28,.78) 70%),linear-gradient(180deg,rgba(5,10,28,.55),rgba(5,10,28,0) 30%,rgba(5,10,28,.7))}
+#title .mWrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:clamp(8px,1.6vh,16px);padding:clamp(12px,3vh,32px) 24px;min-height:100%;box-sizing:border-box;animation:mIn .7s cubic-bezier(.2,.7,.2,1) both}
+#title h1{margin:0;font-family:"Bangers","Avenir Next",Impact,sans-serif;font-weight:400;letter-spacing:.06em;font-size:clamp(40px,6.4vw,76px);line-height:1;color:#fff;
+ text-shadow:0 2px 0 #b3121b,0 4px 0 #1d3f8f,0 10px 28px rgba(0,0,0,.6)}
+#title .mTag{font-size:clamp(17px,2.1vw,24px);font-weight:600;color:#e7eeff;opacity:.95;max-width:52ch;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+#title .who{display:flex;gap:clamp(16px,3vw,32px);justify-content:center;flex-wrap:nowrap;margin-top:clamp(4px,1.2vh,12px)}
+#title .who .hcard{all:unset;box-sizing:border-box;cursor:pointer;position:relative;display:flex;flex-direction:column;width:clamp(200px,24vw,290px);border-radius:24px;overflow:hidden;
+ background:#0b1430;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 2px rgba(255,255,255,.14) inset;transform:translateY(0);transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#title .hcard .art{position:relative;aspect-ratio:3/3.4;overflow:hidden}
+#title .hcard img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block;transform:scale(1.02);transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+#title .hcard .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(8,12,30,.85));pointer-events:none}
+#title .hcard .nm{display:block;padding:12px 12px 4px;font-family:"Bangers","Avenir Next",Impact,sans-serif;font-weight:400;letter-spacing:.05em;font-size:clamp(34px,4vw,48px);line-height:1;color:#fff}
+#title .hcard .sub{display:block;padding:0 12px 16px;font-size:clamp(15px,1.6vw,18px);font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+#title #pickS{background:linear-gradient(180deg,#1a2a66,#0d1638)}#title #pickS .sub{color:#ffb4b4}
+#title #pickG{background:linear-gradient(180deg,#3a2350,#141633)}#title #pickG .sub{color:#9ff0e8}
+#title .hcard::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;z-index:2}
+#title #pickS::before{box-shadow:0 0 0 3px #ff5a5a inset,0 0 36px rgba(255,70,70,.45)}#title #pickG::before{box-shadow:0 0 0 3px #7fe8ff inset,0 0 36px rgba(255,120,200,.45)}
+@media (hover:hover) and (pointer:fine){#title .hcard:hover{transform:translateY(-6px);box-shadow:0 26px 50px rgba(0,0,0,.6)}#title .hcard:hover::before{opacity:1}#title .hcard:hover img{transform:scale(1.07)}}
+#title .hcard:focus-visible::before{opacity:1}#title .hcard:focus-visible{outline:3px solid #ffd23f;outline-offset:4px}
+#title .hcard:active{transform:translateY(-1px) scale(.985);transition-duration:.12s}#title .hcard:active::before{opacity:1}
+#title .mRow{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:clamp(4px,1vh,12px)}
+#title .mRow .btn{color:#fff!important;font-size:clamp(17px,1.8vw,20px)!important;min-height:56px!important;border-radius:16px;padding:10px 22px;font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(20,32,70,.72)!important;border:1.5px solid rgba(255,255,255,.28);box-shadow:0 8px 20px rgba(0,0,0,.35);transition:transform .25s,background .25s}
+@media (hover:hover) and (pointer:fine){#title .mRow .btn:hover{background:rgba(40,60,120,.85)!important;transform:translateY(-2px)}}
+#title .mRow .btn:active{transform:scale(.97)}#title #voiceT{background:linear-gradient(180deg,rgba(40,110,200,.85),rgba(20,60,140,.85))!important}
+@keyframes mIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (max-height:700px){#title .hcard .art{aspect-ratio:3/2.6}}
+@media (max-width:560px){#title .who{gap:12px}#title .who .hcard{width:44vw}}
+@media (prefers-reduced-motion:reduce){#title *{animation:none!important;transition:none!important}#title .mBg{transform:none}}
+body.calm #title .mBg{transition:none;transform:scale(1.04)}
+#title .mRow #maskBtn{position:static!important;min-width:0!important;min-height:56px!important;border-radius:16px!important;border:1.5px solid rgba(255,255,255,.28)!important;padding:10px 22px!important;font:700 clamp(17px,1.8vw,20px) "Noto Sans",system-ui,sans-serif!important;box-shadow:0 8px 20px rgba(0,0,0,.35)!important;background:rgba(150,20,35,.78)!important;backdrop-filter:blur(8px)}
+#title .mRow #maskBtn.off{background:rgba(28,58,154,.8)!important}
+body.mGoing #title .hcard{pointer-events:none}

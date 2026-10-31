@@ -19,25 +19,40 @@
   while(i<parts.length){let hit=null,j;for(j=parts.length;j>i;j--){const f=find(parts.slice(i,j).join(''));if(f){hit=f;break}}
    if(hit){out.push({clip:hit});i=j}else{const s=parts[i];if(out.length&&out[out.length-1].tts!=null)out[out.length-1].tts+=s;else out.push({tts:s});i++}}
   return out.filter(p=>p.clip||norm(p.tts))}
- const origSpeak=SS.speak.bind(SS),origCancel=SS.cancel.bind(SS);let cur=null,token=0;
+ const origSpeak=SS.speak.bind(SS),origCancel=SS.cancel.bind(SS);let cur=null,token=0;const live=new Set();
  window.HM_VOICE_STATS={clips:0,tts:0,last:null};
- SS.cancel=function(){token++;if(cur){try{cur.pause()}catch(e){}cur=null}return origCancel()};
+ // ONE voice channel: every clip and every iPad/browser-voice line goes through here. A new line (or cancel) stops whatever is
+ // playing first, and every stale callback (play() rejection, onerror, onended, TTS fallback) is ignored, so two lines never overlap.
+ const LOG=window.HM_VOICE_LOG=[];const lg=(ev,id)=>{LOG.push({t:Math.round(performance.now()),ev,id});if(LOG.length>500)LOG.shift()};
+ // line tracking: HM_VOICE_ONEND(cb) fires when the current spoken line really ends (clip ended / TTS end / stopped),
+ // or at a safety timeout = clip duration + 0.5 s (TTS: word-count estimate + 0.5 s)
+ let line=null;const endLine=()=>{const l=line;if(!l||l.done)return;l.done=true;clearTimeout(l.st);lg('lineEnd','');l.cbs.splice(0).forEach(f=>{try{f()}catch(e){}})};
+ const safety=(l,ms)=>{if(l.done)return;clearTimeout(l.st);l.st=setTimeout(()=>{if(line===l){lg('lineSafety','');endLine()}},ms)};
+ window.HM_VOICE_ONEND=cb=>{if(line&&!line.done)line.cbs.push(cb);else cb()};
+ function stopAll(){endLine();for(const a of live){try{a.onended=null;a.onerror=null;a.onplaying=null;a.pause();a.removeAttribute('src');a.load();a.dispatchEvent(new Event('ended'))}catch(e){}lg('stop',a.__id)}live.clear();cur=null}
+ SS.cancel=function(){token++;stopAll();lg('cancel','');return origCancel()};
  try{const d=Object.getOwnPropertyDescriptor(Object.getPrototypeOf(SS),'speaking');
   Object.defineProperty(SS,'speaking',{configurable:true,get(){return !!cur||(d&&d.get?d.get.call(SS):false)}})}catch(e){}
- SS.speak=function(u){const steps=plan(u.text||'');
-  if(!steps.some(s=>s.clip)){HM_VOICE_STATS.tts++;return origSpeak(u)}
-  const my=++token;let started=false;
-  const fin=ok=>{cur=null;if(my!==token)return;try{(ok?u.onend:u.onerror||u.onend)&&(ok?u.onend:(u.onerror||u.onend)).call(u,{type:ok?'end':'error'})}catch(e){}};
+ const tts=(v,my,id)=>{const os=v.onstart,oe=v.onend,oer=v.onerror;v.onstart=e=>{if(my!==token)return;lg('play','tts:'+id);os&&os(e)};
+  v.onend=e=>{lg('end','tts:'+id);if(my!==token)return;oe&&oe(e)};v.onerror=e=>{lg('end','tts:'+id);if(my!==token)return;(oer||oe)&&(oer||oe)(e)};HM_VOICE_STATS.tts++;origSpeak(v)};
+ SS.speak=function(u){const txt=u.text||'';if(!txt.trim()){return origSpeak(u)} // silent priming utterance
+  token++;stopAll();try{origCancel()}catch(e){}const my=token;const steps=plan(txt);const L=line={done:false,cbs:[]};
+  const ttsMs=t=>(String(t).split(/\s+/).length/2.0)*1000/((u.rate||1))+500;
+  if(!steps.some(s=>s.clip)){const oe=u.onend,oer=u.onerror;u.onend=e=>{if(line===L)endLine();oe&&oe.call(u,e)};u.onerror=e=>{if(line===L)endLine();(oer||oe)&&(oer||oe).call(u,e)};safety(L,ttsMs(txt)+1500);tts(u,my,txt.slice(0,40));return}
+  let started=false;safety(L,ttsMs(txt)+4000); // until the first piece starts
+  const fin=ok=>{cur=null;if(my!==token)return;if(line===L)endLine();try{(ok?u.onend:u.onerror||u.onend)&&(ok?u.onend:(u.onerror||u.onend)).call(u,{type:ok?'end':'error'})}catch(e){}};
   const step=k=>{if(my!==token)return;if(k>=steps.length){fin(true);return}const s=steps[k];
    const start=()=>{if(!started){started=true;try{u.onstart&&u.onstart.call(u,{type:'start'})}catch(e){}}};
-   if(s.clip){const a=new Audio(s.clip);a.volume=u.volume==null?1:u.volume;cur=a;HM_VOICE_STATS.clips++;HM_VOICE_STATS.last=s.clip;
-    a.onplaying=start;a.onended=()=>{cur=null;step(k+1)};
-    a.onerror=()=>{cur=null;speakTTS(s.clip,k)};a.play().catch(()=>{cur=null;speakTTS(s.clip,k)})}
+   if(s.clip){const a=new Audio(s.clip);a.__id=s.clip.replace(/^.*\/|\.mp3$/g,'');a.volume=u.volume==null?1:u.volume;cur=a;live.add(a);HM_VOICE_STATS.clips++;HM_VOICE_STATS.last=s.clip;
+    let done=false;const bad=()=>{if(done)return;done=true;live.delete(a);if(my!==token)return;cur=null;speakTTS(s.clip,k)};
+    a.onplaying=()=>{if(my!==token){try{a.pause()}catch(e){}return}lg('play',a.__id);start();const rest=steps.slice(k+1).reduce((m,x)=>m+(x.tts?ttsMs(x.tts):3000),0);safety(L,(isFinite(a.duration)?(a.duration-a.currentTime)*1000:4000)+500+rest)};
+    a.onended=()=>{done=true;live.delete(a);lg('end',a.__id);if(my!==token)return;cur=null;step(k+1)};
+    a.onerror=bad;a.play().catch(bad)}
    else{const v=new SpeechSynthesisUtterance(s.tts);['lang','voice','rate','pitch','volume'].forEach(p=>{try{v[p]=u[p]}catch(e){}});
-    v.onstart=start;v.onend=()=>step(k+1);v.onerror=()=>step(k+1);HM_VOICE_STATS.tts++;origSpeak(v)}};
-  // clip failed (missing file / autoplay block): read that piece with the browser voice instead
-  const speakTTS=(clip,k)=>{const txt=(Object.keys(HM_VOICE).find(t=>choose(HM_VOICE[t])===clip))||'';
+    v.onstart=()=>{start();safety(L,ttsMs(s.tts)+500)};v.onend=()=>step(k+1);v.onerror=()=>step(k+1);tts(v,my,s.tts.slice(0,40))}};
+  // clip failed (missing file / autoplay block): read that piece with the browser voice instead (only if still the current line)
+  const speakTTS=(clip,k)=>{if(my!==token)return;const txt=(Object.keys(HM_VOICE).find(t=>choose(HM_VOICE[t])===clip))||'';
    const v=new SpeechSynthesisUtterance(txt);['lang','voice','rate','pitch','volume'].forEach(p=>{try{v[p]=u[p]}catch(e){}});
-   v.onend=()=>step(k+1);v.onerror=()=>step(k+1);HM_VOICE_STATS.tts++;origSpeak(v)};
+   v.onend=()=>step(k+1);v.onerror=()=>step(k+1);tts(v,my,'fallback:'+clip)};
   step(0)};
 })();
